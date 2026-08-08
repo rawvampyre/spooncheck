@@ -112,16 +112,7 @@ h1 {
 .step-title { font-size: 30px; color: var(--gold); text-shadow: 2px 2px 0 #000; margin: 14px 0 6px; }
 .step-sub { font-size: 16px; color: #ddd; line-height: 1.45; margin-bottom: 16px; }
 
-.nav-row {
-  display: flex;
-  justify-content: space-between;
-  gap: 10px;
-  position: sticky;
-  bottom: 0;
-  padding: 12px 0 10px;
-  margin-top: 14px;
-  background: linear-gradient(transparent, var(--bg) 30%);
-}
+.nav-row { display: flex; justify-content: space-between; gap: 10px; margin: 18px 0 8px; }
 
 .nav-btn {
   flex: none;
@@ -133,6 +124,17 @@ h1 {
   border-color: #8a6d1c;
 }
 .nav-btn:disabled { opacity: 0.3; cursor: default; }
+
+/* back and continue live on the screen edges, vertically centered */
+.nav-side {
+  position: fixed;
+  top: 50%;
+  transform: translateY(-50%);
+  z-index: 20;
+  min-width: 96px;
+}
+.nav-side.left { left: max(10px, calc(50vw - 350px)); }
+.nav-side.right { right: max(10px, calc(50vw - 350px)); }
 .nav-btn.ghost { background: var(--panel); color: var(--muted); border-color: var(--border); }
 .nav-btn.big { font-size: 22px; }
 .nav-btn:disabled { opacity: 0.5; cursor: wait; }
@@ -270,8 +272,17 @@ h1 {
 
 #slides { flex: 1; position: relative; min-height: 72dvh; cursor: pointer; user-select: none; }
 
-#wrap-nav { display: flex; justify-content: space-between; gap: 10px; padding: 8px 2px 4px; }
-#wrap-nav button { font-size: 15px; padding: 8px 18px; color: var(--muted); }
+#wrap-nav button {
+  position: fixed;
+  top: 50%;
+  transform: translateY(-50%);
+  z-index: 20;
+  font-size: 15px;
+  padding: 10px 16px;
+  color: var(--muted);
+}
+#wrap-nav button:first-child { left: max(10px, calc(50vw - 350px)); }
+#wrap-nav button:last-child { right: max(10px, calc(50vw - 350px)); }
 #wrap-nav button:disabled { opacity: 0.3; cursor: default; }
 
 .slide {

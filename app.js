@@ -115,13 +115,13 @@ function renderStep() {
 }
 
 function navRow(nextLabel = 'continue') {
-  const row = el('div', 'nav-row');
-  // back lives on the left, continue on the right, always in the same
-  // spots so fast clickers never mis-tap
-  const back = btn('nav-btn ghost', 'back', () => { stepIdx--; renderStep(); });
+  // back pinned to the left screen edge, continue to the right, always
+  // in the same spots
+  const wrap = el('div', 'nav-sides');
+  const back = btn('nav-btn ghost nav-side left', 'back', () => { stepIdx--; renderStep(); });
   back.disabled = stepIdx === 0;
-  row.append(back, btn('nav-btn', nextLabel, () => { stepIdx++; renderStep(); }));
-  return row;
+  wrap.append(back, btn('nav-btn nav-side right', nextLabel, () => { stepIdx++; renderStep(); }));
+  return wrap;
 }
 
 // ---- step: import ---------------------------------------------------------
@@ -578,9 +578,9 @@ function renderReview() {
   }
   flowBody.appendChild(list);
 
-  const row = el('div', 'nav-row');
-  row.appendChild(btn('nav-btn ghost', 'back', () => { stepIdx--; renderStep(); }));
-  const submit = btn('nav-btn big', 'submit', () => {
+  const row = el('div', 'nav-sides');
+  row.appendChild(btn('nav-btn ghost nav-side left', 'back', () => { stepIdx--; renderStep(); }));
+  const submit = btn('nav-btn big nav-side right', 'submit', () => {
     if (rows.length < 3) {
       submit.classList.remove('shake');
       void submit.offsetWidth;
