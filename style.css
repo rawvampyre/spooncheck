@@ -125,13 +125,12 @@ h1 {
 }
 .nav-btn:disabled { opacity: 0.3; cursor: default; }
 
-/* site-wide volume: speaker anchored bottom middle, bar rising above
+/* site-wide volume: speaker anchored bottom right, bar rising above
    it, bottom of the bar quiet and top loud */
 .vol-box {
   position: fixed;
-  left: 50%;
-  bottom: 10px;
-  transform: translateX(-50%);
+  right: 16px;
+  bottom: 12px;
   z-index: 30;
   display: flex;
   flex-direction: column-reverse;
@@ -140,6 +139,10 @@ h1 {
   opacity: 0.75;
 }
 .vol-box:hover { opacity: 1; }
+@media (max-width: 700px) {
+  /* the next arrow owns the phone corner, volume sits above it */
+  .vol-box { bottom: 78px; }
+}
 .vol-btn { border: none; background: none; padding: 0; line-height: 0; }
 .vol-slider {
   writing-mode: vertical-lr;
@@ -377,6 +380,24 @@ h1 {
 
 .sparkles { position: absolute; inset: 0; pointer-events: none; }
 .sparkle { position: absolute; width: 22px; image-rendering: pixelated; opacity: 0; animation: sparkle 1.6s ease-in-out infinite; }
+
+.skelly {
+  position: absolute;
+  width: 44px;
+  image-rendering: pixelated;
+  opacity: 0;
+  animation: skelly-rise 0.9s ease-out both, skelly-sway 2.4s ease-in-out infinite alternate;
+}
+
+@keyframes skelly-rise {
+  from { opacity: 0; translate: 0 16px; }
+  to { opacity: 0.85; translate: 0 0; }
+}
+
+@keyframes skelly-sway {
+  from { rotate: -4deg; }
+  to { rotate: 4deg; }
+}
 
 .board { display: flex; gap: 12px; width: 100%; max-width: 440px; }
 

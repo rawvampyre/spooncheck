@@ -9,6 +9,19 @@ document.addEventListener('click', (ev) => {
   if (ev.target.closest('button')) play('click', 0.3);
 });
 
+// warm every icon into the cache at boot so nothing pops in late
+{
+  const warm = (src) => {
+    const im = new Image();
+    im.src = src;
+  };
+  for (const it of ITEMS) warm(iconUrl(it));
+  for (const p of Object.values(POOLS)) {
+    for (const f of p.fields ?? []) if (f[3]) warm('icons/' + encodeURI(f[3]));
+  }
+  ['icons/Prayer_icon.png', 'icons/crawling_hand.png', 'icons/hitsplat_damage.png', 'icons/Skeleton_(level_21,_1).png'].forEach(warm);
+}
+
 // the site-wide volume control: a simple white speaker over a vertical
 // slider
 {
@@ -281,7 +294,7 @@ function poolInputs(name) {
         img.onerror = null;
         img.src = WIKI_IMG + encodeURI(fieldIcon);
       };
-      img.alt = label;
+      img.alt = '';
       img.title = label;
       box.appendChild(img);
     } else {
@@ -306,8 +319,8 @@ function itemCard(item) {
     icon.onerror = null;
     icon.src = wikiIconUrl(item);
   };
-  icon.alt = item.name;
-  icon.loading = 'lazy';
+  icon.alt = '';
+  icon.title = item.name;
 
   const info = el('div', 'item-info');
   const sub = el('div', 'item-sub');
@@ -711,7 +724,10 @@ function itemImg(item, cls) {
     img.onerror = null;
     img.src = wikiIconUrl(item);
   };
-  img.alt = item.name;
+  // the name is always written next to the icon, and alt text flashing
+  // during load looks broken
+  img.alt = '';
+  img.title = item.name;
   return img;
 }
 
@@ -811,6 +827,7 @@ function buildWrap(rows) {
               ? `only ${fmtPct(100 * f.dryChance)}% of accounts go this deep`
               : `only ${fmtPct(100 * f.dryChance)}% of accounts are still dry here`,
         ),
+        skeletons(),
       ),
     );
     slides[slides.length - 1].dataset.sound = 'moan';
@@ -1162,6 +1179,21 @@ function scaleSlide(rows, pct) {
   // physics kicks off the first time the slide is shown
   s._onActive = () => runScale(beam, piles, tilt);
   return s;
+}
+
+// what you become going that dry
+function skeletons() {
+  const wrap = el('div', 'sparkles');
+  for (let i = 0; i < 5; i++) {
+    const sk = el('img', 'skelly');
+    sk.src = 'icons/Skeleton_(level_21,_1).png';
+    sk.alt = '';
+    sk.style.left = `${6 + Math.random() * 82}%`;
+    sk.style.top = `${12 + Math.random() * 62}%`;
+    sk.style.animationDelay = `${(0.2 + Math.random() * 1.6).toFixed(2)}s, 0s`;
+    wrap.appendChild(sk);
+  }
+  return wrap;
 }
 
 function sparkles() {
