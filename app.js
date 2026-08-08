@@ -900,7 +900,7 @@ function buildWrap(rows) {
   slides.push(
     slide(
       'slide-verdict',
-      el('div', 'small-title', 'this account has better rng than'),
+      el('div', 'small-title', rsn ? `${rsn} has better rng than` : 'this account has better rng than'),
       numberEl,
       el('div', 'small-title', 'of osrs accounts'),
       el('div', 'verdict-name', verdict.name),
