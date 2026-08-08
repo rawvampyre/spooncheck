@@ -1,5 +1,5 @@
 import { ITEMS, STAGES, itemsInStage, iconUrl } from './items.js';
-import { luckOfGet, luckOfDry, luckOfCount, stillDryChance, multiplier, overallPercentile, verdictFor } from './math.js';
+import { luckOfGet, luckOfDry, luckOfCount, ladderDist, stillDryChance, multiplier, overallPercentile, verdictFor } from './math.js';
 import { lookupAccount } from './lookup.js';
 
 const CONFIG = {
@@ -221,7 +221,11 @@ function itemCard(item) {
   const info = el('div', 'item-info');
   info.append(
     el('div', 'item-name', item.name),
-    el('div', 'item-sub', `1/${item.rate} from ${item.from}${item.note ? ` (${item.note})` : ''}`),
+    el(
+      'div',
+      'item-sub',
+      item.ladder ? `${item.from}. ${item.note}` : `1/${item.rate} from ${item.from}${item.note ? ` (${item.note})` : ''}`,
+    ),
   );
 
   const modes = el('div', 'item-modes');
@@ -267,9 +271,13 @@ function itemCard(item) {
     kcWrap.classList.toggle('hidden', e.mode === 'skip');
     kcLabel.textContent = item.multi
       ? `of ${item.multi} youd want, and ${unit} so far`
-      : e.mode === 'got'
-        ? `${unit} it dropped at`
-        : `${unit} so far, no drop`;
+      : item.ladder
+        ? e.mode === 'got'
+          ? `total ${unit} when it completed`
+          : `total ${unit} so far`
+        : e.mode === 'got'
+          ? `${unit} it dropped at`
+          : `${unit} so far, no drop`;
     if (String(e.kc) !== kcInput.value) kcInput.value = e.kc;
     if (countInput && String(e.count ?? '') !== countInput.value) countInput.value = e.count ?? '';
   }
@@ -309,6 +317,19 @@ function computeResults() {
         // average rates spent per drop: 1x = exactly on rate
         mult: multiplier(item.rate, kc) / Math.max(1, count),
         dryChance: stillDryChance(item.rate, kc),
+      });
+      continue;
+    }
+    if (item.ladder) {
+      const got = e.mode === 'got';
+      const { tail, exact } = ladderDist(item.ladder, kc);
+      rows.push({
+        item,
+        got,
+        kc,
+        u: got ? Math.min(1, tail + exact / 2) : tail / 2,
+        mult: multiplier(item.rate, kc), // rate = the grind's expected total
+        dryChance: tail,
       });
       continue;
     }
@@ -481,7 +502,11 @@ function buildWrap(rows) {
         el(
           'div',
           'hero-line',
-          s.count !== undefined ? `${s.count} in ${s.kc.toLocaleString()} ${unit}` : `dropped at ${s.kc.toLocaleString()} ${unit}`,
+          s.count !== undefined
+            ? `${s.count} in ${s.kc.toLocaleString()} ${unit}`
+            : s.item.ladder
+              ? `completed at ${s.kc.toLocaleString()} ${unit}`
+              : `dropped at ${s.kc.toLocaleString()} ${unit}`,
         ),
         el('div', 'hero-stat gold', `${fmtMult(s.mult)} the rate`),
         el(
@@ -513,7 +538,9 @@ function buildWrap(rows) {
               ? `only ${f.count} in ${f.kc.toLocaleString()} ${unit}`
               : `${f.kc.toLocaleString()} ${unit}, not a single one`
             : f.got
-              ? `finally dropped at ${f.kc.toLocaleString()} ${unit}`
+              ? f.item.ladder
+                ? `finally completed at ${f.kc.toLocaleString()} ${unit}`
+                : `finally dropped at ${f.kc.toLocaleString()} ${unit}`
               : `${f.kc.toLocaleString()} dry and counting`,
         ),
         el('div', 'hero-stat red', `${fmtMult(f.mult)} the rate`),

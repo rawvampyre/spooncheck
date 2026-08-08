@@ -24,26 +24,32 @@ const TANK_HELMS = [4716, 4724, 4745, 4753];
 const TANK_BODIES = [4720, 4728, 4749, 4757];
 const TANK_LEGS = [4722, 4730, 4751, 4759];
 
+// collecting 4 distinct 1/224 pieces: 4 missing -> 1 missing
+const MOON_LADDER = [56, 74.67, 112, 224];
+
 export const ITEMS = [
   // ---- the early game ----
   { id: 'bring', stage: 'the early game', name: 'Berserker ring', rate: 128, from: 'dagannoth rex', icon: 'Berserker_ring.png', wom: 'dagannoth_rex', clogIds: [6737], weight: 0.5 },
-  { id: 'tankhelm', stage: 'the early game', name: 'Barrows tank helm', rate: 102, from: 'barrows', icon: "Verac's_helm.png", note: 'any melee bro helm, 6 bros', unit: 'chests', wom: 'barrows_chests', clogIds: TANK_HELMS, weight: 0.75 },
-  { id: 'tankbody', stage: 'the early game', name: 'Barrows tank body', rate: 102, from: 'barrows', icon: "Dharok's_platebody.png", note: 'any melee bro body, 6 bros', unit: 'chests', wom: 'barrows_chests', clogIds: TANK_BODIES, weight: 0.75 },
-  { id: 'tanklegs', stage: 'the early game', name: 'Barrows tank legs', rate: 102, from: 'barrows', icon: "Verac's_plateskirt.png", note: 'any melee bro legs, 6 bros', unit: 'chests', wom: 'barrows_chests', clogIds: TANK_LEGS, weight: 0.75 },
-  { id: 'ddef', stage: 'the early game', name: 'Dragon defender', rate: 100, from: 'cyclopes', icon: 'Dragon_defender.png', clogIds: [12954], weight: 0.5 },
+  { id: 'tankhelm', stage: 'the early game', name: 'Barrows tank helm', rate: 102, from: 'barrows', icon: "Verac's_helm.png", note: 'any melee brother helm, all 6 brothers', unit: 'chests', wom: 'barrows_chests', clogIds: TANK_HELMS, weight: 0.75 },
+  { id: 'tankbody', stage: 'the early game', name: 'Barrows tank body', rate: 102, from: 'barrows', icon: "Dharok's_platebody.png", note: 'any melee brother body, all 6 brothers', unit: 'chests', wom: 'barrows_chests', clogIds: TANK_BODIES, weight: 0.75 },
+  { id: 'tanklegs', stage: 'the early game', name: 'Barrows tank legs', rate: 102, from: 'barrows', icon: "Verac's_plateskirt.png", note: 'any melee brother legs, all 6 brothers', unit: 'chests', wom: 'barrows_chests', clogIds: TANK_LEGS, weight: 0.75 },
+  { id: 'ddef', stage: 'the early game', name: 'Dragon defender', rate: 450, from: 'cyclopes', icon: 'Dragon_defender.png', note: 'bronze through rune are 1/50 each, dragon is 1/100, about 450 kc average. enter your total cyclopes kc', ladder: [50, 50, 50, 50, 50, 50, 50, 100], clogIds: [12954], weight: 0.5 },
   { id: 'zaxe', stage: 'the early game', name: 'Zombie axe', rate: 600, from: 'armoured zombies', icon: 'Zombie_axe.png', note: 'fort rate', clogIds: [28810, 28813], weight: 0.5 },
 
   // ---- varlamore era ----
-  { id: 'bmoon', stage: 'varlamore era', name: 'Dual macuahuitl', rate: 224, from: 'lunar chests', icon: 'Dual_macuahuitl.png', unit: 'chests', wom: 'lunar_chests', clogIds: [28997], weight: 0.5 },
-  { id: 'blmoon', stage: 'varlamore era', name: 'Blue moon spear', rate: 224, from: 'lunar chests', icon: 'Blue_moon_spear.png', unit: 'chests', wom: 'lunar_chests', clogIds: [28988], weight: 0.5 },
-  { id: 'emoon', stage: 'varlamore era', name: 'Eclipse atlatl', rate: 224, from: 'lunar chests', icon: 'Eclipse_atlatl.png', unit: 'chests', wom: 'lunar_chests', clogIds: [29000], weight: 0.5 },
+  // full moon sets: 4 pieces each at 1/224 from the chest, so completing
+  // a set is phases of 4/224 -> 3/224 -> 2/224 -> 1/224, about 467
+  // chests on average. owning the set means every piece is in the log.
+  { id: 'bloodset', stage: 'varlamore era', name: 'Full blood moon set', rate: 467, from: 'lunar chests', icon: 'Blood_moon_chestplate.png', note: 'all 4 pieces, each 1/224, about 467 chests average', ladder: MOON_LADDER, unit: 'chests', wom: 'lunar_chests', clogIds: [29028, 29022, 29025, 28997], clogAll: true, weight: 0.75 },
+  { id: 'blueset', stage: 'varlamore era', name: 'Full blue moon set', rate: 467, from: 'lunar chests', icon: 'Blue_moon_chestplate.png', note: 'all 4 pieces, each 1/224, about 467 chests average', ladder: MOON_LADDER, unit: 'chests', wom: 'lunar_chests', clogIds: [29019, 29013, 29016, 28988], clogAll: true, weight: 0.75 },
+  { id: 'eclipseset', stage: 'varlamore era', name: 'Full eclipse moon set', rate: 467, from: 'lunar chests', icon: 'Eclipse_moon_chestplate.png', note: 'all 4 pieces, each 1/224, about 467 chests average', ladder: MOON_LADDER, unit: 'chests', wom: 'lunar_chests', clogIds: [29010, 29004, 29007, 29000], clogAll: true, weight: 0.75 },
   { id: 'deadeye', stage: 'varlamore era', name: 'Deadeye prayer scroll', rate: 75, from: 'royal titans', icon: 'Deadeye_prayer_scroll.png', wom: 'the_royal_titans', clogIds: [30626], weight: 0.5 },
   { id: 'vigour', stage: 'varlamore era', name: 'Mystic vigour prayer scroll', rate: 75, from: 'royal titans', icon: 'Mystic_vigour_prayer_scroll.png', wom: 'the_royal_titans', clogIds: [30627], weight: 0.5 },
   { id: 'twinflame', stage: 'varlamore era', name: 'Twinflame staff crown', rate: 75, from: 'royal titans', icon: 'Twinflame_staff.png', note: 'per crown, staff needs both', wom: 'the_royal_titans', clogIds: [], weight: 0.5 },
   { id: 'dhwand', stage: 'varlamore era', name: 'Dragon hunter wand', rate: 105, from: 'the hueycoatl', icon: 'Dragon_hunter_wand.png', wom: 'the_hueycoatl', clogIds: [30070], weight: 0.5 },
 
   // ---- the big unlocks ----
-  { id: 'dpick', stage: 'the big unlocks', name: 'Dragon pickaxe', rate: 400, from: 'kalphite queen', icon: 'Dragon_pickaxe.png', note: 'kq rate, wildy bosses differ', wom: 'kalphite_queen', clogIds: [11920], weight: 0.5 },
+  { id: 'dpick', stage: 'the big unlocks', name: 'Dragon pickaxe', rate: 400, from: 'kalphite queen', icon: 'Dragon_pickaxe.png', note: 'kalphite queen rate, wilderness bosses differ', wom: 'kalphite_queen', clogIds: [11920], weight: 0.5 },
   { id: 'dwh', stage: 'the big unlocks', name: 'Dragon warhammer', rate: 5000, from: 'lizardman shamans', icon: 'Dragon_warhammer.png', clogIds: [13576], weight: 2 },
   { id: 'zenyte', stage: 'the big unlocks', name: 'Zenyte shards', rate: 300, from: 'demonic gorillas', icon: 'Zenyte_shard.png', note: 'you usually want 4', multi: 4, clogIds: [19529], weight: 1.5 },
   { id: 'jaw', stage: 'the big unlocks', name: 'Basilisk jaw', rate: 1000, from: 'basilisk knights', icon: 'Basilisk_jaw.png', clogIds: [24268], weight: 1 },
@@ -86,7 +92,7 @@ export const ITEMS = [
   { id: 'hleather', stage: 'hydra', name: 'Hydra leather', rate: 514, from: 'alchemical hydra', icon: 'Hydra_leather.png', wom: 'alchemical_hydra', clogIds: [22983], weight: 1 },
 
   // ---- araxxor ----
-  { id: 'nox', stage: 'araxxor', name: 'Noxious pieces', rate: 66.7, from: 'araxxor', icon: 'Noxious_point.png', note: 'each 1/200 no dupes, halberd needs 3', multi: 3, wom: 'araxxor', clogIds: [29790, 29792, 29794], weight: 1 },
+  { id: 'nox', stage: 'araxxor', name: 'Noxious pieces', rate: 66.7, from: 'araxxor', icon: 'Noxious_point.png', note: 'each piece 1/200 with no duplicates, halberd needs 3', multi: 3, wom: 'araxxor', clogIds: [29790, 29792, 29794], weight: 1 },
   { id: 'afang', stage: 'araxxor', name: 'Araxyte fang', rate: 600, from: 'araxxor', icon: 'Araxyte_fang.png', note: 'makes rancour', wom: 'araxxor', clogIds: [29799], weight: 1 },
 
   // ---- tombs of amascut ----

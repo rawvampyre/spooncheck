@@ -33,8 +33,12 @@ export async function lookupAccount(name) {
     out.owned = {};
     for (const item of ITEMS) {
       // no clog ids on file for this grind = ownership is unknowable from
-      // the log, never "not owned"
-      out.owned[item.id] = item.clogIds?.length ? item.clogIds.some((id) => clog.has(id)) : null;
+      // the log, never "not owned". set grinds (clogAll) need every piece.
+      out.owned[item.id] = item.clogIds?.length
+        ? item.clogAll
+          ? item.clogIds.every((id) => clog.has(id))
+          : item.clogIds.some((id) => clog.has(id))
+        : null;
     }
   }
 

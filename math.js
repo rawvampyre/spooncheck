@@ -27,6 +27,32 @@ export function stillDryChance(rate, kc) {
   return Math.pow(1 - 1 / rate, Math.max(0, Math.round(kc)));
 }
 
+// ladder grinds (the defender grind): cyclopes always drop the NEXT
+// defender you need, bronze through rune at 1/50 each and dragon at
+// 1/100, so "kc to dragon defender" is a sum of 8 geometric waits. this
+// walks the exact phase distribution kill by kill and returns
+// tail  = P(still not done after kc kills)
+// exact = P(finishing exactly on kill kc)
+// got at kc: u = tail + exact/2. still grinding at kc: u = tail/2.
+export function ladderDist(rates, kc) {
+  const n = Math.max(1, Math.round(kc));
+  const ps = rates.map((r) => 1 / r);
+  const last = ps.length - 1;
+  const state = ps.map(() => 0);
+  state[0] = 1;
+  let done = 0;
+  let exact = 0;
+  for (let k = 0; k < n; k++) {
+    exact = state[last] * ps[last];
+    done += exact;
+    for (let i = last; i > 0; i--) {
+      state[i] = state[i] * (1 - ps[i]) + state[i - 1] * ps[i - 1];
+    }
+    state[0] *= 1 - ps[0];
+  }
+  return { tail: Math.max(0, 1 - done), exact };
+}
+
 // multi-drop grinds (zenytes: you usually want 4): "I have `count` at
 // `kc` kills". under the null the count is Binomial(kc, p), so the luck
 // score is the mid-p tail P(X < count) + P(X = count)/2 — more drops
