@@ -374,7 +374,7 @@ h1 {
 .hero-stat.red { color: var(--red); }
 
 .sparkles { position: absolute; inset: 0; pointer-events: none; }
-.sparkle { position: absolute; font-size: 20px; opacity: 0; animation: sparkle 1.6s ease-in-out infinite; }
+.sparkle { position: absolute; width: 22px; image-rendering: pixelated; opacity: 0; animation: sparkle 1.6s ease-in-out infinite; }
 
 .board { display: flex; gap: 12px; width: 100%; max-width: 440px; }
 

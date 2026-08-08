@@ -1167,7 +1167,9 @@ function scaleSlide(rows, pct) {
 function sparkles() {
   const wrap = el('div', 'sparkles');
   for (let i = 0; i < 8; i++) {
-    const sp = el('span', 'sparkle', '✨');
+    const sp = el('img', 'sparkle');
+    sp.src = 'icons/Prayer_icon.png';
+    sp.alt = '';
     sp.style.left = `${8 + Math.random() * 84}%`;
     sp.style.top = `${10 + Math.random() * 70}%`;
     sp.style.animationDelay = `${(Math.random() * 1.4).toFixed(2)}s`;
