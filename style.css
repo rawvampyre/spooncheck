@@ -476,16 +476,22 @@ h1 {
 /* the sacred numbers replace the percentage */
 .num-egg { display: flex; align-items: center; justify-content: center; gap: 10px; }
 
-.hand-digit { position: relative; display: inline-block; }
+/* the whole hand+digit bobs as one so the number rides the hand */
+.hand-digit {
+  position: relative;
+  display: inline-block;
+  animation: hand-bob 0.55s ease-in-out infinite alternate;
+}
+.num-egg .hand-digit:nth-child(2) { animation-delay: -0.55s; }
 .hand-digit img {
   width: 86px;
   image-rendering: pixelated;
-  animation: hand-bob 0.55s ease-in-out infinite alternate;
+  transform: scaleY(-1); /* fingers up */
+  display: block;
 }
-.num-egg .hand-digit:nth-child(2) img { animation-delay: -0.55s; }
 .hand-digit .digit {
   position: absolute;
-  top: 22%;
+  top: 10%;
   left: 50%;
   translate: -50%;
   color: var(--gold);
