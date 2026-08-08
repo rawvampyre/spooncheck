@@ -56,16 +56,16 @@ export const ITEMS = [
   // ---- the big unlocks ----
   { id: 'dpick', stage: 'the big unlocks', name: 'Dragon pickaxe', rate: 358, from: 'wilderness bosses', icon: 'Dragon_pickaxe.png', variants: [['wildy singles', 358], ['chaos elemental', 256], ['kalphite queen', 400]], clogIds: [11920], weight: 0.5 },
   { id: 'dwh', stage: 'the big unlocks', name: 'Dragon warhammer', rate: 3000, from: 'lizardman shamans', icon: 'Dragon_warhammer.png', variants: [['1/3000', 3000], ['old rate 1/5000', 5000]], clogIds: [13576], weight: 2 },
-  { id: 'zenyte', stage: 'the big unlocks', name: 'Zenyte shard', rate: 300, from: 'demonic gorillas', icon: 'Zenyte_shard.png', clogIds: [19529], weight: 1.5 },
+  { id: 'zenyte', stage: 'the big unlocks', name: 'Zenyte shards', rate: 300, from: 'demonic gorillas', icon: 'Zenyte_shard.png', multi: 4, clogIds: [19529], weight: 1.5 },
   { id: 'jaw', stage: 'the big unlocks', name: 'Basilisk jaw', rate: 1000, from: 'basilisk knights', icon: 'Basilisk_jaw.png', variants: [['on task', 1000], ['off task', 5000]], clogIds: [24268], weight: 1 },
 
   // ---- demon business ----
-  { id: 'synapse', stage: 'demon business', name: 'Tormented synapse', rate: 500, from: 'tormented demons', icon: 'Tormented_synapse.png', note: 'makes emberlight or scorching bow', clogIds: [29580], weight: 1 },
-  { id: 'bclaw', stage: 'demon business', name: 'Burning claw', rate: 500, from: 'tormented demons', icon: 'Burning_claw.png', clogIds: [29574], weight: 1 },
+  { id: 'synapse', stage: 'demon business', name: 'Tormented synapses', rate: 500, from: 'tormented demons', icon: 'Tormented_synapse.png', multi: 2, clogIds: [29580], weight: 1 },
+  { id: 'bclaw', stage: 'demon business', name: 'Burning claws', rate: 500, from: 'tormented demons', icon: 'Burning_claw.png', multi: 2, clogIds: [29574], weight: 1 },
 
   // ---- the gauntlet ----
-  { id: 'cseed', stage: 'the gauntlet', name: 'Crystal armour seed', rate: 50, from: 'corrupted gauntlet', icon: 'Crystal_armour_seed.png', note: 'cg rate', wom: 'the_corrupted_gauntlet', clogIds: [23956], weight: 1 },
-  { id: 'bowfa', stage: 'the gauntlet', name: 'Enh. crystal weapon seed', rate: 400, from: 'corrupted gauntlet', icon: 'Enhanced_crystal_weapon_seed.png', note: 'cg rate', wom: 'the_corrupted_gauntlet', clogIds: [25859], weight: 2 },
+  { id: 'cseed', stage: 'the gauntlet', name: 'Crystal armour seeds', rate: 50, from: 'corrupted gauntlet', icon: 'Crystal_armour_seed.png', note: 'cg rate', multi: 6, wom: 'the_corrupted_gauntlet', clogIds: [23956], weight: 1 },
+  { id: 'bowfa', stage: 'the gauntlet', name: 'Enh. crystal weapon seeds', rate: 400, from: 'corrupted gauntlet', icon: 'Enhanced_crystal_weapon_seed.png', note: 'cg rate', multi: 2, wom: 'the_corrupted_gauntlet', clogIds: [25859], weight: 2 },
 
   // ---- slayer era ----
   { id: 'tanz', stage: 'slayer era', name: 'Tanzanite fang', rate: 512, from: 'zulrah', icon: 'Tanzanite_fang.png', note: 'two rolls of 1/1024 per kill', wom: 'zulrah', clogIds: [12922], weight: 1.5 },
@@ -97,8 +97,8 @@ export const ITEMS = [
   { id: 'hleather', stage: 'hydra', name: 'Hydra leather', rate: 514, from: 'alchemical hydra', icon: 'Hydra_leather.png', wom: 'alchemical_hydra', clogIds: [22983], weight: 1 },
 
   // ---- araxxor ----
-  { id: 'nox', stage: 'araxxor', name: 'Noxious pieces', rate: 66.7, from: 'araxxor', icon: 'Noxious_point.png', note: 'each piece 1/200 with no duplicates, halberd needs 3', multi: 3, wom: 'araxxor', clogIds: [29790, 29792, 29794], weight: 1 },
-  { id: 'afang', stage: 'araxxor', name: 'Araxyte fang', rate: 600, from: 'araxxor', icon: 'Araxyte_fang.png', note: 'makes rancour', wom: 'araxxor', clogIds: [29799], weight: 1 },
+  { id: 'nox', stage: 'araxxor', name: 'Noxious pieces', rate: 66.7, from: 'araxxor', icon: 'Noxious_point.png', note: 'each piece 1/200 with no duplicates', multi: 3, wom: 'araxxor', clogIds: [29790, 29792, 29794], weight: 1 },
+  { id: 'afang', stage: 'araxxor', name: 'Araxyte fang', rate: 600, from: 'araxxor', icon: 'Araxyte_fang.png', wom: 'araxxor', clogIds: [29799], weight: 1 },
 
   // ---- tombs of amascut ----
   // purple chance comes from the section's average raid level input via
@@ -122,7 +122,7 @@ export const ITEMS = [
   // rates deepen with the delve level, the section asks how many delves
   // at each level. delveRates run levels 2,3,4,5,6,7,8,9+
   { id: 'ayak', stage: 'doom of mokhaiotl', name: 'Eye of ayak', rate: 540, pool: 'doom', delveRates: [2000, 2000, 1350, 810, 765, 720, 630, 540], from: 'doom of mokhaiotl', icon: 'Eye_of_ayak.png', unit: 'delves', clogIds: [31115], weight: 1.5 },
-  { id: 'cloth', stage: 'doom of mokhaiotl', name: 'Mokhaiotl cloth', rate: 540, pool: 'doom', delveRates: [2500, 2000, 1350, 810, 765, 720, 630, 540], from: 'doom of mokhaiotl', icon: 'Mokhaiotl_cloth.png', note: 'makes confliction gauntlets', unit: 'delves', clogIds: [31109], weight: 1 },
+  { id: 'cloth', stage: 'doom of mokhaiotl', name: 'Mokhaiotl cloth', rate: 540, pool: 'doom', delveRates: [2500, 2000, 1350, 810, 765, 720, 630, 540], from: 'doom of mokhaiotl', icon: 'Mokhaiotl_cloth.png', unit: 'delves', clogIds: [31109], weight: 1 },
   { id: 'treads', stage: 'doom of mokhaiotl', name: 'Avernic treads', rate: 540, pool: 'doom', delveRates: [null, null, 1350, 810, 765, 720, 630, 540], from: 'doom of mokhaiotl', icon: 'Avernic_treads.png', note: 'delve 4 or deeper only', unit: 'delves', clogIds: [31088], weight: 1.5 },
 
   // ---- desert treasure 2 ----
@@ -153,7 +153,7 @@ export const ITEMS = [
   { id: 'torvahelm', stage: 'nex', name: 'Torva full helm', rate: 258, pool: 'nex', from: 'nex', icon: 'Torva_full_helm.png', wom: 'nex', clogIds: [26376, 26382], weight: 1.5 },
   { id: 'torvabody', stage: 'nex', name: 'Torva platebody', rate: 258, pool: 'nex', from: 'nex', icon: 'Torva_platebody.png', wom: 'nex', clogIds: [26378, 26384], weight: 1.5 },
   { id: 'torvalegs', stage: 'nex', name: 'Torva platelegs', rate: 258, pool: 'nex', from: 'nex', icon: 'Torva_platelegs.png', wom: 'nex', clogIds: [26380, 26386], weight: 1.5 },
-  { id: 'nihil', stage: 'nex', name: 'Nihil horn', rate: 258, pool: 'nex', from: 'nex', icon: 'Nihil_horn.png', note: 'makes zaryte crossbow', wom: 'nex', clogIds: [26372], weight: 1.5 },
+  { id: 'nihil', stage: 'nex', name: 'Nihil horn', rate: 258, pool: 'nex', from: 'nex', icon: 'Nihil_horn.png', wom: 'nex', clogIds: [26372], weight: 1.5 },
   { id: 'vambs', stage: 'nex', name: 'Zaryte vambraces', rate: 172, pool: 'nex', from: 'nex', icon: 'Zaryte_vambraces.png', wom: 'nex', clogIds: [26235], weight: 1 },
 ];
 

@@ -17,10 +17,17 @@ let importSummary = null;
 function load() {
   try {
     const s = JSON.parse(localStorage.getItem(STORE_KEY)) ?? {};
-    // items that moved from counted to plain got/dry leave stale 'count'
-    // modes behind, which would misread as dry. reset them.
+    // items whose input style changed leave stale modes behind. counted
+    // items accept got/dry answers as counts (dry = 0, got = fill in),
+    // plain items with a leftover count mode reset to skip.
     for (const item of ITEMS) {
-      if (!item.multi && s[item.id]?.mode === 'count') s[item.id].mode = 'skip';
+      const e = s[item.id];
+      if (!e) continue;
+      if (!item.multi && e.mode === 'count') e.mode = 'skip';
+      if (item.multi && (e.mode === 'got' || e.mode === 'dry')) {
+        if (e.mode === 'dry') e.count = 0;
+        e.mode = 'count';
+      }
     }
     return s;
   } catch {
