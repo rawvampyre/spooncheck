@@ -164,17 +164,24 @@ async function runImport(name, goBtn, status) {
   status.textContent = 'reviewing your account...';
   try {
     const r = await lookupAccount(name);
-    // prefill section inputs where the hiscores carry them
+    // importing a different account starts a clean sheet, the old
+    // account's answers dont belong to this one
+    const rsn = name.trim().toLowerCase();
+    if (state._lastImport && state._lastImport !== rsn) {
+      for (const item of ITEMS) delete state[item.id];
+      state._pools = {};
+    }
+    state._lastImport = rsn;
+    // imported numbers overwrite whatever is in the fields
     for (const [poolName, vals] of Object.entries(r.pools)) {
       const ps = poolState(poolName);
-      for (const [k, v] of Object.entries(vals)) if (!ps[k] && v) ps[k] = v;
+      for (const [k, v] of Object.entries(vals)) if (v) ps[k] = v;
     }
     let filled = 0;
     for (const item of ITEMS) {
       const kc = r.kc[item.id];
       if (!kc) continue;
-      const e = entryFor(item.id);
-      if (!e.kc) e.kc = kc;
+      entryFor(item.id).kc = kc;
       filled++;
     }
     save();
