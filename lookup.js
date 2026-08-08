@@ -12,12 +12,13 @@ const SYNC = 'https://sync.runescape.wiki/runelite/player/';
 export async function lookupAccount(name) {
   const user = name.trim();
   if (!user) throw new Error('type your osrs name first');
-  const [wom, clog] = await Promise.all([fetchWom(user), fetchClog(user)]);
+  const [wom, clogRes] = await Promise.all([fetchWom(user), fetchClog(user)]);
+  const clog = clogRes.set;
   if (!wom && !clog) {
     throw new Error('nothing found for that name. use your exact in game name');
   }
 
-  const out = { kc: {}, owned: null, womOk: !!wom, clogOk: !!clog };
+  const out = { kc: {}, owned: null, womOk: !!wom, clogOk: !!clog, clogStatus: clogRes.status };
 
   if (wom) {
     const bosses = wom.latestSnapshot?.data?.bosses ?? {};
@@ -74,17 +75,20 @@ async function fetchWom(user) {
   }
 }
 
+// status tells the caller WHY there's no log: 'none' = wikisync has never
+// heard of this name (plugin not installed or wrong rsn), 'nolog' = the
+// account syncs but the collection log part was never uploaded (needs the
+// sync button inside the in-game log window), 'ok' = we have it
 async function fetchClog(user) {
   try {
     const res = await fetch(SYNC + encodeURIComponent(user) + '/STANDARD');
-    if (!res.ok) return null;
+    if (!res.ok) return { status: 'none', set: null };
     const j = await res.json();
+    if (j.error) return { status: 'none', set: null };
     const arr = Array.isArray(j.collection_log) ? j.collection_log : [];
-    // an empty log means the account never synced it, not that it owns
-    // nothing. unknown stays unknown.
-    if (!arr.length) return null;
-    return new Set(arr.map(Number));
+    if (!arr.length) return { status: 'nolog', set: null };
+    return { status: 'ok', set: new Set(arr.map(Number)) };
   } catch {
-    return null;
+    return { status: 'none', set: null };
   }
 }

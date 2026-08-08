@@ -219,7 +219,11 @@ async function runImport(name, goBtn, status) {
       importSummary.push('heads up: for items you own we filled in your CURRENT kc. lower it to the real drop kc if you remember');
     } else {
       importSummary.push(`kcs imported for ${Object.keys(r.kc).length} grinds`);
-      importSummary.push('no synced collection log for that name. in runelite: turn on the WikiSync plugin, open your collection log, click the sync toggle inside the log window, then run this again');
+      importSummary.push(
+        r.clogStatus === 'nolog'
+          ? 'wikisync sees this account but the collection log part was never uploaded. in game: open your collection log and click the sync button wikisync adds inside the log window, then run this again'
+          : 'wikisync has never heard of this name. WikiSync is a plugin hub plugin: in runelite open the plugin hub (puzzle piece icon), search WikiSync, install it, turn it on and log in. if its already on, double check this is the exact in game name',
+      );
     }
     if (!r.womOk) importSummary.push('hiscores had nothing for that name btw, spelling?');
     status.textContent = '';
