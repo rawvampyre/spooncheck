@@ -139,6 +139,7 @@ async function runLookup() {
   try {
     const r = await lookupAccount(name);
     let touched = 0;
+    let skipped = 0;
     for (const item of ITEMS) {
       const e = entryFor(item.id);
       const kc = r.kc[item.id];
@@ -151,11 +152,15 @@ async function runLookup() {
         e.mode = 'dry';
         e.kc = kc;
         touched++;
+      } else if (owned === false) {
+        // not in the log and no kc on record: this grind isnt part of the
+        // account's progression yet, drop it out of the check
+        e.mode = 'skip';
+        e.kc = '';
+        skipped++;
       } else if (kc && e.mode === 'skip') {
         // kc known but ownership unknown: prefill the number, you pick
         e.kc = kc;
-      } else {
-        continue;
       }
     }
     save();
@@ -164,9 +169,11 @@ async function runLookup() {
     bits.push(r.womOk ? 'kcs pulled from the hiscores' : 'no hiscores data (name wrong or too low kc)');
     bits.push(
       r.clogOk
-        ? 'collection log synced, got/dry filled in for you. for items you own the kc shown is your CURRENT kc so lower it to the actual drop kc if you remember'
+        ? 'collection log synced, got/dry filled in for you'
         : 'no wikisync collection log found so tap got it / still dry yourself (sync it with the WikiSync runelite plugin + opening your log)',
     );
+    if (skipped) bits.push(`${skipped} grinds you havent started got skipped, un-skip any i got wrong`);
+    if (r.clogOk) bits.push('for items you own the kc shown is your CURRENT kc so lower it to the real drop kc if you remember');
     lookupStatus.textContent = bits.join('. ');
     if (!touched && !Object.keys(r.kc).length) lookupStatus.textContent = 'account found but no usable kcs. fill it in manually';
   } catch (err) {
