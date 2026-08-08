@@ -125,6 +125,23 @@ h1 {
 }
 .nav-btn:disabled { opacity: 0.3; cursor: default; }
 
+/* site-wide volume, top corner */
+.vol-box {
+  position: fixed;
+  top: 12px;
+  right: 12px;
+  z-index: 30;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  background: var(--panel);
+  border: 2px solid var(--border);
+  border-radius: 8px;
+  padding: 5px 9px;
+}
+.vol-btn { border: none; background: none; font-size: 17px; padding: 0; line-height: 1; }
+.vol-slider { width: 84px; accent-color: var(--gold); }
+
 /* back and continue live on the screen edges, vertically centered */
 .nav-side {
   position: fixed;

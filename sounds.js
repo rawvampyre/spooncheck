@@ -15,8 +15,48 @@ const SOUNDS = {
 const cache = {};
 const lastAt = {};
 
+// site-wide volume and mute, remembered per browser
+let master = 1;
+let muted = false;
+try {
+  const s = JSON.parse(localStorage.getItem('spooncheck-vol') ?? 'null');
+  if (s) {
+    master = Number.isFinite(s.v) ? s.v : 1;
+    muted = !!s.m;
+  }
+} catch {
+  /* defaults stand */
+}
+
+function persist() {
+  try {
+    localStorage.setItem('spooncheck-vol', JSON.stringify({ v: master, m: muted }));
+  } catch {
+    /* fine */
+  }
+}
+
+export function getMaster() {
+  return master;
+}
+
+export function setMaster(v) {
+  master = Math.max(0, Math.min(1, v));
+  persist();
+}
+
+export function isMuted() {
+  return muted;
+}
+
+export function setMuted(m) {
+  muted = m;
+  persist();
+}
+
 export function play(name, vol = 0.5) {
   try {
+    if (muted || master <= 0) return;
     const src = SOUNDS[name];
     if (!src) return;
     const now = performance.now();
@@ -24,7 +64,7 @@ export function play(name, vol = 0.5) {
     lastAt[name] = now;
     const base = (cache[name] ??= new Audio(src));
     const a = base.cloneNode();
-    a.volume = vol;
+    a.volume = Math.max(0, Math.min(1, vol * master));
     a.play().catch(() => {});
   } catch {
     /* silence over crashes, always */

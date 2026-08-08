@@ -2,12 +2,43 @@ import { ITEMS, STAGES, itemsInStage, sectionOf, iconUrl, wikiIconUrl, POOLS, WI
 import { luckOfGet, luckOfDry, luckOfCount, countTail, ladderDist, toaUniqueChance, stillDryChance, multiplier, overallPercentile, verdictFor } from './math.js';
 import { lookupAccount } from './lookup.js';
 import { HANDLE, TWITCH, sectionTitle } from './config.js';
-import { play } from './sounds.js';
+import { play, getMaster, setMaster, isMuted, setMuted } from './sounds.js';
 
 // every real button gets the interface thock
 document.addEventListener('click', (ev) => {
   if (ev.target.closest('button')) play('click', 0.3);
 });
+
+// the site-wide volume control, pinned to the corner
+{
+  const box = document.createElement('div');
+  box.className = 'vol-box';
+  const volBtn = document.createElement('button');
+  volBtn.className = 'vol-btn';
+  volBtn.title = 'mute';
+  volBtn.textContent = isMuted() ? '🔇' : '🔊';
+  const slider = document.createElement('input');
+  slider.className = 'vol-slider';
+  slider.type = 'range';
+  slider.min = '0';
+  slider.max = '1';
+  slider.step = '0.05';
+  slider.value = String(getMaster());
+  slider.title = 'volume';
+  volBtn.addEventListener('click', () => {
+    setMuted(!isMuted());
+    volBtn.textContent = isMuted() ? '🔇' : '🔊';
+  });
+  slider.addEventListener('input', () => {
+    setMaster(Number(slider.value));
+    if (Number(slider.value) > 0 && isMuted()) {
+      setMuted(false);
+      volBtn.textContent = '🔊';
+    }
+  });
+  box.append(volBtn, slider);
+  document.body.appendChild(box);
+}
 
 const CONFIG = { handle: HANDLE, twitch: TWITCH };
 
