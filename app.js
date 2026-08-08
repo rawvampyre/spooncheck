@@ -860,7 +860,6 @@ function receiptsSlide(rows) {
     el('div', 'why-line', why),
     ...extras,
     graph,
-    el('div', 'muted g-note', 'bar length = how far off the rate. thick bars matter more to the verdict'),
     plugLine(),
   );
 }
