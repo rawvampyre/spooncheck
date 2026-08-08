@@ -520,7 +520,7 @@ function buildWrap(rows) {
     slides.push(
       slide(
         'slide-fry',
-        el('div', 'small-title', 'your deepest fry'),
+        el('div', 'small-title', 'your driest grind'),
         itemImg(f.item, 'hero-icon fry-tilt'),
         el('div', 'hero-name', f.item.name),
         el(
@@ -563,8 +563,8 @@ function buildWrap(rows) {
       if (!rs.length) c.appendChild(el('div', 'muted', 'none'));
       return c;
     };
-    board.append(col('spoons', spoons, 'spoon-col'), col('fries', fries, 'fry-col'));
-    slides.push(slide('slide-board', el('div', 'small-title', 'spoons and fries'), board));
+    board.append(col('spoons', spoons, 'spoon-col'), col('dry streaks', fries, 'fry-col'));
+    slides.push(slide('slide-board', el('div', 'small-title', 'spoons and dry streaks'), board));
   }
 
   slides.push(
@@ -623,7 +623,7 @@ function receiptsSlide(rows) {
     row.append(ic, el('span', 'g-name', r.item.name), track, el('span', 'g-val', fmtMult(r.mult)));
     graph.appendChild(row);
   }
-  const extras = [el('div', 'g-legend', '◀ fried · spooned ▶')];
+  const extras = [el('div', 'g-legend', '◀ dry · spooned ▶')];
   if (rows.length > shown.length) extras.push(el('div', 'muted', `plus ${rows.length - shown.length} quieter grinds`));
 
   return slide(
@@ -708,7 +708,7 @@ slidesEl.addEventListener('click', (ev) => {
 function shareText(spoons, fries, pct, verdict) {
   const bits = [`my osrs account is luckier than ${fmtPct(pct)}% of accounts (${verdict.name.toLowerCase()})`];
   if (spoons[0]) bits.push(`biggest spoon: ${describe(spoons[0])}`);
-  if (fries[0]) bits.push(`deepest fry: ${describe(fries[0])}`);
+  if (fries[0]) bits.push(`driest grind: ${describe(fries[0])}`);
   bits.push(`check yours: ${location.origin}${location.pathname}`);
   return bits.join('\n');
 }
@@ -785,7 +785,7 @@ function downloadCard(spoons, fries, pct, verdict) {
   }
   if (fries[0]) {
     const f = fries[0];
-    center('🍳 deepest fry', y, 40, '#ff9d7a');
+    center('🦴 driest grind', y, 40, '#ff9d7a');
     center(
       `${f.item.name}, ${
         f.count !== undefined

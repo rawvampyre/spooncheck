@@ -113,9 +113,9 @@ export const VERDICTS = [
   { min: 90, name: 'CERTIFIED SPOON', blurb: 'born lucky built different' },
   { min: 70, name: 'LIGHTLY SPOONED', blurb: 'rng carries you and you dont even say thanks' },
   { min: 45, name: 'PAINFULLY AVERAGE', blurb: 'the math looked at your account and shrugged' },
-  { min: 25, name: 'OVERCOOKED', blurb: 'the grind respects you a little too much' },
-  { min: 8, name: 'FRIED', blurb: 'you have seen drop tables no account should see' },
-  { min: 1, name: 'DEEP FRIED', blurb: 'the desert sends you postcards' },
+  { min: 25, name: 'GOING DRY', blurb: 'the grind respects you a little too much' },
+  { min: 8, name: 'DRY', blurb: 'you have seen drop tables no account should see' },
+  { min: 1, name: 'BONE DRY', blurb: 'the desert sends you postcards' },
   { min: -1, name: 'STATISTICALLY CURSED', blurb: 'this account is a warning to others' },
 ];
 
