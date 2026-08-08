@@ -556,7 +556,7 @@ function buildWrap(rows) {
       el('div', 'verdict-name', verdict.name),
       el('div', 'muted verdict-blurb', verdict.blurb),
       shareRow(spoons, fries, pct, verdict),
-      el('div', 'plug', `made by ${CONFIG.handle} live on ${CONFIG.twitch}`),
+      plugLine(),
     ),
   );
 
@@ -613,7 +613,20 @@ function receiptsSlide(rows) {
     ...extras,
     graph,
     el('div', 'muted g-note', 'bar length = how far off the rate. thick bars matter more to the verdict'),
+    plugLine(),
   );
+}
+
+// clickable twitch plug — the slide tap handler already ignores links
+function plugLine() {
+  const p = el('div', 'plug');
+  p.append(`made by ${CONFIG.handle}, watch the hardcore live at `);
+  const a = el('a', null, CONFIG.twitch);
+  a.href = `https://${CONFIG.twitch}`;
+  a.target = '_blank';
+  a.rel = 'noopener';
+  p.appendChild(a);
+  return p;
 }
 
 function sparkles() {
