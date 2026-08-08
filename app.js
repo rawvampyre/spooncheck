@@ -114,13 +114,15 @@ function renderStep() {
   else renderSection(step);
 }
 
-function navRow(nextLabel = 'continue') {
-  // back pinned to the left screen edge, continue to the right, always
-  // in the same spots
+function navRow() {
+  // arrows pinned to the screen edges, always in the same spots
   const wrap = el('div', 'nav-sides');
-  const back = btn('nav-btn ghost nav-side left', 'back', () => { stepIdx--; renderStep(); });
+  const back = btn('nav-arrow nav-side left', '‹', () => { stepIdx--; renderStep(); });
+  back.title = 'back';
   back.disabled = stepIdx === 0;
-  wrap.append(back, btn('nav-btn nav-side right', nextLabel, () => { stepIdx++; renderStep(); }));
+  const next = btn('nav-arrow primary nav-side right', '›', () => { stepIdx++; renderStep(); });
+  next.title = 'continue';
+  wrap.append(back, next);
   return wrap;
 }
 
@@ -216,7 +218,7 @@ function renderSection(stage) {
   if (pool) flowBody.appendChild(poolInputs(pool));
   const list = el('div', 'item-list');
   for (const item of items) list.appendChild(itemCard(item));
-  flowBody.append(list, navRow('continue'));
+  flowBody.appendChild(navRow());
 }
 
 // shared numbers for a whole section (raid level, solo and duo kills,
@@ -578,7 +580,9 @@ function renderReview() {
   flowBody.appendChild(list);
 
   const row = el('div', 'nav-sides');
-  row.appendChild(btn('nav-btn ghost nav-side left', 'back', () => { stepIdx--; renderStep(); }));
+  const back = btn('nav-arrow nav-side left', '‹', () => { stepIdx--; renderStep(); });
+  back.title = 'back';
+  row.appendChild(back);
   const submit = btn('nav-btn big nav-side right', 'submit', () => {
     if (rows.length < 3) {
       submit.classList.remove('shake');
