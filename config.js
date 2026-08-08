@@ -6,9 +6,9 @@ export const TWITCH = 'twitch.tv/rawvampyre';
 export const VERDICTS = [
   { min: 99, name: 'OCEAN SIZED LADLE', blurb: 'did you steal a jmod account?' },
   { min: 80, name: 'GOLDEN SPOON', blurb: 'nice streamer client' },
-  { min: 65, name: 'SPOON', blurb: 'blessed account' },
+  { min: 60, name: 'SPOON', blurb: 'blessed account' },
   { min: 50, name: 'AVERAGE', blurb: 'perfectly balanced' },
-  { min: 35, name: 'GOING DRY', blurb: 'it could be worse...' },
+  { min: 40, name: 'GOING DRY', blurb: 'it could be worse...' },
   { min: 20, name: 'DRY', blurb: 'time to cry on reddit' },
   { min: 1, name: 'BONE DRY', blurb: 'aya has a chance to assign 15-30 of you' },
   { min: -1, name: 'STATISTICALLY CURSED', blurb: 'reported.' },
