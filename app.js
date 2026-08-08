@@ -1,5 +1,5 @@
-import { ITEMS, STAGES, itemsInStage, iconUrl } from './items.js';
-import { luckOfGet, luckOfDry, luckOfCount, ladderDist, stillDryChance, multiplier, overallPercentile, verdictFor } from './math.js';
+import { ITEMS, STAGES, itemsInStage, iconUrl, POOLS } from './items.js';
+import { luckOfGet, luckOfDry, luckOfCount, ladderDist, toaUniqueChance, stillDryChance, multiplier, overallPercentile, verdictFor } from './math.js';
 import { lookupAccount } from './lookup.js';
 
 const CONFIG = {
@@ -28,6 +28,17 @@ function save() {
 
 function entryFor(id) {
   return (state[id] ??= { mode: 'skip', kc: '' });
+}
+
+// section-level inputs (toa raid level, yama solo/duo kills...)
+function poolState(name) {
+  state._pools ??= {};
+  return (state._pools[name] ??= {});
+}
+
+function poolHasData(name) {
+  const ps = state._pools?.[name];
+  return Boolean(ps && Object.values(ps).some((v) => Number(v) > 0));
 }
 
 // ---- screens --------------------------------------------------------------
@@ -103,9 +114,14 @@ function renderImport() {
 
   const row = el('div', 'import-row');
   const input = el('input', 'import-input');
-  input.placeholder = 'osrs username';
+  input.placeholder = 'in game name';
   input.maxLength = 12;
   input.autocomplete = 'off';
+  input.value = state._rsn ?? '';
+  input.addEventListener('input', () => {
+    state._rsn = input.value;
+    save();
+  });
   const go = btn('nav-btn', 'auto fill', () => runImport(input.value, go, status));
   row.append(input, go);
   const status = el('p', 'import-status', '');
@@ -138,10 +154,33 @@ async function runImport(name, goBtn, status) {
     let got = 0;
     let dry = 0;
     let skipped = 0;
+    // prefill section inputs where the hiscores carry them
+    if (r.pools) {
+      for (const [poolName, vals] of Object.entries(r.pools)) {
+        const ps = poolState(poolName);
+        for (const [k, v] of Object.entries(vals)) if (!ps[k] && v) ps[k] = v;
+      }
+    }
     for (const item of ITEMS) {
       const e = entryFor(item.id);
       const kc = r.kc[item.id];
       const owned = r.owned?.[item.id];
+      const pieces = r.counts?.[item.id];
+      if (item.multi && pieces !== undefined) {
+        // the log counts these piece by piece
+        if (pieces > 0 || kc) {
+          e.mode = 'count';
+          e.count = pieces;
+          if (kc && !e.kc) e.kc = kc;
+          if (pieces > 0) got++;
+          else dry++;
+        } else {
+          e.mode = 'skip';
+          e.kc = '';
+          skipped++;
+        }
+        continue;
+      }
       if (owned === true) {
         // multi-drop grinds: the log only proves you have at least one,
         // you still tell us how many and at what kc
@@ -174,7 +213,7 @@ async function runImport(name, goBtn, status) {
       importSummary.push('heads up: for items you own we filled in your CURRENT kc. lower it to the real drop kc if you remember');
     } else {
       importSummary.push(`kcs imported for ${Object.keys(r.kc).length} grinds`);
-      importSummary.push('no synced collection log found so mark got it / still dry yourself (WikiSync plugin + open your log in game)');
+      importSummary.push('no synced collection log for that name. in runelite: turn on the WikiSync plugin, open your collection log, click the sync toggle inside the log window, then run this again');
     }
     if (!r.womOk) importSummary.push('hiscores had nothing for that name btw, spelling?');
     status.textContent = '';
@@ -198,14 +237,42 @@ function renderSection(stage) {
   if (importSummary && !answered) {
     flowBody.appendChild(el('p', 'section-empty', 'nothing started here according to your import. continue, or correct it below'));
   }
+  const pool = items.find((i) => i.pool)?.pool;
+  if (pool) flowBody.appendChild(poolInputs(pool));
   const list = el('div', 'item-list');
   for (const item of items) list.appendChild(itemCard(item));
   flowBody.append(list, navRow('continue'));
 }
 
+// shared numbers for a whole section (raid level, solo and duo kills,
+// delves per level, group size)
+function poolInputs(name) {
+  const ps = poolState(name);
+  const wrap = el('div', 'pool-row');
+  for (const [key, label] of POOLS[name].fields) {
+    const box = el('label', 'pool-field');
+    const input = el('input');
+    input.type = 'number';
+    input.min = '0';
+    input.inputMode = 'numeric';
+    input.placeholder = '0';
+    input.value = ps[key] ?? '';
+    input.addEventListener('input', () => {
+      ps[key] = input.value;
+      save();
+    });
+    box.append(el('span', 'pool-label', label), input);
+    wrap.appendChild(box);
+  }
+  return wrap;
+}
+
 function itemCard(item) {
   const card = el('div', 'item-card');
   const unit = item.unit ?? 'kc';
+  // window pools (toa, yama, doom): kills live in the section inputs, the
+  // card only answers got or dry
+  const windowPool = item.pool && POOLS[item.pool].kind === 'window';
 
   const icon = el('img', 'item-icon');
   icon.src = iconUrl(item);
@@ -213,25 +280,37 @@ function itemCard(item) {
   icon.loading = 'lazy';
 
   const info = el('div', 'item-info');
-  info.append(
-    el('div', 'item-name', item.name),
-    el(
-      'div',
-      'item-sub',
-      item.ladder ? `${item.from}. ${item.note}` : `1/${item.rate} from ${item.from}${item.note ? ` (${item.note})` : ''}`,
-    ),
-  );
+  const sub = el('div', 'item-sub');
+  info.append(el('div', 'item-name', item.name), sub);
+  if (item.note) info.appendChild(el('div', 'item-note', item.note));
 
   const modes = el('div', 'item-modes');
   const kcWrap = el('div', 'kc-wrap hidden');
-  const kcInput = el('input');
-  kcInput.type = 'number';
-  kcInput.min = '1';
-  kcInput.inputMode = 'numeric';
-  kcInput.placeholder = unit;
+
+  let variantSel = null;
+  if (item.variants) {
+    // the rate depends on where you grind it
+    variantSel = el('select', 'pick-sel');
+    for (const [label, r] of item.variants) {
+      const o = el('option', null, label);
+      o.value = r;
+      variantSel.appendChild(o);
+    }
+    kcWrap.appendChild(variantSel);
+  }
+  let groupSel = null;
+  if (item.group) {
+    // contribution-scaled drops: your damage share divides the rate
+    groupSel = el('select', 'pick-sel');
+    for (const [label, mult] of [['solo', 1], ['duo', 2], ['trio', 3], ['mass', 8]]) {
+      const o = el('option', null, label);
+      o.value = mult;
+      groupSel.appendChild(o);
+    }
+    kcWrap.appendChild(groupSel);
+  }
   let countInput = null;
   if (item.multi) {
-    // sharded grinds (zenytes, seeds...): how many you have, at what kc
     countInput = el('input');
     countInput.type = 'number';
     countInput.min = '0';
@@ -240,11 +319,19 @@ function itemCard(item) {
     countInput.placeholder = 'how many';
     kcWrap.appendChild(countInput);
   }
+  let kcInput = null;
   const kcLabel = el('span', 'kc-label');
-  kcWrap.append(kcInput, kcLabel);
+  if (!windowPool) {
+    kcInput = el('input');
+    kcInput.type = 'number';
+    kcInput.min = '1';
+    kcInput.inputMode = 'numeric';
+    kcInput.placeholder = unit;
+    kcWrap.append(kcInput, kcLabel);
+  }
 
   const modeDefs = item.multi
-    ? [['skip', 'skip'], ['count', 'count em']]
+    ? [['skip', 'skip'], ['count', 'count']]
     : [['skip', 'skip'], ['got', 'got it'], ['dry', 'still dry']];
   const btns = {};
   for (const [mode, label] of modeDefs) {
@@ -252,7 +339,7 @@ function itemCard(item) {
       entryFor(item.id).mode = mode;
       save();
       render();
-      if (mode !== 'skip') (countInput && !countInput.value ? countInput : kcInput).focus();
+      if (mode !== 'skip') (countInput && !countInput.value ? countInput : kcInput)?.focus();
     });
     modes.appendChild(b);
     btns[mode] = b;
@@ -262,9 +349,12 @@ function itemCard(item) {
     const e = entryFor(item.id);
     for (const [m, b] of Object.entries(btns)) b.classList.toggle('on', e.mode === m);
     card.classList.toggle('active', e.mode !== 'skip');
-    kcWrap.classList.toggle('hidden', e.mode === 'skip');
+    const hasControls = Boolean(variantSel || groupSel || countInput || kcInput);
+    kcWrap.classList.toggle('hidden', e.mode === 'skip' || !hasControls);
+    const vRate = item.variants ? Number(e.variant) || item.variants[0][1] : item.rate;
+    sub.textContent = windowPool || item.ladder ? item.from : `1/${vRate} from ${item.from}`;
     kcLabel.textContent = item.multi
-      ? `of ${item.multi} youd want, and ${unit} so far`
+      ? `${unit} so far`
       : item.ladder
         ? e.mode === 'got'
           ? `total ${unit} when it completed`
@@ -272,16 +362,29 @@ function itemCard(item) {
         : e.mode === 'got'
           ? `${unit} it dropped at`
           : `${unit} so far, no drop`;
-    if (String(e.kc) !== kcInput.value) kcInput.value = e.kc;
+    if (kcInput && String(e.kc) !== kcInput.value) kcInput.value = e.kc;
     if (countInput && String(e.count ?? '') !== countInput.value) countInput.value = e.count ?? '';
+    if (variantSel && String(Number(e.variant) || item.variants[0][1]) !== variantSel.value) {
+      variantSel.value = String(Number(e.variant) || item.variants[0][1]);
+    }
+    if (groupSel && String(Number(e.group) || 1) !== groupSel.value) groupSel.value = String(Number(e.group) || 1);
   }
 
-  kcInput.addEventListener('input', () => {
+  kcInput?.addEventListener('input', () => {
     entryFor(item.id).kc = kcInput.value;
     save();
   });
   countInput?.addEventListener('input', () => {
     entryFor(item.id).count = countInput.value;
+    save();
+  });
+  variantSel?.addEventListener('change', () => {
+    entryFor(item.id).variant = Number(variantSel.value);
+    save();
+    render();
+  });
+  groupSel?.addEventListener('change', () => {
+    entryFor(item.id).group = Number(groupSel.value);
     save();
   });
 
@@ -297,8 +400,62 @@ function computeResults() {
   for (const item of ITEMS) {
     const e = state[item.id];
     if (!e || e.mode === 'skip') continue;
+
+    // window pools: the kill window lives in the section inputs, the
+    // answer is just got or dry inside it. q = chance of still being dry
+    // over the whole window, scored as a binary outcome.
+    if (item.pool && POOLS[item.pool].kind === 'window') {
+      if (e.mode !== 'got' && e.mode !== 'dry') continue;
+      const got = e.mode === 'got';
+      const ps = poolState(item.pool);
+      let q = 1;
+      let window = 0;
+      let expected = 0;
+      if (item.pool === 'toa') {
+        const raids = Math.round(Number(ps.raids) || 0);
+        if (!raids) continue;
+        const p = (toaUniqueChance(ps.raidLevel) * item.pweight) / 24;
+        q = Math.pow(1 - p, raids);
+        window = raids;
+        expected = raids * p;
+      } else if (item.pool === 'yama') {
+        const solo = Math.round(Number(ps.soloKc) || 0);
+        const duo = Math.round(Number(ps.duoKc) || 0);
+        if (!solo && !duo) continue;
+        q = Math.pow(1 - 1 / item.rate, solo) * Math.pow(1 - 1 / (2 * item.rate), duo);
+        window = solo + duo;
+        expected = solo / item.rate + duo / (2 * item.rate);
+      } else if (item.pool === 'doom') {
+        let delves = 0;
+        (item.delveRates ?? []).forEach((r, i) => {
+          const n = Math.round(Number(ps[`d${i + 2}`]) || 0);
+          if (!r || !n) return;
+          q *= Math.pow(1 - 1 / r, n);
+          delves += n;
+          expected += n / r;
+        });
+        if (!delves) continue;
+        window = delves;
+      }
+      rows.push({
+        item,
+        got,
+        kc: window,
+        // mult keeps its meaning: expected drops over the window
+        u: got ? (1 + q) / 2 : q / 2,
+        mult: expected,
+        dryChance: q,
+      });
+      continue;
+    }
+
     const kc = Math.round(Number(e.kc));
     if (!Number.isFinite(kc) || kc < 1) continue;
+    const variantRate = item.variants ? Number(e.variant) || item.variants[0][1] : item.rate;
+    const groupMult = item.group ? Math.max(1, Number(e.group) || 1) : 1;
+    const nexMult = item.pool === 'nex' ? Math.max(1, Number(poolState('nex').group) || 1) : 1;
+    const rate = variantRate * groupMult * nexMult;
+
     if (item.multi) {
       if (e.mode !== 'count') continue;
       const count = Math.max(0, Math.round(Number(e.count) || 0));
@@ -307,22 +464,22 @@ function computeResults() {
         got: count > 0,
         kc,
         count,
-        u: luckOfCount(item.rate, kc, count),
+        u: luckOfCount(rate, kc, count),
         // average rates spent per drop: 1x = exactly on rate
-        mult: multiplier(item.rate, kc) / Math.max(1, count),
-        dryChance: stillDryChance(item.rate, kc),
+        mult: multiplier(rate, kc) / Math.max(1, count),
+        dryChance: stillDryChance(rate, kc),
       });
       continue;
     }
     if (item.ladder) {
       const got = e.mode === 'got';
-      const { tail, exact } = ladderDist(item.ladder, kc);
+      const { tail, exact } = ladderDist(item.ladder.map((r) => r * groupMult), kc);
       rows.push({
         item,
         got,
         kc,
         u: got ? Math.min(1, tail + exact / 2) : tail / 2,
-        mult: multiplier(item.rate, kc), // rate = the grind's expected total
+        mult: multiplier(rate, kc), // rate = the grind's expected total
         dryChance: tail,
       });
       continue;
@@ -332,9 +489,9 @@ function computeResults() {
       item,
       got,
       kc,
-      u: got ? luckOfGet(item.rate, kc) : luckOfDry(item.rate, kc),
-      mult: multiplier(item.rate, kc),
-      dryChance: stillDryChance(item.rate, kc),
+      u: got ? luckOfGet(rate, kc) : luckOfDry(rate, kc),
+      mult: multiplier(rate, kc),
+      dryChance: stillDryChance(rate, kc),
     });
   }
   return rows;
@@ -411,18 +568,27 @@ const PROCESSING_LINES = [
 ];
 
 function runProcessing(rows) {
-  flowBody.replaceChildren(el('div', 'processing'));
+  const proc = el('div', 'processing');
+  // everything they declared spirals into the vortex while we calculate
+  const vortex = el('div', 'vortex');
+  for (const r of rows.slice(0, 24)) {
+    const img = itemImg(r.item, 'vortex-icon');
+    img.style.setProperty('--a0', `${Math.round(Math.random() * 360)}deg`);
+    img.style.setProperty('--d', `${(1.5 + Math.random() * 1.5).toFixed(2)}s`);
+    img.style.animationDelay = `${(Math.random() * 1.8).toFixed(2)}s`;
+    vortex.appendChild(img);
+  }
+  const lines = el('div', 'proc-lines');
+  proc.append(vortex, lines);
+  flowBody.replaceChildren(proc);
   flowStep.textContent = 'processing';
-  const box = flowBody.firstChild;
   let t = 300;
-  PROCESSING_LINES.forEach(([line, dur], i) => {
+  for (const [line, dur] of PROCESSING_LINES) {
     setTimeout(() => {
-      const l = el('div', `proc-line${line.includes('audit...') ? ' audit' : ''}`, line);
-      box.appendChild(l);
-      box.scrollTop = box.scrollHeight;
+      lines.appendChild(el('div', `proc-line${line.includes('audit...') ? ' audit' : ''}`, line));
     }, t);
     t += dur;
-  });
+  }
   setTimeout(() => {
     buildWrap(rows);
     show('wrap');
@@ -506,7 +672,7 @@ function buildWrap(rows) {
           'div',
           'muted',
           s.count !== undefined
-            ? `luckier than ${fmtPct(100 * s.u)}% of accounts at this kc`
+            ? `better rng than ${fmtPct(100 * s.u)}% of accounts at this kc`
             : `${fmtPct(100 * s.dryChance)}% of accounts take longer than you did`,
         ),
         sparkles(),
@@ -570,7 +736,7 @@ function buildWrap(rows) {
   slides.push(
     slide(
       'slide-verdict',
-      el('div', 'small-title', 'this account is luckier than'),
+      el('div', 'small-title', 'this account has better rng than'),
       el('div', 'big-number countup gold', `${fmtPct(pct)}%`),
       el('div', 'small-title', 'of osrs accounts'),
       el('div', 'verdict-name', verdict.name),
@@ -581,6 +747,7 @@ function buildWrap(rows) {
   );
 
   slides.push(receiptsSlide(rows));
+  slides.push(scaleSlide(rows, pct));
 
   slidesEl.replaceChildren(...slides);
   barsEl.replaceChildren(...slides.map(() => el('div', 'story-bar')));
@@ -654,6 +821,43 @@ function plugLine() {
   return p;
 }
 
+// the balance: every grind sits on a weighing scale, dry side against
+// spooned side, tipped by the account's weighted lean
+function scaleSlide(rows, pct) {
+  const spoons = rows.filter((r) => r.u > 0.5);
+  const dries = rows.filter((r) => r.u < 0.5);
+  const tilt = Math.max(-14, Math.min(14, ((pct - 50) / 50) * 14));
+
+  const pan = (rs, cls) => {
+    const p = el('div', `pan ${cls}`);
+    const icons = el('div', 'pan-icons');
+    for (const r of rs.slice(0, 9)) {
+      const img = itemImg(r.item, 'pan-icon');
+      img.style.width = `${Math.round(16 + Math.min(3, r.item.weight ?? 1) * 5)}px`;
+      icons.appendChild(img);
+    }
+    p.append(icons, el('div', 'pan-plate'));
+    return p;
+  };
+
+  const beam = el('div', 'scale-beam');
+  beam.style.setProperty('--tilt', `${tilt.toFixed(1)}deg`);
+  beam.append(pan(dries, 'left'), pan(spoons, 'right'));
+  const scale = el('div', 'scale');
+  scale.append(beam, el('div', 'scale-post'));
+  const labels = el('div', 'scale-labels');
+  labels.append(el('span', null, 'unlucky'), el('span', null, 'lucky'));
+
+  return slide(
+    'slide-scale',
+    el('div', 'small-title', 'the balance'),
+    scale,
+    labels,
+    el('div', 'muted', tilt > 2 ? 'the account leans spooned' : tilt < -2 ? 'the account leans dry' : 'dead even'),
+    plugLine(),
+  );
+}
+
 function sparkles() {
   const wrap = el('div', 'sparkles');
   for (let i = 0; i < 8; i++) {
@@ -706,7 +910,7 @@ slidesEl.addEventListener('click', (ev) => {
 // ---- sharing --------------------------------------------------------------
 
 function shareText(spoons, fries, pct, verdict) {
-  const bits = [`my osrs account is luckier than ${fmtPct(pct)}% of accounts (${verdict.name.toLowerCase()})`];
+  const bits = [`my osrs account has better rng than ${fmtPct(pct)}% of accounts (${verdict.name.toLowerCase()})`];
   if (spoons[0]) bits.push(`biggest spoon: ${describe(spoons[0])}`);
   if (fries[0]) bits.push(`driest grind: ${describe(fries[0])}`);
   bits.push(`check yours: ${location.origin}${location.pathname}`);
@@ -733,7 +937,7 @@ function shareRow(spoons, fries, pct, verdict) {
   });
 
   const cardBtn = el('button', 'share-btn', 'save card');
-  cardBtn.addEventListener('click', () => downloadCard(spoons, fries, pct, verdict));
+  cardBtn.addEventListener('click', () => downloadCard(spoons, fries, pct, verdict, (state._rsn ?? '').trim()));
 
   const againBtn = el('button', 'share-btn ghost', 'edit answers');
   againBtn.addEventListener('click', () => {
@@ -747,7 +951,7 @@ function shareRow(spoons, fries, pct, verdict) {
 }
 
 // text-only card so the canvas never taints on cross-origin wiki images
-function downloadCard(spoons, fries, pct, verdict) {
+function downloadCard(spoons, fries, pct, verdict, rsn) {
   const W = 1080;
   const H = 1350;
   const c = document.createElement('canvas');
@@ -772,9 +976,9 @@ function downloadCard(spoons, fries, pct, verdict) {
   };
 
   center('SPOONCHECK', 150, 72, '#ffcc33');
-  center('osrs luck, wrapped', 210, 40, '#998f76');
+  center('osrs rng, wrapped', 210, 40, '#998f76');
   center(verdict.name, 420, 92, pct >= 45 ? '#ffcc33' : '#ff6b3d');
-  center(`luckier than ${fmtPct(pct)}% of accounts`, 500, 46, '#fff');
+  center(`better rng than ${fmtPct(pct)}% of accounts`, 500, 46, '#fff');
   center(verdict.blurb, 560, 34, '#998f76');
 
   let y = 720;
@@ -801,6 +1005,7 @@ function downloadCard(spoons, fries, pct, verdict) {
     y += 160;
   }
 
+  if (rsn) center(rsn, H - 210, 46, '#fff');
   center(`made by ${CONFIG.handle}`, H - 150, 40, '#998f76');
   center(CONFIG.twitch, H - 95, 44, '#ffcc33');
 

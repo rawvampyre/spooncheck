@@ -14,7 +14,7 @@ export async function lookupAccount(name) {
   if (!user) throw new Error('type your osrs name first');
   const [wom, clog] = await Promise.all([fetchWom(user), fetchClog(user)]);
   if (!wom && !clog) {
-    throw new Error('nothing found for that name. is it spelled right?');
+    throw new Error('nothing found for that name. use your exact in game name');
   }
 
   const out = { kc: {}, owned: null, womOk: !!wom, clogOk: !!clog };
@@ -27,10 +27,18 @@ export async function lookupAccount(name) {
       const kc = item.womKind === 'activity' ? acts[item.wom]?.score : bosses[item.wom]?.kills;
       if (Number.isFinite(kc) && kc > 0) out.kc[item.id] = kc;
     }
+    // section inputs the hiscores carry. yama kc lands in the solo box
+    // as a best guess, the player corrects the split
+    out.pools = {};
+    const raids = (bosses.tombs_of_amascut?.kills ?? 0) + (bosses.tombs_of_amascut_expert?.kills ?? 0);
+    if (raids > 0) out.pools.toa = { raids };
+    const yamaKills = bosses.yama?.kills ?? 0;
+    if (yamaKills > 0) out.pools.yama = { soloKc: yamaKills };
   }
 
   if (clog) {
     out.owned = {};
+    out.counts = {};
     for (const item of ITEMS) {
       // no clog ids on file for this grind = ownership is unknowable from
       // the log, never "not owned". set grinds (clogAll) need every piece.
@@ -39,6 +47,11 @@ export async function lookupAccount(name) {
           ? item.clogIds.every((id) => clog.has(id))
           : item.clogIds.some((id) => clog.has(id))
         : null;
+      // piece-built counted grinds (moon sets, noxious halberd): every
+      // piece is its own log slot, so the count is knowable exactly
+      if (item.multi && (item.clogIds?.length ?? 0) >= item.multi) {
+        out.counts[item.id] = item.clogIds.filter((id) => clog.has(id)).length;
+      }
     }
   }
 

@@ -59,7 +59,9 @@ input {
 
 #intro { display: flex; align-items: center; justify-content: center; text-align: center; }
 
-.spoon-mark { font-size: 64px; animation: bob 2.4s ease-in-out infinite; }
+.spoon-mark { width: 72px; height: 72px; object-fit: contain; image-rendering: pixelated; animation: bob 2.4s ease-in-out infinite; }
+
+.fineprint { font-size: 13px; color: #6e6350; max-width: 360px; margin: 14px auto 0; line-height: 1.4; }
 
 h1 {
   font-size: 54px;
@@ -174,9 +176,26 @@ h1 {
 .mode-btn { font-size: 14px; padding: 7px 9px; color: var(--muted); }
 .mode-btn.on { background: var(--gold); border-color: #8a6d1c; color: #14100a; }
 
-.kc-wrap { grid-area: kc; display: flex; align-items: center; gap: 10px; margin-top: 6px; }
+.kc-wrap { grid-area: kc; display: flex; align-items: center; gap: 8px; flex-wrap: wrap; margin-top: 6px; }
 .kc-wrap input { width: 110px; font-size: 17px; padding: 7px 10px; color: var(--gold); }
+.kc-wrap select {
+  font-family: inherit;
+  font-size: 15px;
+  padding: 7px 8px;
+  background: #1d1710;
+  border: 2px solid var(--border);
+  border-radius: 6px;
+  color: #fff;
+}
 .kc-label { font-size: 14px; color: var(--muted); }
+
+.item-note { font-size: 12.5px; color: #7d7360; margin-top: 1px; }
+
+/* section-wide inputs: raid level, solo and duo kills, delves per level */
+.pool-row { display: flex; flex-wrap: wrap; gap: 8px; background: var(--panel); border: 2px solid var(--border); border-radius: 8px; padding: 10px 12px; margin-bottom: 10px; }
+.pool-field { display: flex; flex-direction: column; gap: 3px; }
+.pool-label { font-size: 12.5px; color: var(--muted); }
+.pool-field input { width: 88px; font-size: 16px; padding: 6px 8px; color: var(--gold); }
 
 /* review step */
 
@@ -197,7 +216,19 @@ h1 {
 
 /* processing gag */
 
-.processing { padding: 40px 8px; display: flex; flex-direction: column; gap: 14px; min-height: 50dvh; }
+.processing { padding: 20px 8px 40px; display: flex; flex-direction: column; gap: 14px; min-height: 50dvh; }
+
+.vortex { position: relative; height: 190px; }
+.vortex-icon {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: 30px;
+  image-rendering: pixelated;
+  opacity: 0;
+  animation: vortex-spin var(--d, 2s) ease-in infinite;
+}
+.proc-lines { display: flex; flex-direction: column; gap: 12px; }
 .proc-line { font-size: 18px; color: #ddd; animation: proc-in 0.3s ease-out; }
 .proc-line::before { content: '> '; color: var(--ok); }
 .proc-line.audit { color: var(--red); }
@@ -378,3 +409,64 @@ h1 {
 @keyframes pulse-hint { 0%, 100% { opacity: 0.5; } 50% { opacity: 1; } }
 
 @keyframes g-grow { from { width: 0; } }
+
+@keyframes vortex-spin {
+  0% { transform: rotate(var(--a0, 0deg)) translateX(150px) scale(1); opacity: 0; }
+  12% { opacity: 1; }
+  100% { transform: rotate(calc(var(--a0, 0deg) + 540deg)) translateX(4px) scale(0.15); opacity: 0; }
+}
+
+/* the balance */
+
+.scale { position: relative; width: 300px; height: 158px; margin-top: 14px; }
+.scale-post {
+  position: absolute;
+  left: 50%;
+  bottom: 0;
+  transform: translateX(-50%);
+  width: 8px;
+  height: 108px;
+  background: #55492e;
+  border-radius: 3px;
+}
+.scale-post::after {
+  content: '';
+  position: absolute;
+  left: 50%;
+  bottom: -2px;
+  transform: translateX(-50%);
+  width: 84px;
+  height: 8px;
+  background: #55492e;
+  border-radius: 4px;
+}
+.scale-beam {
+  position: absolute;
+  left: 50%;
+  top: 46px;
+  width: 264px;
+  height: 7px;
+  margin-left: -132px;
+  background: #7a6a42;
+  border-radius: 4px;
+  transform: rotate(var(--tilt, 0deg));
+  transform-origin: center;
+}
+.slide.active .scale-beam { animation: beam-settle 1.5s cubic-bezier(0.3, 1.5, 0.4, 1); }
+.pan {
+  position: absolute;
+  top: -4px;
+  width: 92px;
+  transform: rotate(calc(-1 * var(--tilt, 0deg)));
+  transform-origin: top center;
+}
+.pan.left { left: -18px; }
+.pan.right { right: -18px; }
+.pan-icons { display: flex; flex-wrap: wrap; justify-content: center; align-items: flex-end; gap: 2px; min-height: 30px; }
+.pan-icon { image-rendering: pixelated; }
+.pan-plate { height: 10px; background: #55492e; border-radius: 0 0 10px 10px; }
+.scale-labels { display: flex; justify-content: space-between; width: 300px; font-size: 15px; color: var(--muted); }
+.scale-labels span:last-child { color: var(--green); }
+.scale-labels span:first-child { color: var(--red); }
+
+@keyframes beam-settle { from { transform: rotate(0deg); } }

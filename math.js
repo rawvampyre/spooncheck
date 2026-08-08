@@ -53,6 +53,18 @@ export function ladderDist(rates, kc) {
   return { tail: Math.max(0, 1 - done), exact };
 }
 
+// toa unique chance from average raid level, per the wiki formula: 1%
+// per (10500 - 20 * scaledLevel) points, capped at 55%, with the raid
+// level scaling squeezed above 310. assumes a typical completion earns
+// about 65 points per raid level, which lands on the community-quoted
+// rates (about 1/23 at 300, about 1/14 at 400)
+export function toaUniqueChance(raidLevel) {
+  const rl = Math.max(0, Math.min(1000, Number(raidLevel) || 0));
+  const scaled = rl <= 310 ? rl : rl <= 430 ? 310 + (rl - 310) / 3 : 350 + (rl - 430) / 6;
+  const points = 65 * rl;
+  return Math.min(0.55, points / (10500 - 20 * scaled) / 100);
+}
+
 // multi-drop grinds (zenytes: you usually want 4): "I have `count` at
 // `kc` kills". under the null the count is Binomial(kc, p), so the luck
 // score is the mid-p tail P(X < count) + P(X = count)/2 — more drops

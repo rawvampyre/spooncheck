@@ -24,9 +24,6 @@ const TANK_HELMS = [4716, 4724, 4745, 4753];
 const TANK_BODIES = [4720, 4728, 4749, 4757];
 const TANK_LEGS = [4722, 4730, 4751, 4759];
 
-// collecting 4 distinct 1/224 pieces: 4 missing -> 1 missing
-const MOON_LADDER = [56, 74.67, 112, 224];
-
 export const ITEMS = [
   // ---- the early game ----
   { id: 'bring', stage: 'the early game', name: 'Berserker ring', rate: 128, from: 'dagannoth rex', icon: 'Berserker_ring.png', wom: 'dagannoth_rex', clogIds: [6737], weight: 0.5 },
@@ -37,38 +34,44 @@ export const ITEMS = [
   { id: 'zaxe', stage: 'the early game', name: 'Zombie axe', rate: 800, from: 'armoured zombies', icon: 'Zombie_axe.png', clogIds: [28810, 28813], weight: 0.5 },
 
   // ---- varlamore era ----
-  // full moon sets: 4 pieces each at 1/224 from the chest, so completing
-  // a set is phases of 4/224 -> 3/224 -> 2/224 -> 1/224, about 467
-  // chests on average. owning the set means every piece is in the log.
-  { id: 'bloodset', stage: 'varlamore era', name: 'Full blood moon set', rate: 467, from: 'lunar chests', icon: 'Blood_moon_chestplate.png', note: 'all 4 pieces, each 1/224, about 467 chests average', ladder: MOON_LADDER, unit: 'chests', wom: 'lunar_chests', clogIds: [29028, 29022, 29025, 28997], clogAll: true, weight: 0.75 },
-  { id: 'blueset', stage: 'varlamore era', name: 'Full blue moon set', rate: 467, from: 'lunar chests', icon: 'Blue_moon_chestplate.png', note: 'all 4 pieces, each 1/224, about 467 chests average', ladder: MOON_LADDER, unit: 'chests', wom: 'lunar_chests', clogIds: [29019, 29013, 29016, 28988], clogAll: true, weight: 0.75 },
-  { id: 'eclipseset', stage: 'varlamore era', name: 'Full eclipse moon set', rate: 467, from: 'lunar chests', icon: 'Eclipse_moon_chestplate.png', note: 'all 4 pieces, each 1/224, about 467 chests average', ladder: MOON_LADDER, unit: 'chests', wom: 'lunar_chests', clogIds: [29010, 29004, 29007, 29000], clogAll: true, weight: 0.75 },
-  { id: 'deadeye', stage: 'varlamore era', name: 'Deadeye prayer scroll', rate: 75, from: 'royal titans', icon: 'Deadeye_prayer_scroll.png', wom: 'the_royal_titans', clogIds: [30626], weight: 0.5 },
-  { id: 'vigour', stage: 'varlamore era', name: 'Mystic vigour prayer scroll', rate: 75, from: 'royal titans', icon: 'Mystic_vigour_prayer_scroll.png', wom: 'the_royal_titans', clogIds: [30627], weight: 0.5 },
-  { id: 'twinflame', stage: 'varlamore era', name: 'Twinflame staff crown', rate: 75, from: 'royal titans', icon: 'Twinflame_staff.png', note: 'per crown, staff needs both', wom: 'the_royal_titans', clogIds: [], weight: 0.5 },
-  { id: 'dhwand', stage: 'varlamore era', name: 'Dragon hunter wand', rate: 105, from: 'the hueycoatl', icon: 'Dragon_hunter_wand.png', wom: 'the_hueycoatl', clogIds: [30070], weight: 0.5 },
+  // full moon sets: with all 3 moons killed, each chest rolls 1/56 per
+  // moon for that moon's set, and a set never repeats a piece until it's
+  // complete — so a full set is 4 hits at 1/56, about 224 chests. the
+  // pieces are separate log slots so the import counts them exactly.
+  { id: 'bloodset', stage: 'varlamore era', name: 'Full blood moon set', rate: 56, from: 'lunar chests', icon: 'Blood_moon_chestplate.png', note: 'a new piece every 1/56, full set about 224 chests', multi: 4, unit: 'chests', wom: 'lunar_chests', clogIds: [29028, 29022, 29025, 28997], weight: 0.75 },
+  { id: 'blueset', stage: 'varlamore era', name: 'Full blue moon set', rate: 56, from: 'lunar chests', icon: 'Blue_moon_chestplate.png', note: 'a new piece every 1/56, full set about 224 chests', multi: 4, unit: 'chests', wom: 'lunar_chests', clogIds: [29019, 29013, 29016, 28988], weight: 0.75 },
+  { id: 'eclipseset', stage: 'varlamore era', name: 'Full eclipse moon set', rate: 56, from: 'lunar chests', icon: 'Eclipse_moon_chestplate.png', note: 'a new piece every 1/56, full set about 224 chests', multi: 4, unit: 'chests', wom: 'lunar_chests', clogIds: [29010, 29004, 29007, 29000], weight: 0.75 },
+  // royal titans and hueycoatl drops scale linearly with your damage
+  // share (1/75 solo is 1/150 in an even duo), so these carry the group
+  // size picker
+  { id: 'deadeye', stage: 'varlamore era', name: 'Deadeye prayer scroll', rate: 75, from: 'eldric the ice king', icon: 'Deadeye_prayer_scroll.png', note: 'full contribution rate', group: true, wom: 'the_royal_titans', clogIds: [30626], weight: 0.5 },
+  { id: 'vigour', stage: 'varlamore era', name: 'Mystic vigour prayer scroll', rate: 75, from: 'branda the fire queen', icon: 'Mystic_vigour_prayer_scroll.png', note: 'full contribution rate', group: true, wom: 'the_royal_titans', clogIds: [30627], weight: 0.5 },
+  // one crown from each titan at 1/75: either crown first (~1/38), then
+  // the missing one (1/75), about 113 kills for both at full contribution
+  { id: 'twinflame', stage: 'varlamore era', name: 'Twinflame staff crowns', rate: 113, from: 'royal titans', icon: 'Twinflame_staff.png', note: 'fire and ice crown, one per titan, each 1/75 at full contribution', ladder: [37.8, 75], group: true, wom: 'the_royal_titans', clogIds: [], weight: 0.5 },
+  { id: 'dhwand', stage: 'varlamore era', name: 'Dragon hunter wand', rate: 105, from: 'the hueycoatl', icon: 'Dragon_hunter_wand.png', note: 'full contribution rate', group: true, wom: 'the_hueycoatl', clogIds: [30070], weight: 0.5 },
 
   // ---- the big unlocks ----
-  { id: 'dpick', stage: 'the big unlocks', name: 'Dragon pickaxe', rate: 400, from: 'kalphite queen', icon: 'Dragon_pickaxe.png', note: 'kalphite queen rate, wilderness bosses differ', wom: 'kalphite_queen', clogIds: [11920], weight: 0.5 },
-  { id: 'dwh', stage: 'the big unlocks', name: 'Dragon warhammer', rate: 5000, from: 'lizardman shamans', icon: 'Dragon_warhammer.png', clogIds: [13576], weight: 2 },
-  { id: 'zenyte', stage: 'the big unlocks', name: 'Zenyte shards', rate: 300, from: 'demonic gorillas', icon: 'Zenyte_shard.png', note: 'you usually want 4', multi: 4, clogIds: [19529], weight: 1.5 },
-  { id: 'jaw', stage: 'the big unlocks', name: 'Basilisk jaw', rate: 1000, from: 'basilisk knights', icon: 'Basilisk_jaw.png', clogIds: [24268], weight: 1 },
+  { id: 'dpick', stage: 'the big unlocks', name: 'Dragon pickaxe', rate: 358, from: 'wilderness bosses', icon: 'Dragon_pickaxe.png', variants: [['wildy singles', 358], ['chaos elemental', 256], ['kalphite queen', 400]], clogIds: [11920], weight: 0.5 },
+  { id: 'dwh', stage: 'the big unlocks', name: 'Dragon warhammer', rate: 3000, from: 'lizardman shamans', icon: 'Dragon_warhammer.png', variants: [['1/3000', 3000], ['old rate 1/5000', 5000]], clogIds: [13576], weight: 2 },
+  { id: 'zenyte', stage: 'the big unlocks', name: 'Zenyte shard', rate: 300, from: 'demonic gorillas', icon: 'Zenyte_shard.png', clogIds: [19529], weight: 1.5 },
+  { id: 'jaw', stage: 'the big unlocks', name: 'Basilisk jaw', rate: 1000, from: 'basilisk knights', icon: 'Basilisk_jaw.png', variants: [['on task', 1000], ['off task', 5000]], clogIds: [24268], weight: 1 },
 
   // ---- demon business ----
-  { id: 'synapse', stage: 'demon business', name: 'Tormented synapses', rate: 500, from: 'tormented demons', icon: 'Tormented_synapse.png', note: 'want 2, emberlight + scorching bow', multi: 2, clogIds: [29580], weight: 1 },
-  { id: 'bclaw', stage: 'demon business', name: 'Burning claws', rate: 500, from: 'tormented demons', icon: 'Burning_claw.png', note: 'want 2 for the pair', multi: 2, clogIds: [29574], weight: 1 },
+  { id: 'synapse', stage: 'demon business', name: 'Tormented synapse', rate: 500, from: 'tormented demons', icon: 'Tormented_synapse.png', note: 'makes emberlight or scorching bow', clogIds: [29580], weight: 1 },
+  { id: 'bclaw', stage: 'demon business', name: 'Burning claw', rate: 500, from: 'tormented demons', icon: 'Burning_claw.png', clogIds: [29574], weight: 1 },
 
   // ---- the gauntlet ----
-  { id: 'cseed', stage: 'the gauntlet', name: 'Crystal armour seeds', rate: 50, from: 'corrupted gauntlet', icon: 'Crystal_armour_seed.png', note: 'cg rate, full set needs 6', multi: 6, wom: 'the_corrupted_gauntlet', clogIds: [23956], weight: 1 },
-  { id: 'bowfa', stage: 'the gauntlet', name: 'Enh. crystal weapon seeds', rate: 400, from: 'corrupted gauntlet', icon: 'Enhanced_crystal_weapon_seed.png', note: 'cg rate, some want 2', multi: 2, wom: 'the_corrupted_gauntlet', clogIds: [25859], weight: 2 },
+  { id: 'cseed', stage: 'the gauntlet', name: 'Crystal armour seed', rate: 50, from: 'corrupted gauntlet', icon: 'Crystal_armour_seed.png', note: 'cg rate', wom: 'the_corrupted_gauntlet', clogIds: [23956], weight: 1 },
+  { id: 'bowfa', stage: 'the gauntlet', name: 'Enh. crystal weapon seed', rate: 400, from: 'corrupted gauntlet', icon: 'Enhanced_crystal_weapon_seed.png', note: 'cg rate', wom: 'the_corrupted_gauntlet', clogIds: [25859], weight: 2 },
 
   // ---- slayer era ----
-  { id: 'tanz', stage: 'slayer era', name: 'Tanzanite fang', rate: 512, from: 'zulrah', icon: 'Tanzanite_fang.png', wom: 'zulrah', clogIds: [12922], weight: 1.5 },
-  { id: 'trident', stage: 'slayer era', name: 'Trident of the seas', rate: 512, from: 'kraken', icon: 'Trident_of_the_seas.png', wom: 'kraken', clogIds: [11905, 11907], weight: 1 },
+  { id: 'tanz', stage: 'slayer era', name: 'Tanzanite fang', rate: 512, from: 'zulrah', icon: 'Tanzanite_fang.png', note: 'two rolls of 1/1024 per kill', wom: 'zulrah', clogIds: [12922], weight: 1.5 },
+  { id: 'trident', stage: 'slayer era', name: 'Trident of the seas', rate: 200, from: 'krakens', icon: 'Trident_of_the_seas.png', variants: [['cave krakens', 200], ['kraken boss', 512]], clogIds: [11905, 11907], weight: 1 },
   { id: 'tent', stage: 'slayer era', name: 'Kraken tentacle', rate: 400, from: 'kraken', icon: 'Kraken_tentacle.png', wom: 'kraken', clogIds: [12004], weight: 0.5 },
-  { id: 'whip', stage: 'slayer era', name: 'Abyssal whip', rate: 512, from: 'abyssal demons', icon: 'Abyssal_whip.png', clogIds: [4151], weight: 1 },
-  { id: 'unsired', stage: 'slayer era', name: 'Unsired', rate: 100, from: 'abyssal sire', icon: 'Unsired.png', note: 'bludgeon needs ~6', wom: 'abyssal_sire', clogIds: [13273], weight: 0.5 },
-  { id: 'occult', stage: 'slayer era', name: 'Occult necklace', rate: 350, from: 'thermy', icon: 'Occult_necklace.png', note: 'thermy rate', wom: 'thermonuclear_smoke_devil', clogIds: [12002], weight: 1 },
+  { id: 'whip', stage: 'slayer era', name: 'Abyssal whip', rate: 512, from: 'abyssal demons', icon: 'Abyssal_whip.png', variants: [['abyssal demons', 512], ['abyssal sire', 1067]], clogIds: [4151], weight: 1 },
+  { id: 'unsired', stage: 'slayer era', name: 'Unsired', rate: 100, from: 'abyssal sire', icon: 'Unsired.png', wom: 'abyssal_sire', clogIds: [13273], weight: 0.5 },
+  { id: 'occult', stage: 'slayer era', name: 'Occult necklace', rate: 350, from: 'smoke devils', icon: 'Occult_necklace.png', variants: [['thermy', 350], ['smoke devils', 512]], wom: 'thermonuclear_smoke_devil', clogIds: [12002], weight: 1 },
   { id: 'icon', stage: 'slayer era', name: 'Ancient icon', rate: 50, from: 'phantom muspah', icon: 'Ancient_icon.png', wom: 'phantom_muspah', clogIds: [27627], weight: 0.5 },
 
   // ---- god wars ----
@@ -78,9 +81,9 @@ export const ITEMS = [
   { id: 'zspear', stage: 'god wars', name: 'Zamorakian spear', rate: 128, from: 'kril tsutsaroth', icon: 'Zamorakian_spear.png', wom: 'kril_tsutsaroth', clogIds: [11824], weight: 0.75 },
 
   // ---- the wilderness section ----
-  { id: 'vwgem', stage: 'the wilderness section', name: 'Voidwaker gem', rate: 360, from: 'venenatis', icon: 'Voidwaker_gem.png', note: 'big boss rate', wom: 'venenatis', clogIds: [27687], weight: 1 },
-  { id: 'vwblade', stage: 'the wilderness section', name: 'Voidwaker blade', rate: 360, from: 'vetion', icon: 'Voidwaker_blade.png', note: 'big boss rate', wom: 'vetion', clogIds: [27684], weight: 1 },
-  { id: 'vwhilt', stage: 'the wilderness section', name: 'Voidwaker hilt', rate: 360, from: 'callisto', icon: 'Voidwaker_hilt.png', note: 'big boss rate', wom: 'callisto', clogIds: [27681], weight: 1 },
+  { id: 'vwgem', stage: 'the wilderness section', name: 'Voidwaker gem', rate: 912, from: 'spindel', icon: 'Voidwaker_gem.png', wom: 'spindel', clogIds: [27687], weight: 1 },
+  { id: 'vwblade', stage: 'the wilderness section', name: 'Voidwaker blade', rate: 912, from: 'calvarion', icon: 'Voidwaker_blade.png', wom: 'calvarion', clogIds: [27684], weight: 1 },
+  { id: 'vwhilt', stage: 'the wilderness section', name: 'Voidwaker hilt', rate: 912, from: 'artio', icon: 'Voidwaker_hilt.png', wom: 'artio', clogIds: [27681], weight: 1 },
 
   // ---- cerberus ----
   { id: 'prim', stage: 'cerberus', name: 'Primordial crystal', rate: 512, from: 'cerberus', icon: 'Primordial_crystal.png', wom: 'cerberus', clogIds: [13231], weight: 1 },
@@ -96,25 +99,29 @@ export const ITEMS = [
   { id: 'afang', stage: 'araxxor', name: 'Araxyte fang', rate: 600, from: 'araxxor', icon: 'Araxyte_fang.png', note: 'makes rancour', wom: 'araxxor', clogIds: [29799], weight: 1 },
 
   // ---- tombs of amascut ----
-  { id: 'fang', stage: 'tombs of amascut', name: "Osmumten's fang", rate: 3.43, from: 'toa purples', icon: "Osmumten's_fang.png", note: '7/24 of purples', unit: 'purples', clogIds: [26219], weight: 1.5 },
-  { id: 'lightb', stage: 'tombs of amascut', name: 'Lightbearer', rate: 3.43, from: 'toa purples', icon: 'Lightbearer.png', note: '7/24 of purples', unit: 'purples', clogIds: [25975], weight: 1 },
-  { id: 'ward', stage: 'tombs of amascut', name: "Elidinis' ward", rate: 8, from: 'toa purples', icon: "Elidinis'_ward.png", note: '3/24 of purples', unit: 'purples', clogIds: [25985], weight: 1 },
-  { id: 'mmask', stage: 'tombs of amascut', name: 'Masori mask', rate: 12, from: 'toa purples', icon: 'Masori_mask.png', note: '2/24 of purples', unit: 'purples', clogIds: [27226], weight: 1 },
-  { id: 'mbody', stage: 'tombs of amascut', name: 'Masori body', rate: 12, from: 'toa purples', icon: 'Masori_body.png', note: '2/24 of purples', unit: 'purples', clogIds: [27229], weight: 1 },
-  { id: 'mchaps', stage: 'tombs of amascut', name: 'Masori chaps', rate: 12, from: 'toa purples', icon: 'Masori_chaps.png', note: '2/24 of purples', unit: 'purples', clogIds: [27232], weight: 1 },
-  { id: 'shadow', stage: 'tombs of amascut', name: "Tumeken's shadow", rate: 24, from: 'toa purples', icon: "Tumeken's_shadow.png", note: '1/24 of purples', unit: 'purples', clogIds: [27275, 27277], weight: 2.5 },
+  // purple chance comes from the section's average raid level input via
+  // the wiki formula, then each item takes its weight of the unique roll
+  { id: 'fang', stage: 'tombs of amascut', name: "Osmumten's fang", rate: 3.43, pweight: 7, pool: 'toa', from: 'toa', icon: "Osmumten's_fang.png", note: '7 of 24 unique rolls', unit: 'raids', clogIds: [26219], weight: 1.5 },
+  { id: 'lightb', stage: 'tombs of amascut', name: 'Lightbearer', rate: 3.43, pweight: 7, pool: 'toa', from: 'toa', icon: 'Lightbearer.png', note: '7 of 24 unique rolls', unit: 'raids', clogIds: [25975], weight: 1 },
+  { id: 'ward', stage: 'tombs of amascut', name: "Elidinis' ward", rate: 8, pweight: 3, pool: 'toa', from: 'toa', icon: "Elidinis'_ward.png", note: '3 of 24 unique rolls', unit: 'raids', clogIds: [25985], weight: 1 },
+  { id: 'mmask', stage: 'tombs of amascut', name: 'Masori mask', rate: 12, pweight: 2, pool: 'toa', from: 'toa', icon: 'Masori_mask.png', note: '2 of 24 unique rolls', unit: 'raids', clogIds: [27226], weight: 1 },
+  { id: 'mbody', stage: 'tombs of amascut', name: 'Masori body', rate: 12, pweight: 2, pool: 'toa', from: 'toa', icon: 'Masori_body.png', note: '2 of 24 unique rolls', unit: 'raids', clogIds: [27229], weight: 1 },
+  { id: 'mchaps', stage: 'tombs of amascut', name: 'Masori chaps', rate: 12, pweight: 2, pool: 'toa', from: 'toa', icon: 'Masori_chaps.png', note: '2 of 24 unique rolls', unit: 'raids', clogIds: [27232], weight: 1 },
+  { id: 'shadow', stage: 'tombs of amascut', name: "Tumeken's shadow", rate: 24, pweight: 1, pool: 'toa', from: 'toa', icon: "Tumeken's_shadow.png", note: '1 of 24 unique rolls', unit: 'raids', clogIds: [27275, 27277], weight: 2.5 },
 
   // ---- yama ----
-  { id: 'horn', stage: 'yama', name: 'Soulflame horn', rate: 300, from: 'yama', icon: 'Soulflame_horn.png', note: 'solo rate', wom: 'yama', clogIds: [30759], weight: 1 },
-  { id: 'oathhelm', stage: 'yama', name: 'Oathplate helm', rate: 600, from: 'yama', icon: 'Oathplate_helm.png', wom: 'yama', clogIds: [30750], weight: 1.5 },
-  { id: 'oathchest', stage: 'yama', name: 'Oathplate chest', rate: 600, from: 'yama', icon: 'Oathplate_chest.png', wom: 'yama', clogIds: [30753], weight: 1.5 },
-  { id: 'oathlegs', stage: 'yama', name: 'Oathplate legs', rate: 600, from: 'yama', icon: 'Oathplate_legs.png', wom: 'yama', clogIds: [30756], weight: 1.5 },
-  { id: 'rite', stage: 'yama', name: 'Rite of vile transference', rate: 182, from: 'yama', icon: 'Rite_of_vile_transference.png', note: 'effective solo', wom: 'yama', clogIds: [30806], weight: 0.5 },
+  // duo kills roll at half the solo rate, the section asks for both kcs
+  { id: 'horn', stage: 'yama', name: 'Soulflame horn', rate: 300, pool: 'yama', from: 'yama', icon: 'Soulflame_horn.png', unit: 'kills', clogIds: [30759], weight: 1 },
+  { id: 'oathhelm', stage: 'yama', name: 'Oathplate helm', rate: 600, pool: 'yama', from: 'yama', icon: 'Oathplate_helm.png', unit: 'kills', clogIds: [30750], weight: 1.5 },
+  { id: 'oathchest', stage: 'yama', name: 'Oathplate chest', rate: 600, pool: 'yama', from: 'yama', icon: 'Oathplate_chest.png', unit: 'kills', clogIds: [30753], weight: 1.5 },
+  { id: 'oathlegs', stage: 'yama', name: 'Oathplate legs', rate: 600, pool: 'yama', from: 'yama', icon: 'Oathplate_legs.png', unit: 'kills', clogIds: [30756], weight: 1.5 },
 
   // ---- doom of mokhaiotl ----
-  { id: 'ayak', stage: 'doom of mokhaiotl', name: 'Eye of ayak', rate: 540, from: 'doom of mokhaiotl', icon: 'Eye_of_ayak.png', note: 'delve 9+ rate', wom: 'doom_of_mokhaiotl', clogIds: [31115], weight: 1.5 },
-  { id: 'cloth', stage: 'doom of mokhaiotl', name: 'Mokhaiotl cloth', rate: 540, from: 'doom of mokhaiotl', icon: 'Mokhaiotl_cloth.png', note: 'delve 9+ rate, makes confliction', wom: 'doom_of_mokhaiotl', clogIds: [31109], weight: 1 },
-  { id: 'treads', stage: 'doom of mokhaiotl', name: 'Avernic treads', rate: 540, from: 'doom of mokhaiotl', icon: 'Avernic_treads.png', note: 'delve 9+ rate', wom: 'doom_of_mokhaiotl', clogIds: [31088], weight: 1.5 },
+  // rates deepen with the delve level, the section asks how many delves
+  // at each level. delveRates run levels 2,3,4,5,6,7,8,9+
+  { id: 'ayak', stage: 'doom of mokhaiotl', name: 'Eye of ayak', rate: 540, pool: 'doom', delveRates: [2000, 2000, 1350, 810, 765, 720, 630, 540], from: 'doom of mokhaiotl', icon: 'Eye_of_ayak.png', unit: 'delves', clogIds: [31115], weight: 1.5 },
+  { id: 'cloth', stage: 'doom of mokhaiotl', name: 'Mokhaiotl cloth', rate: 540, pool: 'doom', delveRates: [2500, 2000, 1350, 810, 765, 720, 630, 540], from: 'doom of mokhaiotl', icon: 'Mokhaiotl_cloth.png', note: 'makes confliction gauntlets', unit: 'delves', clogIds: [31109], weight: 1 },
+  { id: 'treads', stage: 'doom of mokhaiotl', name: 'Avernic treads', rate: 540, pool: 'doom', delveRates: [null, null, 1350, 810, 765, 720, 630, 540], from: 'doom of mokhaiotl', icon: 'Avernic_treads.png', note: 'delve 4 or deeper only', unit: 'delves', clogIds: [31088], weight: 1.5 },
 
   // ---- desert treasure 2 ----
   { id: 'ultor', stage: 'desert treasure 2', name: 'Ultor vestige', rate: 1088, from: 'vardorvis', icon: 'Ultor_vestige.png', note: 'long-run rate', wom: 'vardorvis', clogIds: [28285], weight: 1.5 },
@@ -139,12 +146,30 @@ export const ITEMS = [
   { id: 'scythe', stage: 'theatre of blood', name: 'Scythe of vitur', rate: 19, from: 'tob purples', icon: 'Scythe_of_vitur.png', note: '1/19 of purples', unit: 'purples', clogIds: [22325, 22486], weight: 2.5 },
 
   // ---- nex ----
-  { id: 'torvahelm', stage: 'nex', name: 'Torva full helm', rate: 258, from: 'nex', icon: 'Torva_full_helm.png', wom: 'nex', clogIds: [26376, 26382], weight: 1.5 },
-  { id: 'torvabody', stage: 'nex', name: 'Torva platebody', rate: 258, from: 'nex', icon: 'Torva_platebody.png', wom: 'nex', clogIds: [26378, 26384], weight: 1.5 },
-  { id: 'torvalegs', stage: 'nex', name: 'Torva platelegs', rate: 258, from: 'nex', icon: 'Torva_platelegs.png', wom: 'nex', clogIds: [26380, 26386], weight: 1.5 },
-  { id: 'nihil', stage: 'nex', name: 'Nihil horn', rate: 258, from: 'nex', icon: 'Nihil_horn.png', note: 'makes zaryte crossbow', wom: 'nex', clogIds: [26372], weight: 1.5 },
-  { id: 'vambs', stage: 'nex', name: 'Zaryte vambraces', rate: 172, from: 'nex', icon: 'Zaryte_vambraces.png', wom: 'nex', clogIds: [26235], weight: 1 },
+  // the quoted rates are per kill, your share splits with the team, so
+  // the section asks for an average group size
+  { id: 'torvahelm', stage: 'nex', name: 'Torva full helm', rate: 258, pool: 'nex', from: 'nex', icon: 'Torva_full_helm.png', wom: 'nex', clogIds: [26376, 26382], weight: 1.5 },
+  { id: 'torvabody', stage: 'nex', name: 'Torva platebody', rate: 258, pool: 'nex', from: 'nex', icon: 'Torva_platebody.png', wom: 'nex', clogIds: [26378, 26384], weight: 1.5 },
+  { id: 'torvalegs', stage: 'nex', name: 'Torva platelegs', rate: 258, pool: 'nex', from: 'nex', icon: 'Torva_platelegs.png', wom: 'nex', clogIds: [26380, 26386], weight: 1.5 },
+  { id: 'nihil', stage: 'nex', name: 'Nihil horn', rate: 258, pool: 'nex', from: 'nex', icon: 'Nihil_horn.png', note: 'makes zaryte crossbow', wom: 'nex', clogIds: [26372], weight: 1.5 },
+  { id: 'vambs', stage: 'nex', name: 'Zaryte vambraces', rate: 172, pool: 'nex', from: 'nex', icon: 'Zaryte_vambraces.png', wom: 'nex', clogIds: [26235], weight: 1 },
 ];
+
+// section-level inputs shared by every item in that pool. kind 'window'
+// pools replace per-item kc inputs (the answer is just got or dry inside
+// that window), 'modifier' pools only adjust the rate.
+export const POOLS = {
+  toa: { kind: 'window', fields: [['raidLevel', 'average raid level'], ['raids', 'total raids']] },
+  yama: { kind: 'window', fields: [['soloKc', 'solo kills'], ['duoKc', 'duo kills']] },
+  doom: {
+    kind: 'window',
+    fields: [
+      ['d2', 'delve 2s'], ['d3', 'delve 3s'], ['d4', 'delve 4s'], ['d5', 'delve 5s'],
+      ['d6', 'delve 6s'], ['d7', 'delve 7s'], ['d8', 'delve 8s'], ['d9', 'delve 9+'],
+    ],
+  },
+  nex: { kind: 'modifier', fields: [['group', 'average group size']] },
+};
 
 // wizard sections in chart order
 export const STAGES = [...new Set(ITEMS.map((i) => i.stage))];
