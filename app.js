@@ -2,6 +2,12 @@ import { ITEMS, STAGES, itemsInStage, sectionOf, iconUrl, POOLS, WIKI_IMG } from
 import { luckOfGet, luckOfDry, luckOfCount, countTail, ladderDist, toaUniqueChance, stillDryChance, multiplier, overallPercentile, verdictFor } from './math.js';
 import { lookupAccount } from './lookup.js';
 import { HANDLE, TWITCH, sectionTitle } from './config.js';
+import { play } from './sounds.js';
+
+// every real button gets the interface thock
+document.addEventListener('click', (ev) => {
+  if (ev.target.closest('button')) play('click', 0.3);
+});
 
 const CONFIG = { handle: HANDLE, twitch: TWITCH };
 
@@ -187,6 +193,7 @@ async function runImport(name, goBtn, status) {
       `kcs filled in for ${filled} grinds off the hiscores`,
       'mark got it or still dry on each grind as you go through, kcs for untracked monsters stay manual',
     ];
+    play('firework', 0.5);
     status.textContent = '';
     renderStep();
   } catch (err) {
@@ -605,6 +612,7 @@ function runProcessing(rows) {
   proc.append(vortex, lines);
   flowBody.replaceChildren(proc);
   flowStep.textContent = 'processing';
+  play('cast', 0.6);
   let t = 300;
   for (const [line, dur] of PROCESSING_LINES) {
     setTimeout(() => {
@@ -671,6 +679,7 @@ function buildWrap(rows) {
       el('div', 'tap-hint', 'tap to continue'),
     ),
   );
+  slides[slides.length - 1].dataset.sound = 'jingle';
 
   if (spoons.length) {
     const s = spoons[0];
@@ -701,6 +710,7 @@ function buildWrap(rows) {
         sparkles(),
       ),
     );
+    slides[slides.length - 1].dataset.sound = 'mega';
   }
 
   if (fries.length) {
@@ -737,6 +747,7 @@ function buildWrap(rows) {
         ),
       ),
     );
+    slides[slides.length - 1].dataset.sound = 'moan';
   }
 
   if (spoons.length + fries.length > 1) {
@@ -768,6 +779,7 @@ function buildWrap(rows) {
       plugLine(),
     ),
   );
+  slides[slides.length - 1].dataset.sound = pct >= 50 ? 'firework' : 'splash';
 
   slides.push(receiptsSlide(rows));
   slides.push(scaleSlide(rows, pct));
@@ -975,6 +987,7 @@ function runScale(beam, piles, finalTilt) {
         if (!b.landed) {
           b.landed = true;
           landedDiff += b.side ? b.impact : -b.impact;
+          play('click', 0.22);
         }
       }
     }
@@ -1095,6 +1108,10 @@ function showSlide(i) {
   if (active._onActive && !active.dataset.ranActive) {
     active.dataset.ranActive = '1';
     active._onActive();
+  }
+  if (active.dataset.sound && !active.dataset.soundDone) {
+    active.dataset.soundDone = '1';
+    play(active.dataset.sound, 0.5);
   }
   const counter = slideEls[i].querySelector('.countup');
   if (counter && !counter.dataset.ran) {
