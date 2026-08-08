@@ -473,35 +473,42 @@ h1 {
 
 .g-note { font-size: 13px; }
 
-/* the sacred numbers */
-.hand-67 {
-  position: absolute;
-  top: 22%;
-  width: 62px;
+/* the sacred numbers replace the percentage */
+.num-egg { display: flex; align-items: center; justify-content: center; gap: 10px; }
+
+.hand-digit { position: relative; display: inline-block; }
+.hand-digit img {
+  width: 86px;
   image-rendering: pixelated;
   animation: hand-bob 0.55s ease-in-out infinite alternate;
+}
+.num-egg .hand-digit:nth-child(2) img { animation-delay: -0.55s; }
+.hand-digit .digit {
+  position: absolute;
+  top: 22%;
+  left: 50%;
+  translate: -50%;
+  color: var(--gold);
+  font-size: 46px;
+  text-shadow: 2px 2px 0 #000;
   pointer-events: none;
 }
-.hand-67.left { left: 9%; }
-.hand-67.right { right: 9%; animation-delay: -0.55s; transform: scaleX(-1); }
 
-.splat-73 {
-  position: absolute;
-  top: 16%;
-  right: 16%;
-  width: 66px;
-  height: 66px;
+.splat-num {
+  width: 124px;
+  height: 124px;
   background: url('icons/hitsplat_damage.png') center / contain no-repeat;
   image-rendering: pixelated;
   display: flex;
   align-items: center;
   justify-content: center;
   color: #fff;
-  font-size: 24px;
-  text-shadow: 1px 1px 0 #000;
+  font-size: 46px;
+  text-shadow: 2px 2px 0 #000;
   animation: pop-in 0.45s cubic-bezier(0.2, 1.6, 0.4, 1);
-  pointer-events: none;
 }
+
+.pct-sign { font-size: 64px; color: var(--gold); text-shadow: 3px 3px 0 #000; }
 
 @keyframes hand-bob {
   from { translate: 0 0; }

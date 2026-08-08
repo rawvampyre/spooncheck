@@ -873,11 +873,35 @@ function buildWrap(rows) {
     slides.push(slide('slide-board', el('div', 'small-title', 'spoons and dry streaks'), board));
   }
 
+  // the sacred numbers replace the percentage itself
+  const shown = fmtPct(pct);
+  let numberEl;
+  if (shown === '67') {
+    // two crawling hands pointing up, a 6 and a 7 on their hands, doing
+    // the six seven
+    numberEl = el('div', 'big-number num-egg');
+    for (const digit of ['6', '7']) {
+      const wrap = el('span', 'hand-digit');
+      const img = el('img');
+      img.src = 'icons/crawling_hand.png';
+      img.alt = '';
+      wrap.append(img, el('span', 'digit', digit));
+      numberEl.appendChild(wrap);
+    }
+    numberEl.appendChild(el('span', 'pct-sign', '%'));
+  } else if (shown === '73') {
+    // the 73 lives on a hitsplat
+    numberEl = el('div', 'big-number num-egg');
+    numberEl.append(el('span', 'splat-num', '73'), el('span', 'pct-sign', '%'));
+  } else {
+    numberEl = el('div', 'big-number countup gold', `${shown}%`);
+  }
+
   slides.push(
     slide(
       'slide-verdict',
       el('div', 'small-title', 'this account has better rng than'),
-      el('div', 'big-number countup gold', `${fmtPct(pct)}%`),
+      numberEl,
       el('div', 'small-title', 'of osrs accounts'),
       el('div', 'verdict-name', verdict.name),
       el('div', 'muted verdict-blurb', verdict.blurb),
@@ -885,23 +909,7 @@ function buildWrap(rows) {
       plugLine(),
     ),
   );
-  slides[slides.length - 1].dataset.sound = pct >= 50 ? 'firework' : 'splash';
-
-  // the sacred numbers
-  const shown = fmtPct(pct);
-  const vSlide = slides[slides.length - 1];
-  if (shown === '67') {
-    for (const side of ['left', 'right']) {
-      const hand = el('img', `hand-67 ${side}`);
-      hand.src = 'icons/crawling_hand.png';
-      hand.alt = '';
-      vSlide.appendChild(hand);
-    }
-  }
-  if (shown === '73') {
-    vSlide.appendChild(el('div', 'splat-73', '73'));
-    vSlide.dataset.sound = 'ags';
-  }
+  slides[slides.length - 1].dataset.sound = shown === '73' ? 'ags' : pct >= 50 ? 'firework' : 'splash';
 
   slides.push(receiptsSlide(rows));
   slides.push(scaleSlide(rows, pct));
