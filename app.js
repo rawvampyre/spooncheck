@@ -426,17 +426,20 @@ function computeResults() {
         q = Math.pow(1 - 1 / item.rate, solo) * Math.pow(1 - 1 / (2 * item.rate), duo);
         window = solo + duo;
         expected = solo / item.rate + duo / (2 * item.rate);
-      } else if (item.pool === 'doom') {
-        let delves = 0;
-        (item.delveRates ?? []).forEach((r, i) => {
-          const n = Math.round(Number(ps[`d${i + 2}`]) || 0);
-          if (!r || !n) return;
-          q *= Math.pow(1 - 1 / r, n);
-          delves += n;
-          expected += n / r;
+      } else if (item.fieldRates) {
+        // per-field rates: doom delve levels, superior slayer monsters —
+        // each section input has its own rate for this item
+        const fields = POOLS[item.pool].fields;
+        let n = 0;
+        item.fieldRates.forEach((r2, i) => {
+          const cnt = Math.round(Number(ps[fields[i][0]]) || 0);
+          if (!r2 || !cnt) return;
+          q *= Math.pow(1 - 1 / r2, cnt);
+          n += cnt;
+          expected += cnt / r2;
         });
-        if (!delves) continue;
-        window = delves;
+        if (!n) continue;
+        window = n;
       }
       rows.push({
         item,
@@ -573,8 +576,9 @@ const PROCESSING_LINES = [
 
 function runProcessing(rows) {
   const proc = el('div', 'processing');
-  // everything they declared spirals into the vortex while we calculate
+  // everything they declared spirals into the void while we calculate
   const vortex = el('div', 'vortex');
+  vortex.appendChild(px(HOLE_MAP, 6, 'vortex-hole', HOLE_PAL));
   for (const r of rows.slice(0, 24)) {
     const img = itemImg(r.item, 'vortex-icon');
     img.style.setProperty('--a0', `${Math.round(Math.random() * 360)}deg`);
@@ -829,21 +833,41 @@ function plugLine() {
 // flat gold banding, drawn on tiny canvases and scaled up chunky
 const PX_PAL = { '#': '#000000', d: '#4a3410', m: '#8a6a1f', l: '#c9a13b', h: '#eed37a' };
 
-function px(rowsArr, scale, className) {
+function px(rowsArr, scale, className, pal = PX_PAL) {
   const c = document.createElement('canvas');
   c.width = rowsArr[0].length * scale;
   c.height = rowsArr.length * scale;
   const g = c.getContext('2d');
   rowsArr.forEach((row, y) => {
     [...row].forEach((ch, x) => {
-      if (!PX_PAL[ch]) return;
-      g.fillStyle = PX_PAL[ch];
+      if (!pal[ch]) return;
+      g.fillStyle = pal[ch];
       g.fillRect(x * scale, y * scale, scale, scale);
     });
   });
   c.className = `pxc ${className ?? ''}`;
   return c;
 }
+
+// the shadow void the declared items spiral into, osrs shadow-spell
+// palette
+const HOLE_PAL = { '#': '#000000', s: '#1c0f33', p: '#3b2160', v: '#6a41a8' };
+const HOLE_MAP = [
+  '.....vvvv.....',
+  '...vvsspsvv...',
+  '..vsp####psv..',
+  '.vsp######psv.',
+  '.vp###ss###pv.',
+  'vsp##ssss##psv',
+  'vs###spps###sv',
+  'vs###spps###sv',
+  'vsp##ssss##psv',
+  '.vp###ss###pv.',
+  '.vsp######psv.',
+  '..vsp####psv..',
+  '...vvsspsvv...',
+  '.....vvvv.....',
+];
 
 const BEAM_MAP = [
   '########################################################',
@@ -884,21 +908,36 @@ const PAN_MAP = [
 ];
 
 // a small non-deterministic gravity sim: every grind is a circle that
-// falls into the pan, bounces off the dish, the walls and each other,
-// and settles into a pile
-function runPile(field, entries) {
-  const wallL = 12;
-  const wallR = 92;
-  const floorY = 148;
-  const bodies = entries.map((e2, i) => ({
-    el: e2.el,
-    r: e2.r,
-    x: wallL + e2.r + Math.random() * (wallR - wallL - 2 * e2.r),
-    y: -30 - i * 34 - Math.random() * 18,
-    vx: (Math.random() - 0.5) * 40,
-    vy: 0,
-    start: i * 0.16,
-  }));
+// falls into its pan, bounces off the dish, the walls and its pilemates.
+// the beam reacts LIVE — each landing shifts the balance on a spring,
+// and it settles onto the verdict tilt once everything is down.
+function runScale(beam, piles, finalTilt) {
+  const wallL = 14;
+  const wallR = 116;
+  const floorY = 152;
+  const bodies = [];
+  piles.forEach((pile, side) => {
+    pile.entries.forEach((e2, i) => {
+      bodies.push({
+        el: e2.el,
+        r: e2.r,
+        impact: e2.impact,
+        side,
+        x: wallL + e2.r + Math.random() * (wallR - wallL - 2 * e2.r),
+        y: -40 - i * 42 - Math.random() * 20,
+        vx: (Math.random() - 0.5) * 40,
+        vy: 0,
+        start: 0.2 + i * 0.5 + side * 0.25,
+        landed: false,
+      });
+    });
+  });
+  const dryAll = bodies.filter((b) => b.side === 0).reduce((a, b) => a + b.impact, 0);
+  const spoonAll = bodies.filter((b) => b.side === 1).reduce((a, b) => a + b.impact, 0);
+  const allDiff = spoonAll - dryAll;
+  let landedDiff = 0;
+  let tilt = 0;
+  let tiltV = 0;
   let t = 0;
   let last = performance.now();
   const G = 950;
@@ -918,6 +957,10 @@ function runPile(field, entries) {
         b.vy *= -0.22;
         b.vx *= 0.82;
         if (Math.abs(b.vy) < 25) b.vy = 0;
+        if (!b.landed) {
+          b.landed = true;
+          landedDiff += b.side ? b.impact : -b.impact;
+        }
       }
     }
     for (let pass = 0; pass < 2; pass++) {
@@ -925,7 +968,7 @@ function runPile(field, entries) {
         for (let c = a + 1; c < bodies.length; c++) {
           const A = bodies[a];
           const B = bodies[c];
-          if (t < A.start || t < B.start) continue;
+          if (A.side !== B.side || t < A.start || t < B.start) continue;
           const dx = B.x - A.x;
           const dy = B.y - A.y;
           const dist = Math.hypot(dx, dy) || 0.01;
@@ -946,12 +989,21 @@ function runPile(field, entries) {
         }
       }
     }
+    // the beam chases the landed weight on a bouncy spring
+    const target = Math.abs(allDiff) > 0.05
+      ? finalTilt * (landedDiff / allDiff)
+      : Math.max(-8, Math.min(8, landedDiff * 10));
+    tiltV += (target - tilt) * 26 * dt;
+    tiltV *= Math.max(0, 1 - 5 * dt);
+    tilt += tiltV * dt;
+    beam.style.setProperty('--tilt', `${tilt.toFixed(2)}deg`);
     for (const b of bodies) {
       if (t < b.start) continue;
       b.el.style.transform = `translate(${(b.x - b.r).toFixed(1)}px, ${(b.y - b.r).toFixed(1)}px)`;
       b.el.style.opacity = '1';
     }
-    if (t < 4.5) requestAnimationFrame(frame);
+    if (t < 8) requestAnimationFrame(frame);
+    else beam.style.setProperty('--tilt', `${finalTilt.toFixed(1)}deg`);
   }
   requestAnimationFrame(frame);
 }
@@ -975,15 +1027,15 @@ function scaleSlide(rows, pct) {
       const size = Math.round(Math.min(42, 16 + impact(r) * 26));
       img.style.width = `${size}px`;
       field.appendChild(img);
-      return { el: img, r: size / 2 };
+      return { el: img, r: size / 2, impact: impact(r) };
     });
-    p.append(field, px(PAN_MAP, 4));
+    p.append(field, px(PAN_MAP, 5));
     piles.push({ field, entries });
     return p;
   };
 
   const beam = el('div', 's-beam');
-  beam.style.setProperty('--tilt', `${tilt.toFixed(1)}deg`);
+  beam.style.setProperty('--tilt', '0deg');
   beam.append(px(BEAM_MAP, 5), pan(dries, 'left'), pan(spoons, 'right'));
   const scale = el('div', 'scale');
   scale.append(px(POST_MAP, 5, 's-post'), px(BASE_MAP, 5, 's-base'), beam);
@@ -999,7 +1051,7 @@ function scaleSlide(rows, pct) {
     plugLine(),
   );
   // physics kicks off the first time the slide is shown
-  s._onActive = () => piles.forEach((pl) => runPile(pl.field, pl.entries));
+  s._onActive = () => runScale(beam, piles, tilt);
   return s;
 }
 

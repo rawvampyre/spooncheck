@@ -437,23 +437,32 @@ h1 {
   transform: rotate(var(--tilt, 0deg));
   transform-origin: center;
 }
-.slide.active .s-beam { animation: beam-settle 1.9s cubic-bezier(0.34, 1.4, 0.5, 1) 2.6s both; }
 .s-pan {
   position: absolute;
   top: 16px;
-  width: 104px;
+  width: 130px;
   transform: rotate(calc(-1 * var(--tilt, 0deg)));
   transform-origin: 50% 0;
 }
-.slide.active .s-pan { animation: pan-settle 1.9s cubic-bezier(0.34, 1.4, 0.5, 1) 2.6s both; }
-.s-pan.left { left: -36px; }
-.s-pan.right { right: -36px; }
-.pan-phys { position: absolute; left: 0; top: -96px; width: 104px; height: 150px; pointer-events: none; z-index: 2; }
+.s-pan.left { left: -48px; }
+.s-pan.right { right: -48px; }
+.s-pan > .pxc { position: relative; z-index: 3; }
+.pan-phys { position: absolute; left: 0; top: -100px; width: 130px; height: 160px; pointer-events: none; z-index: 2; }
 .pan-icon { position: absolute; left: 0; top: 0; image-rendering: pixelated; opacity: 0; }
 
 .scale-labels { display: flex; justify-content: space-between; width: 320px; font-size: 17px; color: var(--muted); }
 .scale-labels span:first-child { color: var(--red); }
 .scale-labels span:last-child { color: var(--green); }
 
-@keyframes beam-settle { from { transform: rotate(0deg); } }
-@keyframes pan-settle { from { transform: rotate(0deg); } }
+.vortex-hole {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  translate: -50% -50%;
+  animation: hole-spin 7s linear infinite;
+}
+
+@keyframes hole-spin {
+  from { rotate: 0deg; }
+  to { rotate: 360deg; }
+}

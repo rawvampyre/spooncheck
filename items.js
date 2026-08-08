@@ -28,11 +28,16 @@ const TANK_LEGS = [4722, 4730, 4751, 4759];
 export const ITEMS = [
   // ---- the early game ----
   { id: 'bring', stage: 'the early game', name: 'Berserker ring', rate: 128, from: 'dagannoth rex', icon: 'Berserker_ring.png', wom: 'dagannoth_rex', clogIds: [6737], weight: 0.5 },
-  { id: 'tankhelm', stage: 'the early game', name: 'Barrows tank helm', rate: 102, from: 'barrows', icon: "Verac's_helm.png", note: 'any of the 4 melee helms, rate assumes killing all 6 per run', unit: 'chests', wom: 'barrows_chests', clogIds: TANK_HELMS, weight: 0.75 },
-  { id: 'tankbody', stage: 'the early game', name: 'Barrows tank body', rate: 102, from: 'barrows', icon: "Dharok's_platebody.png", note: 'any of the 4 melee bodies, rate assumes killing all 6 per run', unit: 'chests', wom: 'barrows_chests', clogIds: TANK_BODIES, weight: 0.75 },
-  { id: 'tanklegs', stage: 'the early game', name: 'Barrows tank legs', rate: 102, from: 'barrows', icon: "Verac's_plateskirt.png", note: 'any of the 4 melee legs, rate assumes killing all 6 per run', unit: 'chests', wom: 'barrows_chests', clogIds: TANK_LEGS, weight: 0.75 },
+  // barrows: 7 rolls a chest at 1/102 unique per roll with all 6 killed,
+  // a specific piece is ~1/350 a chest, so any of a 4-piece slot is ~1/88
+  { id: 'tankhelm', stage: 'the early game', name: 'Barrows tank helm', rate: 88, from: 'barrows', icon: "Verac's_helm.png", note: 'any of the 4 melee helms, killing all 6 per run', unit: 'chests', wom: 'barrows_chests', clogIds: TANK_HELMS, weight: 0.75 },
+  { id: 'tankbody', stage: 'the early game', name: 'Barrows tank body', rate: 88, from: 'barrows', icon: "Dharok's_platebody.png", note: 'any of the 4 melee bodies, killing all 6 per run', unit: 'chests', wom: 'barrows_chests', clogIds: TANK_BODIES, weight: 0.75 },
+  { id: 'tanklegs', stage: 'the early game', name: 'Barrows tank legs', rate: 88, from: 'barrows', icon: "Verac's_plateskirt.png", note: 'any of the 4 melee legs, killing all 6 per run', unit: 'chests', wom: 'barrows_chests', clogIds: TANK_LEGS, weight: 0.75 },
   { id: 'ddef', stage: 'the early game', name: 'Dragon defender', rate: 450, from: 'cyclopes', icon: 'Dragon_defender.png', note: 'bronze through rune are 1/50 each, dragon is 1/100, about 450 kc average. enter your total cyclopes kc', ladder: [50, 50, 50, 50, 50, 50, 50, 100], clogIds: [12954], weight: 0.5 },
   { id: 'zaxe', stage: 'the early game', name: 'Zombie axe', rate: 800, from: 'armoured zombies', icon: 'Zombie_axe.png', clogIds: [28810, 28813], weight: 0.5 },
+  { id: 'spine', stage: 'the early game', name: "Scurrius' spine", rate: 33, from: 'scurrius', icon: "Scurrius'_spine.png", wom: 'scurrius', clogIds: [], weight: 0.5 },
+  { id: 'wsceptre', stage: 'the early game', name: 'Warped sceptre', rate: 320, from: 'warped creatures', icon: 'Warped_sceptre.png', clogIds: [], weight: 0.5 },
+  { id: 'hallowfell', stage: 'the early game', name: 'Hallowfell', rate: 128, from: 'mad angel', icon: 'Hallowfell.png', wom: 'mad_angel', clogIds: [], weight: 0.75 },
 
   // ---- varlamore era ----
   // full moon sets: with all 3 moons killed, each chest rolls 1/56 per
@@ -76,6 +81,14 @@ export const ITEMS = [
   { id: 'unsired', stage: 'slayer era', name: 'Unsired', rate: 100, from: 'abyssal sire', icon: 'Unsired.png', wom: 'abyssal_sire', clogIds: [13273], weight: 0.5 },
   { id: 'occult', stage: 'slayer era', name: 'Occult necklace', rate: 350, from: 'smoke devils', icon: 'Occult_necklace.png', variants: [['thermy', 350], ['smoke devils', 512]], wom: 'thermonuclear_smoke_devil', clogIds: [12002], weight: 1 },
   { id: 'icon', stage: 'slayer era', name: 'Ancient icon', rate: 50, from: 'phantom muspah', icon: 'Ancient_icon.png', wom: 'phantom_muspah', clogIds: [27627], weight: 0.5 },
+  { id: 'venator', stage: 'slayer era', name: 'Venator shards', rate: 100, from: 'phantom muspah', icon: 'Venator_shard.png', note: 'the bow needs 5', multi: 5, wom: 'phantom_muspah', clogIds: [], weight: 1 },
+
+  // ---- superiors ----
+  // the heart and gem roll per superior kill at a rate set by the
+  // monster's slayer requirement, so the section asks for kills of the
+  // five standard heart grinds
+  { id: 'heart', stage: 'superiors', name: 'Imbued heart', rate: 350, pool: 'superiors', fieldRates: [256, 352, 440, 520, 680], from: 'superior slayer monsters', icon: 'Imbued_heart.png', unit: 'superiors', clogIds: [], weight: 1.5 },
+  { id: 'egem', stage: 'superiors', name: 'Eternal gem', rate: 350, pool: 'superiors', fieldRates: [256, 352, 440, 520, 680], from: 'superior slayer monsters', icon: 'Eternal_gem.png', unit: 'superiors', clogIds: [], weight: 0.5 },
 
   // ---- god wars ----
   { id: 'bhilt', stage: 'god wars', name: 'Bandos hilt', rate: 508, from: 'general graardor', icon: 'Bandos_hilt.png', wom: 'general_graardor', clogIds: [11818], weight: 0.75 },
@@ -101,6 +114,10 @@ export const ITEMS = [
   { id: 'nox', stage: 'araxxor', name: 'Noxious pieces', rate: 66.7, from: 'araxxor', icon: 'Noxious_point.png', note: 'each piece 1/200 with no duplicates', multi: 3, wom: 'araxxor', clogIds: [29790, 29792, 29794], weight: 1 },
   { id: 'afang', stage: 'araxxor', name: 'Araxyte fang', rate: 600, from: 'araxxor', icon: 'Araxyte_fang.png', wom: 'araxxor', clogIds: [29799], weight: 1 },
 
+  // ---- maggot king ----
+  { id: 'efang', stage: 'maggot king', name: 'Elder venator fang', rate: 340, from: 'maggot king', icon: 'Elder_venator_fang.png', note: 'open stomach rate', wom: 'maggot_king', clogIds: [], weight: 1 },
+  { id: 'kisten', stage: 'maggot king', name: 'Crimson kisten', rate: 520, from: 'maggot king', icon: 'Crimson_kisten.png', note: 'open stomach rate', wom: 'maggot_king', clogIds: [], weight: 1 },
+
   // ---- tombs of amascut ----
   // purple chance comes from the section's average raid level input via
   // the wiki formula, then each item takes its weight of the unique roll
@@ -122,9 +139,9 @@ export const ITEMS = [
   // ---- doom of mokhaiotl ----
   // rates deepen with the delve level, the section asks how many delves
   // at each level. delveRates run levels 2,3,4,5,6,7,8,9+
-  { id: 'ayak', stage: 'doom of mokhaiotl', name: 'Eye of ayak', rate: 540, pool: 'doom', delveRates: [2000, 2000, 1350, 810, 765, 720, 630, 540], from: 'doom of mokhaiotl', icon: 'Eye_of_ayak.png', unit: 'delves', clogIds: [31115], weight: 1.5 },
-  { id: 'cloth', stage: 'doom of mokhaiotl', name: 'Mokhaiotl cloth', rate: 540, pool: 'doom', delveRates: [2500, 2000, 1350, 810, 765, 720, 630, 540], from: 'doom of mokhaiotl', icon: 'Mokhaiotl_cloth.png', unit: 'delves', clogIds: [31109], weight: 1 },
-  { id: 'treads', stage: 'doom of mokhaiotl', name: 'Avernic treads', rate: 540, pool: 'doom', delveRates: [null, null, 1350, 810, 765, 720, 630, 540], from: 'doom of mokhaiotl', icon: 'Avernic_treads.png', note: 'delve 4 or deeper only', unit: 'delves', clogIds: [31088], weight: 1.5 },
+  { id: 'ayak', stage: 'doom of mokhaiotl', name: 'Eye of ayak', rate: 540, pool: 'doom', fieldRates: [2000, 2000, 1350, 810, 765, 720, 630, 540], from: 'doom of mokhaiotl', icon: 'Eye_of_ayak.png', unit: 'delves', clogIds: [31115], weight: 1.5 },
+  { id: 'cloth', stage: 'doom of mokhaiotl', name: 'Mokhaiotl cloth', rate: 540, pool: 'doom', fieldRates: [2500, 2000, 1350, 810, 765, 720, 630, 540], from: 'doom of mokhaiotl', icon: 'Mokhaiotl_cloth.png', unit: 'delves', clogIds: [31109], weight: 1 },
+  { id: 'treads', stage: 'doom of mokhaiotl', name: 'Avernic treads', rate: 540, pool: 'doom', fieldRates: [null, null, 1350, 810, 765, 720, 630, 540], from: 'doom of mokhaiotl', icon: 'Avernic_treads.png', note: 'delve 4 or deeper only', unit: 'delves', clogIds: [31088], weight: 1.5 },
 
   // ---- desert treasure 2 ----
   { id: 'ultor', stage: 'desert treasure 2', name: 'Ultor vestige', rate: 1088, from: 'vardorvis', icon: 'Ultor_vestige.png', note: 'long-run rate', wom: 'vardorvis', clogIds: [28285], weight: 1.5 },
@@ -147,6 +164,16 @@ export const ITEMS = [
   // ---- theatre of blood ----
   { id: 'avernic', stage: 'theatre of blood', name: 'Avernic defender hilt', rate: 2.375, from: 'tob purples', icon: 'Avernic_defender_hilt.png', note: '8/19 of purples', unit: 'purples', clogIds: [22477], weight: 1.5 },
   { id: 'scythe', stage: 'theatre of blood', name: 'Scythe of vitur', rate: 19, from: 'tob purples', icon: 'Scythe_of_vitur.png', note: '1/19 of purples', unit: 'purples', clogIds: [22325, 22486], weight: 2.5 },
+
+  // ---- phosanis nightmare ----
+  { id: 'inqmace', stage: 'phosanis nightmare', name: "Inquisitor's mace", rate: 1129, from: 'phosanis nightmare', icon: "Inquisitor's_mace.png", wom: 'phosanis_nightmare', clogIds: [], weight: 2 },
+  { id: 'inqhelm', stage: 'phosanis nightmare', name: "Inquisitor's great helm", rate: 700, from: 'phosanis nightmare', icon: "Inquisitor's_great_helm.png", wom: 'phosanis_nightmare', clogIds: [], weight: 1 },
+  { id: 'inqhauberk', stage: 'phosanis nightmare', name: "Inquisitor's hauberk", rate: 700, from: 'phosanis nightmare', icon: "Inquisitor's_hauberk.png", wom: 'phosanis_nightmare', clogIds: [], weight: 1 },
+  { id: 'inqskirt', stage: 'phosanis nightmare', name: "Inquisitor's plateskirt", rate: 700, from: 'phosanis nightmare', icon: "Inquisitor's_plateskirt.png", wom: 'phosanis_nightmare', clogIds: [], weight: 1 },
+  { id: 'nstaff', stage: 'phosanis nightmare', name: 'Nightmare staff', rate: 507, from: 'phosanis nightmare', icon: 'Nightmare_staff.png', wom: 'phosanis_nightmare', clogIds: [], weight: 1 },
+  { id: 'eldritch', stage: 'phosanis nightmare', name: 'Eldritch orb', rate: 1600, from: 'phosanis nightmare', icon: 'Eldritch_orb.png', wom: 'phosanis_nightmare', clogIds: [], weight: 1 },
+  { id: 'volatile', stage: 'phosanis nightmare', name: 'Volatile orb', rate: 1600, from: 'phosanis nightmare', icon: 'Volatile_orb.png', wom: 'phosanis_nightmare', clogIds: [], weight: 1.5 },
+  { id: 'harm', stage: 'phosanis nightmare', name: 'Harmonised orb', rate: 1600, from: 'phosanis nightmare', icon: 'Harmonised_orb.png', wom: 'phosanis_nightmare', clogIds: [], weight: 1.5 },
 
   // ---- nex ----
   // the quoted rates are per kill, your share splits with the team, so
@@ -172,6 +199,13 @@ export const POOLS = {
     ],
   },
   nex: { kind: 'modifier', fields: [['group', 'average group size', 1]] },
+  superiors: {
+    kind: 'window',
+    fields: [
+      ['nightbeast', 'night beasts'], ['gabyssal', 'greater abyssals'], ['nechryarch', 'nechryarchs'],
+      ['gargoyle', 'marble gargoyles'], ['choke', 'choke devils'],
+    ],
+  },
 };
 
 // wizard sections in chart order
