@@ -310,9 +310,11 @@ function itemCard(item) {
   }
   let groupSel = null;
   if (item.group) {
-    // contribution-scaled drops: your damage share divides the rate
+    // contribution-scaled drops: your damage share divides the rate.
+    // groupMax caps the options for solo-or-duo-only content
     groupSel = el('select', 'pick-sel');
-    for (const [label, mult] of [['solo', 1], ['duo', 2], ['trio', 3], ['mass', 8]]) {
+    const opts = [['solo', 1], ['duo', 2], ['trio', 3], ['mass', 8]].filter(([, m]) => m <= (item.groupMax ?? 8));
+    for (const [label, mult] of opts) {
       const o = el('option', null, label);
       o.value = mult;
       groupSel.appendChild(o);

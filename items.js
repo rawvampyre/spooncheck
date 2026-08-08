@@ -44,11 +44,11 @@ export const ITEMS = [
   // royal titans and hueycoatl drops scale linearly with your damage
   // share (1/75 solo is 1/150 in an even duo), so these carry the group
   // size picker
-  { id: 'deadeye', stage: 'varlamore era', name: 'Deadeye prayer scroll', rate: 75, from: 'eldric the ice king', icon: 'Deadeye_prayer_scroll.png', note: 'full contribution rate', group: true, wom: 'the_royal_titans', clogIds: [30626], weight: 0.5 },
-  { id: 'vigour', stage: 'varlamore era', name: 'Mystic vigour prayer scroll', rate: 75, from: 'branda the fire queen', icon: 'Mystic_vigour_prayer_scroll.png', note: 'full contribution rate', group: true, wom: 'the_royal_titans', clogIds: [30627], weight: 0.5 },
+  { id: 'deadeye', stage: 'varlamore era', name: 'Deadeye prayer scroll', rate: 75, from: 'eldric the ice king', icon: 'Deadeye_prayer_scroll.png', note: 'full contribution rate', group: true, groupMax: 2, wom: 'the_royal_titans', clogIds: [30626], weight: 0.5 },
+  { id: 'vigour', stage: 'varlamore era', name: 'Mystic vigour prayer scroll', rate: 75, from: 'branda the fire queen', icon: 'Mystic_vigour_prayer_scroll.png', note: 'full contribution rate', group: true, groupMax: 2, wom: 'the_royal_titans', clogIds: [30627], weight: 0.5 },
   // one crown from each titan at 1/75: either crown first (~1/38), then
   // the missing one (1/75), about 113 kills for both at full contribution
-  { id: 'twinflame', stage: 'varlamore era', name: 'Twinflame staff crowns', rate: 113, from: 'royal titans', icon: 'Twinflame_staff.png', note: 'fire and ice crown, one per titan, each 1/75 at full contribution', ladder: [37.8, 75], group: true, wom: 'the_royal_titans', clogIds: [], weight: 0.5 },
+  { id: 'twinflame', stage: 'varlamore era', name: 'Twinflame staff crowns', rate: 113, from: 'royal titans', icon: 'Twinflame_staff.png', note: 'fire and ice crown, one per titan, each 1/75 at full contribution', ladder: [37.8, 75], group: true, groupMax: 2, wom: 'the_royal_titans', clogIds: [], weight: 0.5 },
   { id: 'dhwand', stage: 'varlamore era', name: 'Dragon hunter wand', rate: 105, from: 'the hueycoatl', icon: 'Dragon_hunter_wand.png', note: 'full contribution rate', group: true, wom: 'the_hueycoatl', clogIds: [30070], weight: 0.5 },
 
   // ---- the big unlocks ----
