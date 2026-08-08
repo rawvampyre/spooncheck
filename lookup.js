@@ -32,7 +32,9 @@ export async function lookupAccount(name) {
   if (clog) {
     out.owned = {};
     for (const item of ITEMS) {
-      out.owned[item.id] = (item.clogIds ?? []).some((id) => clog.has(id));
+      // no clog ids on file for this grind = ownership is unknowable from
+      // the log, never "not owned"
+      out.owned[item.id] = item.clogIds?.length ? item.clogIds.some((id) => clog.has(id)) : null;
     }
   }
 

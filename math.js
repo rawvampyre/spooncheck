@@ -32,15 +32,19 @@ export function multiplier(rate, kc) {
 }
 
 // overall account percentile: under pure average luck each score is
-// ~uniform, so the mean of k of them is ~normal(0.5, 1/12k). the CLT is
-// doing the heavy lifting here and it holds up fine from ~3 entries for
-// a meme verdict.
-export function overallPercentile(scores) {
+// ~uniform, so the weighted mean of k of them is ~normal with
+// var = sum(w^2) / (12 * sum(w)^2). weights let the grinds that define an
+// account (dwh, tbow, oathplate) move the verdict more than a berserker
+// ring ever should. the CLT holds up fine from ~3 entries for a meme
+// verdict.
+export function overallPercentile(scores, weights) {
   const k = scores.length;
   if (!k) return 50;
-  const mean = scores.reduce((a, b) => a + b, 0) / k;
-  const z = (mean - 0.5) * Math.sqrt(12 * k);
-  return 100 * phi(z);
+  const w = weights ?? scores.map(() => 1);
+  const W = w.reduce((a, b) => a + b, 0);
+  const mean = scores.reduce((a, s, i) => a + s * w[i], 0) / W;
+  const sd = Math.sqrt(w.reduce((a, b) => a + b * b, 0) / (12 * W * W));
+  return 100 * phi((mean - 0.5) / sd);
 }
 
 export function phi(z) {

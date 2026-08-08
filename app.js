@@ -1,4 +1,4 @@
-import { ITEMS, iconUrl } from './items.js';
+import { ITEMS, STAGES, itemsInStage, iconUrl } from './items.js';
 import { luckOfGet, luckOfDry, stillDryChance, multiplier, overallPercentile, verdictFor } from './math.js';
 import { lookupAccount } from './lookup.js';
 
@@ -7,11 +7,12 @@ const CONFIG = {
   twitch: 'twitch.tv/rawvampyre',
 };
 
-const STORE_KEY = 'spooncheck-v1';
+const STORE_KEY = 'spooncheck-v2';
 
 // ---- state ----------------------------------------------------------------
 
 let state = load();
+let importSummary = null;
 
 function load() {
   try {
@@ -33,7 +34,7 @@ function entryFor(id) {
 
 const screens = {
   intro: document.getElementById('intro'),
-  entry: document.getElementById('entry'),
+  flow: document.getElementById('flow'),
   wrap: document.getElementById('wrap'),
 };
 
@@ -42,57 +43,193 @@ function show(name) {
   window.scrollTo(0, 0);
 }
 
-document.getElementById('start-btn').addEventListener('click', () => show('entry'));
+// ---- the guided flow ------------------------------------------------------
+// steps: import -> one per chart era -> review. friendly assistant energy,
+// maximum spoon guaranteed or your gp back.
 
-// ---- entry screen ---------------------------------------------------------
+const STEPS = ['import', ...STAGES, 'review'];
+let stepIdx = 0;
 
-const list = document.getElementById('item-list');
-const renderFns = [];
+const flowBar = document.getElementById('flow-bar');
+const flowStep = document.getElementById('flow-step');
+const flowBody = document.getElementById('flow-body');
 
-for (const item of ITEMS) {
-  const card = document.createElement('div');
-  card.className = 'item-card';
+const SECTION_BLURBS = [
+  'a few quick questions about this era of your account',
+  'lets see how this chapter treated you',
+  'reviewing this section for spoon credits',
+  'our records need a little more detail here',
+  'almost there. how did these grinds go',
+];
+
+document.getElementById('start-btn').addEventListener('click', () => {
+  stepIdx = 0;
+  show('flow');
+  renderStep();
+});
+
+function el(tag, cls, text) {
+  const e = document.createElement(tag);
+  if (cls) e.className = cls;
+  if (text != null) e.textContent = text;
+  return e;
+}
+
+function btn(cls, label, onClick) {
+  const b = el('button', cls, label);
+  b.addEventListener('click', onClick);
+  return b;
+}
+
+function renderStep() {
+  const step = STEPS[stepIdx];
+  flowBar.style.setProperty('--flow-pct', `${Math.round((stepIdx / (STEPS.length - 1)) * 100)}%`);
+  flowStep.textContent = step === 'import' ? 'getting started' : step === 'review' ? 'final review' : `section ${stepIdx} of ${STAGES.length}`;
+  flowBody.replaceChildren();
+  window.scrollTo(0, 0);
+  if (step === 'import') renderImport();
+  else if (step === 'review') renderReview();
+  else renderSection(step);
+}
+
+function navRow(nextLabel = 'continue') {
+  const row = el('div', 'nav-row');
+  if (stepIdx > 0) row.appendChild(btn('nav-btn ghost', 'back', () => { stepIdx--; renderStep(); }));
+  row.appendChild(btn('nav-btn', nextLabel, () => { stepIdx++; renderStep(); }));
+  return row;
+}
+
+// ---- step: import ---------------------------------------------------------
+
+function renderImport() {
+  flowBody.append(
+    el('h2', 'step-title', 'lets make this easy'),
+    el('p', 'step-sub', 'type your rsn and we will import your grinds straight off the hiscores and your collection log. most accounts qualify for instant import'),
+  );
+
+  const row = el('div', 'import-row');
+  const input = el('input', 'import-input');
+  input.placeholder = 'osrs username';
+  input.maxLength = 12;
+  input.autocomplete = 'off';
+  const go = btn('nav-btn', 'import my account', () => runImport(input.value, go, status));
+  row.append(input, go);
+  const status = el('p', 'import-status', '');
+  flowBody.append(row, status);
+
+  if (importSummary) flowBody.appendChild(importSummaryBox());
+
+  const alt = el('div', 'nav-row');
+  alt.appendChild(btn('nav-btn ghost', 'ill do it by hand like our ancestors', () => { stepIdx++; renderStep(); }));
+  if (importSummary) alt.appendChild(btn('nav-btn', 'looks right, continue', () => { stepIdx++; renderStep(); }));
+  flowBody.appendChild(alt);
+
+  input.addEventListener('keydown', (ev) => {
+    if (ev.key === 'Enter') runImport(input.value, go, status);
+  });
+}
+
+function importSummaryBox() {
+  const box = el('div', 'ok-box');
+  box.appendChild(el('div', 'ok-title', 'import complete'));
+  for (const line of importSummary) box.appendChild(el('div', 'ok-line', line));
+  return box;
+}
+
+async function runImport(name, goBtn, status) {
+  goBtn.disabled = true;
+  status.textContent = 'reviewing your account...';
+  try {
+    const r = await lookupAccount(name);
+    let got = 0;
+    let dry = 0;
+    let skipped = 0;
+    for (const item of ITEMS) {
+      const e = entryFor(item.id);
+      const kc = r.kc[item.id];
+      const owned = r.owned?.[item.id];
+      if (owned === true) {
+        e.mode = 'got';
+        if (kc && !e.kc) e.kc = kc;
+        got++;
+      } else if (owned === false && kc) {
+        e.mode = 'dry';
+        e.kc = kc;
+        dry++;
+      } else if (owned === false) {
+        e.mode = 'skip';
+        e.kc = '';
+        skipped++;
+      } else if (kc && e.mode === 'skip') {
+        e.kc = kc;
+      }
+    }
+    save();
+    importSummary = [];
+    if (r.clogOk) {
+      importSummary.push(`${got} grinds marked got from your collection log`);
+      importSummary.push(`${dry} grinds marked still dry with kcs on record`);
+      importSummary.push(`${skipped} grinds skipped, our records show you havent started them`);
+      importSummary.push('heads up: for items you own we filled in your CURRENT kc. lower it to the real drop kc if you remember');
+    } else {
+      importSummary.push(`kcs imported for ${Object.keys(r.kc).length} grinds`);
+      importSummary.push('no synced collection log found so mark got it / still dry yourself (WikiSync plugin + open your log in game)');
+    }
+    if (!r.womOk) importSummary.push('hiscores had nothing for that name btw, spelling?');
+    status.textContent = '';
+    renderStep();
+  } catch (err) {
+    status.textContent = err.message ?? 'import failed. do it by hand like our ancestors';
+  } finally {
+    goBtn.disabled = false;
+  }
+}
+
+// ---- step: era section ----------------------------------------------------
+
+function renderSection(stage) {
+  const items = itemsInStage(stage);
+  flowBody.append(
+    el('h2', 'step-title', stage),
+    el('p', 'step-sub', SECTION_BLURBS[stepIdx % SECTION_BLURBS.length]),
+  );
+  const answered = items.filter((i) => state[i.id] && state[i.id].mode !== 'skip').length;
+  if (importSummary && !answered) {
+    flowBody.appendChild(el('p', 'section-empty', 'our records show nothing started in this era. tap continue, or correct us below'));
+  }
+  const list = el('div', 'item-list');
+  for (const item of items) list.appendChild(itemCard(item));
+  flowBody.append(list, navRow(answered ? 'looks right, continue' : 'continue'));
+}
+
+function itemCard(item) {
+  const card = el('div', 'item-card');
   const unit = item.unit ?? 'kc';
 
-  const icon = document.createElement('img');
-  icon.className = 'item-icon';
+  const icon = el('img', 'item-icon');
   icon.src = iconUrl(item);
   icon.alt = item.name;
   icon.loading = 'lazy';
 
-  const info = document.createElement('div');
-  info.className = 'item-info';
-  const nm = document.createElement('div');
-  nm.className = 'item-name';
-  nm.textContent = item.name;
-  const sub = document.createElement('div');
-  sub.className = 'item-sub';
-  sub.textContent = `1/${item.rate} from ${item.from}${item.note ? ` (${item.note})` : ''}`;
-  info.append(nm, sub);
+  const info = el('div', 'item-info');
+  info.append(
+    el('div', 'item-name', item.name),
+    el('div', 'item-sub', `1/${item.rate} from ${item.from}${item.note ? ` (${item.note})` : ''}`),
+  );
 
-  const modes = document.createElement('div');
-  modes.className = 'item-modes';
-  const kcWrap = document.createElement('div');
-  kcWrap.className = 'kc-wrap hidden';
-  const kcInput = document.createElement('input');
+  const modes = el('div', 'item-modes');
+  const kcWrap = el('div', 'kc-wrap hidden');
+  const kcInput = el('input');
   kcInput.type = 'number';
   kcInput.min = '1';
   kcInput.inputMode = 'numeric';
   kcInput.placeholder = unit;
-  const kcLabel = document.createElement('span');
-  kcLabel.className = 'kc-label';
+  const kcLabel = el('span', 'kc-label');
   kcWrap.append(kcInput, kcLabel);
 
   const btns = {};
-  for (const [mode, label] of [
-    ['skip', 'skip'],
-    ['got', 'got it'],
-    ['dry', 'still dry'],
-  ]) {
-    const b = document.createElement('button');
-    b.className = 'mode-btn';
-    b.textContent = label;
-    b.addEventListener('click', () => {
+  for (const [mode, label] of [['skip', 'skip'], ['got', 'got it'], ['dry', 'still dry']]) {
+    const b = btn('mode-btn', label, () => {
       entryFor(item.id).mode = mode;
       save();
       render();
@@ -117,78 +254,11 @@ for (const item of ITEMS) {
   });
 
   card.append(icon, info, modes, kcWrap);
-  list.appendChild(card);
   render();
-  renderFns.push(render);
+  return card;
 }
 
-function renderAll() {
-  renderFns.forEach((fn) => fn());
-}
-
-// ---- account auto fill ----------------------------------------------------
-
-const lookupBtn = document.getElementById('lookup-btn');
-const lookupName = document.getElementById('lookup-name');
-const lookupStatus = document.getElementById('lookup-status');
-
-async function runLookup() {
-  const name = lookupName.value;
-  lookupBtn.disabled = true;
-  lookupStatus.textContent = 'looking your account up...';
-  try {
-    const r = await lookupAccount(name);
-    let touched = 0;
-    let skipped = 0;
-    for (const item of ITEMS) {
-      const e = entryFor(item.id);
-      const kc = r.kc[item.id];
-      const owned = r.owned?.[item.id];
-      if (owned === true) {
-        e.mode = 'got';
-        if (kc && !e.kc) e.kc = kc;
-        touched++;
-      } else if (owned === false && kc) {
-        e.mode = 'dry';
-        e.kc = kc;
-        touched++;
-      } else if (owned === false) {
-        // not in the log and no kc on record: this grind isnt part of the
-        // account's progression yet, drop it out of the check
-        e.mode = 'skip';
-        e.kc = '';
-        skipped++;
-      } else if (kc && e.mode === 'skip') {
-        // kc known but ownership unknown: prefill the number, you pick
-        e.kc = kc;
-      }
-    }
-    save();
-    renderAll();
-    const bits = [];
-    bits.push(r.womOk ? 'kcs pulled from the hiscores' : 'no hiscores data (name wrong or too low kc)');
-    bits.push(
-      r.clogOk
-        ? 'collection log synced, got/dry filled in for you'
-        : 'no wikisync collection log found so tap got it / still dry yourself (sync it with the WikiSync runelite plugin + opening your log)',
-    );
-    if (skipped) bits.push(`${skipped} grinds you havent started got skipped, un-skip any i got wrong`);
-    if (r.clogOk) bits.push('for items you own the kc shown is your CURRENT kc so lower it to the real drop kc if you remember');
-    lookupStatus.textContent = bits.join('. ');
-    if (!touched && !Object.keys(r.kc).length) lookupStatus.textContent = 'account found but no usable kcs. fill it in manually';
-  } catch (err) {
-    lookupStatus.textContent = err.message ?? 'lookup failed, fill it in manually';
-  } finally {
-    lookupBtn.disabled = false;
-  }
-}
-
-lookupBtn.addEventListener('click', runLookup);
-lookupName.addEventListener('keydown', (ev) => {
-  if (ev.key === 'Enter') runLookup();
-});
-
-// ---- computing the wrap ---------------------------------------------------
+// ---- step: review ---------------------------------------------------------
 
 function computeResults() {
   const rows = [];
@@ -210,19 +280,86 @@ function computeResults() {
   return rows;
 }
 
-document.getElementById('wrap-btn').addEventListener('click', () => {
+function renderReview() {
   const rows = computeResults();
-  if (rows.length < 3) {
-    const btn = document.getElementById('wrap-btn');
-    btn.classList.remove('shake');
-    void btn.offsetWidth;
-    btn.classList.add('shake');
-    document.getElementById('entry-hint').textContent = 'need at least 3 grinds filled in (with kc)';
-    return;
+  flowBody.append(
+    el('h2', 'step-title', 'final review'),
+    el('p', 'step-sub', `${rows.length} grinds declared. one last look before we run your assessment`),
+  );
+
+  const list = el('div', 'review-list');
+  for (const stage of STAGES) {
+    const inStage = rows.filter((r) => r.item.stage === stage);
+    if (!inStage.length) continue;
+    const box = el('div', 'review-stage');
+    const head = el('div', 'review-head');
+    head.append(el('span', 'review-stage-name', stage), btn('review-edit', 'edit', () => {
+      stepIdx = STEPS.indexOf(stage);
+      renderStep();
+    }));
+    box.appendChild(head);
+    for (const r of inStage) {
+      const line = el('div', 'review-row');
+      const ic = el('img', 'board-icon');
+      ic.src = iconUrl(r.item);
+      ic.alt = r.item.name;
+      line.append(
+        ic,
+        el('span', 'review-name', r.item.name),
+        el('span', `review-verdict ${r.got ? 'ok' : 'bad'}`, r.got ? `got at ${r.kc.toLocaleString()}` : `${r.kc.toLocaleString()} dry`),
+      );
+      box.appendChild(line);
+    }
+    list.appendChild(box);
   }
-  buildWrap(rows);
-  show('wrap');
-});
+  flowBody.appendChild(list);
+
+  const row = el('div', 'nav-row');
+  row.appendChild(btn('nav-btn ghost', 'back', () => { stepIdx--; renderStep(); }));
+  const submit = btn('nav-btn big', 'submit for assessment', () => {
+    if (rows.length < 3) {
+      submit.classList.remove('shake');
+      void submit.offsetWidth;
+      submit.classList.add('shake');
+      hint.textContent = 'we need at least 3 grinds with kcs to run an assessment';
+      return;
+    }
+    runProcessing(rows);
+  });
+  row.appendChild(submit);
+  const hint = el('p', 'review-hint', rows.length < 3 ? 'we need at least 3 grinds with kcs to assess you' : 'assessments are final until you run another one');
+  flowBody.append(row, hint);
+}
+
+// ---- the processing gag ---------------------------------------------------
+
+const PROCESSING_LINES = [
+  ['reviewing your grinds...', 900],
+  ['cross checking the collection log...', 900],
+  ['consulting the rng gods...', 1000],
+  ['your account has been selected for a random audit...', 1400],
+  ['audit passed. congratulations', 900],
+  ['calculating your final assessment...', 900],
+];
+
+function runProcessing(rows) {
+  flowBody.replaceChildren(el('div', 'processing'));
+  flowStep.textContent = 'processing';
+  const box = flowBody.firstChild;
+  let t = 300;
+  PROCESSING_LINES.forEach(([line, dur], i) => {
+    setTimeout(() => {
+      const l = el('div', `proc-line${line.includes('audit...') ? ' audit' : ''}`, line);
+      box.appendChild(l);
+      box.scrollTop = box.scrollHeight;
+    }, t);
+    t += dur;
+  });
+  setTimeout(() => {
+    buildWrap(rows);
+    show('wrap');
+  }, t + 400);
+}
 
 // ---- the wrapped reveal ---------------------------------------------------
 
@@ -242,17 +379,9 @@ function fmtPct(x) {
 }
 
 function slide(cls, ...children) {
-  const s = document.createElement('div');
-  s.className = `slide ${cls}`;
+  const s = el('div', `slide ${cls}`);
   s.append(...children);
   return s;
-}
-
-function el(tag, cls, text) {
-  const e = document.createElement(tag);
-  if (cls) e.className = cls;
-  if (text != null) e.textContent = text;
-  return e;
 }
 
 function itemImg(item, cls) {
@@ -262,10 +391,16 @@ function itemImg(item, cls) {
   return img;
 }
 
+// importance-weighted distance from average: a 2x-rate dry on oathplate
+// outranks a 3x dry on a berserker ring
+function impact(r) {
+  return Math.abs(r.u - 0.5) * (r.item.weight ?? 1);
+}
+
 function buildWrap(rows) {
-  const spoons = rows.filter((r) => r.u > 0.5).sort((a, b) => b.u - a.u);
-  const fries = rows.filter((r) => r.u < 0.5).sort((a, b) => a.u - b.u);
-  const pct = overallPercentile(rows.map((r) => r.u));
+  const spoons = rows.filter((r) => r.u > 0.5).sort((a, b) => impact(b) - impact(a));
+  const fries = rows.filter((r) => r.u < 0.5).sort((a, b) => impact(b) - impact(a));
+  const pct = overallPercentile(rows.map((r) => r.u), rows.map((r) => r.item.weight ?? 1));
   const verdict = verdictFor(pct);
 
   const slides = [];
@@ -273,7 +408,7 @@ function buildWrap(rows) {
   slides.push(
     slide(
       'slide-count',
-      el('div', 'small-title', 'this account logged'),
+      el('div', 'small-title', 'assessment complete. this account logged'),
       el('div', 'big-number countup', String(rows.length)),
       el('div', 'small-title', 'grinds'),
       el('div', 'muted', 'lets see the damage'),
@@ -331,11 +466,7 @@ function buildWrap(rows) {
       c.appendChild(el('div', 'board-title', title));
       for (const r of rs.slice(0, 3)) {
         const row = el('div', 'board-row');
-        row.append(
-          itemImg(r.item, 'board-icon'),
-          el('span', 'board-name', r.item.name),
-          el('span', 'board-mult', fmtMult(r.mult)),
-        );
+        row.append(itemImg(r.item, 'board-icon'), el('span', 'board-name', r.item.name), el('span', 'board-mult', fmtMult(r.mult)));
         c.appendChild(row);
       }
       if (!rs.length) c.appendChild(el('div', 'muted', 'none. incredible'));
@@ -429,7 +560,8 @@ function shareText(spoons, fries, pct, verdict) {
 
 function shareRow(spoons, fries, pct, verdict) {
   const row = el('div', 'share-row');
-  const shareBtn = el('button', 'share-btn', 'share it');
+  const shareBtn = el('button', 'share-btn');
+  shareBtn.textContent = 'share it';
   shareBtn.addEventListener('click', async () => {
     const text = shareText(spoons, fries, pct, verdict);
     if (navigator.share) {
@@ -449,7 +581,11 @@ function shareRow(spoons, fries, pct, verdict) {
   cardBtn.addEventListener('click', () => downloadCard(spoons, fries, pct, verdict));
 
   const againBtn = el('button', 'share-btn ghost', 'run it back');
-  againBtn.addEventListener('click', () => show('entry'));
+  againBtn.addEventListener('click', () => {
+    stepIdx = STEPS.length - 1;
+    show('flow');
+    renderStep();
+  });
 
   row.append(shareBtn, cardBtn, againBtn);
   return row;
