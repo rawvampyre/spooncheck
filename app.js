@@ -157,11 +157,8 @@ function sampleRows() {
   }));
 }
 
-if (FORCED_PCT !== null) {
-  const rows = computeResults();
-  buildWrap(rows.length >= 3 ? rows : sampleRows());
-  show('wrap');
-}
+// (the preview trigger itself lives at the end of the file, after every
+// element it needs exists)
 
 function el(tag, cls, text) {
   const e = document.createElement(tag);
@@ -1321,4 +1318,11 @@ function shareRow() {
   });
   row.appendChild(againBtn);
   return row;
+}
+
+// preview kickoff: runs last so the whole app is wired first
+if (FORCED_PCT !== null) {
+  const previewRows = computeResults();
+  buildWrap(previewRows.length >= 3 ? previewRows : sampleRows());
+  show('wrap');
 }
