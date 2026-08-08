@@ -196,7 +196,6 @@ async function runImport(name, goBtn, status) {
       `kcs filled in for ${filled} grinds off the hiscores`,
       'mark got it or still dry on each grind as you go through, kcs for untracked monsters stay manual',
     ];
-    play('firework', 0.5);
     status.textContent = '';
     renderStep();
   } catch (err) {
@@ -611,8 +610,18 @@ function runProcessing(rows) {
     img.style.animationDelay = `${(Math.random() * 1.8).toFixed(2)}s`;
     vortex.appendChild(img);
   }
+  // the osrs loading box line, dots looping . .. ...
+  const waitLine = el('div', 'proc-wait', 'processing please wait');
+  const dots = el('span', 'proc-dots', '.');
+  waitLine.appendChild(dots);
+  let dotCount = 1;
+  const dotTimer = setInterval(() => {
+    if (!waitLine.isConnected) { clearInterval(dotTimer); return; }
+    dotCount = (dotCount % 3) + 1;
+    dots.textContent = '.'.repeat(dotCount);
+  }, 420);
   const lines = el('div', 'proc-lines');
-  proc.append(vortex, lines);
+  proc.append(waitLine, vortex, lines);
   flowBody.replaceChildren(proc);
   flowStep.textContent = 'processing';
   play('cast', 0.6);
