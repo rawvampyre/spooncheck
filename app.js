@@ -313,13 +313,26 @@ function itemCard(item) {
     // contribution-scaled drops: your damage share divides the rate.
     // groupMax caps the options for solo-or-duo-only content
     groupSel = el('select', 'pick-sel');
-    const opts = [['solo', 1], ['duo', 2], ['trio', 3], ['mass', 8]].filter(([, m]) => m <= (item.groupMax ?? 8));
-    for (const [label, mult] of opts) {
+    const opts = [['solo', '1'], ['duo', '2'], ['trio', '3'], ['mass', 'mass']].filter(
+      ([, v]) => (v === 'mass' ? (item.groupMax ?? 99) > 3 : Number(v) <= (item.groupMax ?? 99)),
+    );
+    for (const [label, v] of opts) {
       const o = el('option', null, label);
-      o.value = mult;
+      o.value = v;
       groupSel.appendChild(o);
     }
     kcWrap.appendChild(groupSel);
+  }
+  let massInput = null;
+  if (item.group && (item.groupMax ?? 99) > 3) {
+    // picking mass asks how many players it actually was
+    massInput = el('input', 'hidden');
+    massInput.type = 'number';
+    massInput.min = '4';
+    massInput.max = '100';
+    massInput.inputMode = 'numeric';
+    massInput.placeholder = 'players';
+    kcWrap.appendChild(massInput);
   }
   let countInput = null;
   if (item.multi) {
@@ -379,7 +392,15 @@ function itemCard(item) {
     if (variantSel && String(Number(e.variant) || item.variants[0][1]) !== variantSel.value) {
       variantSel.value = String(Number(e.variant) || item.variants[0][1]);
     }
-    if (groupSel && String(Number(e.group) || 1) !== groupSel.value) groupSel.value = String(Number(e.group) || 1);
+    if (groupSel) {
+      const g = Number(e.group) || 1;
+      const isMass = g > 3;
+      groupSel.value = isMass ? 'mass' : String(g);
+      if (massInput) {
+        massInput.classList.toggle('hidden', !isMass);
+        if (isMass && String(g) !== massInput.value) massInput.value = g;
+      }
+    }
   }
 
   kcInput?.addEventListener('input', () => {
@@ -396,7 +417,15 @@ function itemCard(item) {
     render();
   });
   groupSel?.addEventListener('change', () => {
-    entryFor(item.id).group = Number(groupSel.value);
+    const v = groupSel.value;
+    entryFor(item.id).group = v === 'mass' ? Number(massInput?.value) || 10 : Number(v);
+    save();
+    render();
+    if (v === 'mass') massInput?.focus();
+  });
+  massInput?.addEventListener('input', () => {
+    const n = Number(massInput.value);
+    entryFor(item.id).group = n >= 4 ? n : 10;
     save();
   });
 
