@@ -9,14 +9,19 @@ document.addEventListener('click', (ev) => {
   if (ev.target.closest('button')) play('click', 0.3);
 });
 
-// the site-wide volume control, pinned to the corner
+// the site-wide volume control: a simple white speaker over a vertical
+// slider
 {
+  const SPK_ON =
+    '<svg viewBox="0 0 24 24" width="20" height="20" fill="#fff"><path d="M3 9v6h4l5 5V4L7 9H3zm13.5 3a4.5 4.5 0 0 0-2.5-4v8a4.5 4.5 0 0 0 2.5-4zM14 3.2v2.1a7 7 0 0 1 0 13.4v2.1a9 9 0 0 0 0-17.6z"/></svg>';
+  const SPK_OFF =
+    '<svg viewBox="0 0 24 24" width="20" height="20" fill="#fff"><path d="M3 9v6h4l5 5V4L7 9H3zm18.6 3 2.1-2.1-1.4-1.4-2.1 2.1-2.1-2.1-1.4 1.4 2.1 2.1-2.1 2.1 1.4 1.4 2.1-2.1 2.1 2.1 1.4-1.4-2.1-2.1z"/></svg>';
   const box = document.createElement('div');
   box.className = 'vol-box';
   const volBtn = document.createElement('button');
   volBtn.className = 'vol-btn';
   volBtn.title = 'mute';
-  volBtn.textContent = isMuted() ? '🔇' : '🔊';
+  volBtn.innerHTML = isMuted() ? SPK_OFF : SPK_ON;
   const slider = document.createElement('input');
   slider.className = 'vol-slider';
   slider.type = 'range';
@@ -27,13 +32,13 @@ document.addEventListener('click', (ev) => {
   slider.title = 'volume';
   volBtn.addEventListener('click', () => {
     setMuted(!isMuted());
-    volBtn.textContent = isMuted() ? '🔇' : '🔊';
+    volBtn.innerHTML = isMuted() ? SPK_OFF : SPK_ON;
   });
   slider.addEventListener('input', () => {
     setMaster(Number(slider.value));
     if (Number(slider.value) > 0 && isMuted()) {
       setMuted(false);
-      volBtn.textContent = '🔊';
+      volBtn.innerHTML = SPK_ON;
     }
   });
   box.append(volBtn, slider);
