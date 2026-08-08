@@ -489,6 +489,8 @@ h1 {
   transform: scaleY(-1); /* fingers up */
   display: block;
 }
+/* mirror the second one so they read as a left and a right hand */
+.num-egg .hand-digit:nth-child(2) img { transform: scale(-1, -1); }
 .hand-digit .digit {
   position: absolute;
   top: 10%;
