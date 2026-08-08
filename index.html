@@ -1,0 +1,44 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>spooncheck. osrs luck, wrapped</title>
+  <meta name="description" content="enter your big osrs grinds and find out how spooned your account really is. wrapped style.">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+  <section id="intro" class="screen">
+    <div class="intro-inner">
+      <div class="spoon-mark">🥄</div>
+      <h1>SPOONCHECK</h1>
+      <p class="tag">osrs luck, wrapped</p>
+      <p class="sub">enter your big grinds. the math decides if your account is spooned or fried. then you get a card to post so everyone knows what you are</p>
+      <button id="start-btn">check my luck</button>
+      <p class="cred">made by <a href="https://twitch.tv/rawvampyre" target="_blank" rel="noopener">rawvampyre</a>, catch the hardcore live</p>
+    </div>
+  </section>
+
+  <section id="entry" class="screen hidden">
+    <h2>the grinds</h2>
+    <div id="lookup-row">
+      <input id="lookup-name" placeholder="osrs username" autocomplete="off" maxlength="12">
+      <button id="lookup-btn">auto fill</button>
+    </div>
+    <p id="lookup-status">have wikisync + hiscores? type your name and most of this fills itself</p>
+    <div id="item-list"></div>
+    <div class="entry-footer">
+      <p id="entry-hint">skip anything you never grinded</p>
+      <button id="wrap-btn">wrap it up</button>
+    </div>
+  </section>
+
+  <section id="wrap" class="screen hidden">
+    <div id="story-bars"></div>
+    <div id="slides"></div>
+  </section>
+
+  <script type="module" src="app.js"></script>
+</body>
+</html>
