@@ -116,8 +116,11 @@ function renderStep() {
 
 function navRow(nextLabel = 'continue') {
   const row = el('div', 'nav-row');
-  if (stepIdx > 0) row.appendChild(btn('nav-btn ghost', 'back', () => { stepIdx--; renderStep(); }));
-  row.appendChild(btn('nav-btn', nextLabel, () => { stepIdx++; renderStep(); }));
+  // back lives on the left, continue on the right, always in the same
+  // spots so fast clickers never mis-tap
+  const back = btn('nav-btn ghost', 'back', () => { stepIdx--; renderStep(); });
+  back.disabled = stepIdx === 0;
+  row.append(back, btn('nav-btn', nextLabel, () => { stepIdx++; renderStep(); }));
   return row;
 }
 

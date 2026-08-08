@@ -112,16 +112,27 @@ h1 {
 .step-title { font-size: 30px; color: var(--gold); text-shadow: 2px 2px 0 #000; margin: 14px 0 6px; }
 .step-sub { font-size: 16px; color: #ddd; line-height: 1.45; margin-bottom: 16px; }
 
-.nav-row { display: flex; gap: 10px; margin: 18px 0 8px; }
+.nav-row {
+  display: flex;
+  justify-content: space-between;
+  gap: 10px;
+  position: sticky;
+  bottom: 0;
+  padding: 12px 0 10px;
+  margin-top: 14px;
+  background: linear-gradient(transparent, var(--bg) 30%);
+}
 
 .nav-btn {
-  flex: 1;
+  flex: none;
+  min-width: 128px;
   font-size: 19px;
   padding: 13px 16px;
   background: var(--gold);
   color: #14100a;
   border-color: #8a6d1c;
 }
+.nav-btn:disabled { opacity: 0.3; cursor: default; }
 .nav-btn.ghost { background: var(--panel); color: var(--muted); border-color: var(--border); }
 .nav-btn.big { font-size: 22px; }
 .nav-btn:disabled { opacity: 0.5; cursor: wait; }
