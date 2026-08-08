@@ -139,25 +139,28 @@ document.getElementById('start-btn').addEventListener('click', () => {
   renderStep();
 });
 
-// preview a verdict: ?pct=73 jumps straight to the reveal at that
-// percentile (with sample grinds if none are filled in)
-{
-  const testPct = new URLSearchParams(location.search).get('pct');
-  if (testPct !== null) {
-    let rows = computeResults();
-    if (rows.length < 3) {
-      rows = ITEMS.slice(0, 6).map((item, i) => ({
-        item,
-        got: i % 2 === 0,
-        kc: 120 * (i + 1),
-        u: i % 2 ? 0.25 + i * 0.05 : 0.7 + i * 0.03,
-        mult: 0.5 + i * 0.4,
-        dryChance: 0.3,
-      }));
-    }
-    buildWrap(rows, Number(testPct));
-    show('wrap');
-  }
+// preview a verdict: ?pct=73 forces that percentile everywhere — the
+// instant reveal on load AND any real submit afterwards
+const FORCED_PCT = (() => {
+  const v = new URLSearchParams(location.search).get('pct');
+  return v === null ? null : Number(v);
+})();
+
+function sampleRows() {
+  return ITEMS.slice(0, 6).map((item, i) => ({
+    item,
+    got: i % 2 === 0,
+    kc: 120 * (i + 1),
+    u: i % 2 ? 0.25 + i * 0.05 : 0.7 + i * 0.03,
+    mult: 0.5 + i * 0.4,
+    dryChance: 0.3,
+  }));
+}
+
+if (FORCED_PCT !== null) {
+  const rows = computeResults();
+  buildWrap(rows.length >= 3 ? rows : sampleRows());
+  show('wrap');
 }
 
 function el(tag, cls, text) {
@@ -656,6 +659,11 @@ function renderReview() {
   row.appendChild(back);
   const submit = btn('nav-arrow primary nav-side right submit-check', '✓', () => {
     if (rows.length < 3) {
+      // preview mode still gets the full run with sample grinds
+      if (FORCED_PCT !== null) {
+        runProcessing(sampleRows());
+        return;
+      }
       submit.classList.remove('shake');
       void submit.offsetWidth;
       submit.classList.add('shake');
@@ -758,10 +766,10 @@ function impact(r) {
   return Math.abs(r.u - 0.5) * (r.item.weight ?? 1);
 }
 
-function buildWrap(rows, forcedPct) {
+function buildWrap(rows) {
   const spoons = rows.filter((r) => r.u > 0.5).sort((a, b) => impact(b) - impact(a));
   const fries = rows.filter((r) => r.u < 0.5).sort((a, b) => impact(b) - impact(a));
-  const pct = forcedPct ?? overallPercentile(rows.map((r) => r.u), rows.map((r) => r.item.weight ?? 1));
+  const pct = FORCED_PCT ?? overallPercentile(rows.map((r) => r.u), rows.map((r) => r.item.weight ?? 1));
   const verdict = verdictFor(pct);
 
   const slides = [];
