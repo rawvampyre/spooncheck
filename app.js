@@ -618,13 +618,18 @@ function receiptsSlide(rows) {
 }
 
 // clickable twitch plug — the slide tap handler already ignores links
+const TWITCH_SVG =
+  '<svg viewBox="0 0 24 24" fill="#9146FF" aria-hidden="true"><path d="M4.265 3 3 6.236v13.223h4.502V21l2.531 2.459L12.567 21h3.797L23 14.346V3H4.265zm16.207 10.578-2.899 2.82h-4.633l-2.531 2.459v-2.459H6.47V4.641h14.002v8.937zM17.61 7.463v4.922h-1.688V7.463h1.688zm-4.502 0v4.922H11.42V7.463h1.688z"/></svg>';
+
 function plugLine() {
   const p = el('div', 'plug');
-  p.append(`made by ${CONFIG.handle}, watch the hardcore live at `);
-  const a = el('a', null, CONFIG.twitch);
+  p.append('made by ');
+  const a = el('a', 'twitch-link');
   a.href = `https://${CONFIG.twitch}`;
   a.target = '_blank';
   a.rel = 'noopener';
+  a.innerHTML = TWITCH_SVG;
+  a.append(CONFIG.handle);
   p.appendChild(a);
   return p;
 }

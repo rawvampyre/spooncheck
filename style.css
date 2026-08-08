@@ -336,6 +336,9 @@ h1 {
 
 .plug { font-size: 15px; color: var(--muted); margin-top: 14px; }
 
+.twitch-link { display: inline-flex; align-items: center; gap: 5px; vertical-align: middle; }
+.twitch-link svg { width: 14px; height: 14px; }
+
 /* ---- animations ----------------------------------------------------- */
 
 @keyframes bob { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-8px); } }
