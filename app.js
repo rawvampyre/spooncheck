@@ -615,7 +615,7 @@ function renderReview() {
   const back = btn('nav-arrow nav-side left', '‹', () => { stepIdx--; renderStep(); });
   back.title = 'back';
   row.appendChild(back);
-  const submit = btn('nav-btn big nav-side right', 'submit', () => {
+  const submit = btn('nav-arrow primary nav-side right submit-check', '✓', () => {
     if (rows.length < 3) {
       submit.classList.remove('shake');
       void submit.offsetWidth;
@@ -625,6 +625,7 @@ function renderReview() {
     }
     runProcessing(rows);
   });
+  submit.title = 'submit';
   row.appendChild(submit);
   const hint = el('p', 'review-hint', rows.length < 3 ? 'needs at least 3 grinds with kcs' : '');
   flowBody.append(row, hint);

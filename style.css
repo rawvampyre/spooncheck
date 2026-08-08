@@ -166,6 +166,7 @@ h1 {
 }
 .nav-arrow.primary { background: var(--gold); color: #14100a; border-color: #8a6d1c; }
 .nav-arrow:not(:disabled):hover { border-color: #8a6d1c; }
+.submit-check { font-size: 26px; padding: 0; }
 
 /* on a phone the arrows drop to the bottom corners so they never sit on
    top of the cards, and the content keeps clearance above them */
