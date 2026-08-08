@@ -934,7 +934,13 @@ function receiptsSlide(rows) {
     : 'no single grind stands out';
 
   const graph = el('div', 'graph');
-  const shown = signed.slice(0, 12);
+  // when trimming, keep BOTH ends: the best spoons and the worst dries
+  let shown = signed;
+  if (signed.length > 14) {
+    const spoonRows = signed.filter((r) => r.u >= 0.5);
+    const dryRows = signed.filter((r) => r.u < 0.5);
+    shown = [...spoonRows.slice(0, 7), ...dryRows.slice(-7)];
+  }
   for (const r of shown) {
     const row = el('div', 'g-row');
     const ic = itemImg(r.item, 'g-icon');

@@ -426,8 +426,12 @@ h1 {
   display: flex;
   flex-direction: column;
   gap: 7px;
-  padding: 4px 2px;
+  padding: 4px 6px 4px 2px;
+  scrollbar-width: thin;
+  scrollbar-color: var(--border) transparent;
 }
+.graph::-webkit-scrollbar { width: 8px; }
+.graph::-webkit-scrollbar-thumb { background: var(--border); border-radius: 4px; }
 
 .g-row { display: grid; grid-template-columns: 24px 118px 1fr 44px; align-items: center; gap: 7px; }
 
