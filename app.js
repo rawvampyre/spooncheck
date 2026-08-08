@@ -637,6 +637,7 @@ const PROCESSING_LINES = [
   ['reviewing your grinds...', 900],
   ['cross checking the drop rates...', 900],
   ['consulting the rng gods...', 1000],
+  ['tweeting mod ash...', 900],
   ['your account has been selected for a random audit...', 1400],
   ['audit passed. congratulations', 900],
   ['calculating your final assessment...', 900],
