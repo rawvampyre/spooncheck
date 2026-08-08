@@ -14,7 +14,8 @@
 // at doom is not the same as being dry on a berserker ring.
 // wom     = wise old man metric carrying this grind's kc (boss kills
 //           unless womKind 'activity'). purples/off-hiscores = manual.
-// clogIds = collection log item ids that count as owning it (WikiSync).
+// clogIds = collection log item ids, kept around in case a log import
+//           comes back some day. nothing reads them right now.
 
 export const WIKI_IMG = 'https://oldschool.runescape.wiki/images/';
 

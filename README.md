@@ -22,23 +22,16 @@ the repo to GitHub public and turn on GitHub Pages: repo Settings > Pages >
 deploy from branch `main` root. the tool then lives on a `*.github.io`
 url, which is the trust standard for osrs community tools (the ladlor
 chart itself is hosted this way) because anyone can read the source. post
-the full url, never a link shortener. the two data apis (wise old man +
-wikisync) are called straight from the browser and both allow
-cross-origin requests, so there is genuinely no server anywhere.
+the full url, never a link shortener. the one data api (wise old man) is
+called straight from the browser and allows cross-origin requests, so
+there is genuinely no server anywhere.
 
-## auto fill sources
+## auto fill
 
-- **wise old man** (`api.wiseoldman.net`) — boss kill counts and clue casket
-  counts. if the account isn't tracked yet the lookup asks WOM to fetch it
-  off the hiscores first.
-- **wikisync** (`sync.runescape.wiki`) — which collection log slots the
-  account owns. only present if the player runs the WikiSync RuneLite
-  plugin and has synced their collection log in game. an unsynced log means
-  ownership stays unknown (never assumed dry).
-
-drop-kc caveat: the collection log doesn't record what kc an item dropped
-at, so for owned items the auto fill uses current kc and the player should
-lower it to the real drop kc if they remember.
+**wise old man** (`api.wiseoldman.net`) — boss kill counts, clue casket
+counts, and section numbers like total toa raids. if the account isn't
+tracked yet the lookup asks WOM to fetch it off the hiscores first.
+got or dry is always answered by the player.
 
 ## how the math works
 

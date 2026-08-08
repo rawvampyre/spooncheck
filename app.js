@@ -122,7 +122,7 @@ function navRow(nextLabel = 'continue') {
 function renderImport() {
   flowBody.append(
     el('h2', 'step-title', 'auto fill'),
-    el('p', 'step-sub', 'type your rsn to fill your grinds in from the hiscores and your collection log'),
+    el('p', 'step-sub', 'type your rsn to fill your kill counts in from the hiscores'),
   );
 
   const row = el('div', 'import-row');
@@ -164,75 +164,24 @@ async function runImport(name, goBtn, status) {
   status.textContent = 'reviewing your account...';
   try {
     const r = await lookupAccount(name);
-    let got = 0;
-    let dry = 0;
-    let skipped = 0;
     // prefill section inputs where the hiscores carry them
-    if (r.pools) {
-      for (const [poolName, vals] of Object.entries(r.pools)) {
-        const ps = poolState(poolName);
-        for (const [k, v] of Object.entries(vals)) if (!ps[k] && v) ps[k] = v;
-      }
+    for (const [poolName, vals] of Object.entries(r.pools)) {
+      const ps = poolState(poolName);
+      for (const [k, v] of Object.entries(vals)) if (!ps[k] && v) ps[k] = v;
     }
+    let filled = 0;
     for (const item of ITEMS) {
-      const e = entryFor(item.id);
       const kc = r.kc[item.id];
-      const owned = r.owned?.[item.id];
-      const pieces = r.counts?.[item.id];
-      if (item.multi && pieces !== undefined) {
-        // the log counts these piece by piece
-        if (pieces > 0 || kc) {
-          e.mode = 'count';
-          e.count = pieces;
-          if (kc && !e.kc) e.kc = kc;
-          if (pieces > 0) got++;
-          else dry++;
-        } else {
-          e.mode = 'skip';
-          e.kc = '';
-          skipped++;
-        }
-        continue;
-      }
-      if (owned === true) {
-        // multi-drop grinds: the log only proves you have at least one,
-        // you still tell us how many and at what kc
-        e.mode = item.multi ? 'count' : 'got';
-        if (kc && !e.kc) e.kc = kc;
-        got++;
-      } else if (owned === false && kc) {
-        if (item.multi) {
-          e.mode = 'count';
-          e.count = 0;
-        } else {
-          e.mode = 'dry';
-        }
-        e.kc = kc;
-        dry++;
-      } else if (owned === false) {
-        e.mode = 'skip';
-        e.kc = '';
-        skipped++;
-      } else if (kc && e.mode === 'skip') {
-        e.kc = kc;
-      }
+      if (!kc) continue;
+      const e = entryFor(item.id);
+      if (!e.kc) e.kc = kc;
+      filled++;
     }
     save();
-    importSummary = [];
-    if (r.clogOk) {
-      importSummary.push(`${got} grinds marked got from your collection log`);
-      importSummary.push(`${dry} grinds marked still dry with kcs on record`);
-      importSummary.push(`${skipped} grinds skipped, our records show you havent started them`);
-      importSummary.push('heads up: for items you own we filled in your CURRENT kc. lower it to the real drop kc if you remember');
-    } else {
-      importSummary.push(`kcs imported for ${Object.keys(r.kc).length} grinds`);
-      importSummary.push(
-        r.clogStatus === 'nolog'
-          ? 'wikisync sees this account but the collection log part was never uploaded. in game: open your collection log and click the sync button wikisync adds inside the log window, then run this again'
-          : 'wikisync has never heard of this name. WikiSync is a plugin hub plugin: in runelite open the plugin hub (puzzle piece icon), search WikiSync, install it, turn it on and log in. if its already on, double check this is the exact in game name',
-      );
-    }
-    if (!r.womOk) importSummary.push('hiscores had nothing for that name btw, spelling?');
+    importSummary = [
+      `kcs filled in for ${filled} grinds off the hiscores`,
+      'mark got it or still dry on each grind as you go through, kcs for untracked monsters stay manual',
+    ];
     status.textContent = '';
     renderStep();
   } catch (err) {
@@ -250,10 +199,6 @@ function renderSection(stage) {
     el('h2', 'step-title', stage),
     el('p', 'step-sub', SECTION_BLURB),
   );
-  const answered = items.filter((i) => state[i.id] && state[i.id].mode !== 'skip').length;
-  if (importSummary && !answered) {
-    flowBody.appendChild(el('p', 'section-empty', 'nothing started here according to your import. continue, or correct it below'));
-  }
   const pool = items.find((i) => i.pool)?.pool;
   if (pool) flowBody.appendChild(poolInputs(pool));
   const list = el('div', 'item-list');
@@ -392,7 +337,7 @@ function itemCard(item) {
           ? `total ${unit} when it completed`
           : `total ${unit} so far`
         : e.mode === 'got'
-          ? `${unit} it dropped at`
+          ? `${unit} when it dropped`
           : `${unit} so far, no drop`;
     if (kcInput && String(e.kc) !== kcInput.value) kcInput.value = e.kc;
     if (countInput && String(e.count ?? '') !== countInput.value) countInput.value = e.count ?? '';
@@ -611,7 +556,7 @@ function renderReview() {
 
 const PROCESSING_LINES = [
   ['reviewing your grinds...', 900],
-  ['cross checking the collection log...', 900],
+  ['cross checking the drop rates...', 900],
   ['consulting the rng gods...', 1000],
   ['your account has been selected for a random audit...', 1400],
   ['audit passed. congratulations', 900],
@@ -872,32 +817,39 @@ function plugLine() {
   return p;
 }
 
-// the balance: every grind sits on a weighing scale, dry side against
-// spooned side, tipped by the account's weighted lean
+// the balance: a chunky pixel scale. every grind drops onto its side,
+// sized by how hard it pulls the verdict, piling up before the beam
+// settles into the account's lean
 function scaleSlide(rows, pct) {
-  const spoons = rows.filter((r) => r.u > 0.5);
-  const dries = rows.filter((r) => r.u < 0.5);
-  const tilt = Math.max(-14, Math.min(14, ((pct - 50) / 50) * 14));
+  const spoons = rows.filter((r) => r.u > 0.5).sort((a, b) => impact(b) - impact(a));
+  const dries = rows.filter((r) => r.u < 0.5).sort((a, b) => impact(b) - impact(a));
+  const tilt = Math.max(-13, Math.min(13, ((pct - 50) / 50) * 13));
 
-  const pan = (rs, cls) => {
-    const p = el('div', `pan ${cls}`);
-    const icons = el('div', 'pan-icons');
-    for (const r of rs.slice(0, 9)) {
+  const pan = (rs, cls, delayOffset) => {
+    const p = el('div', `s-pan ${cls}`);
+    const pile = el('div', 'pan-pile');
+    rs.slice(0, 10).forEach((r, i) => {
       const img = itemImg(r.item, 'pan-icon');
-      img.style.width = `${Math.round(16 + Math.min(3, r.item.weight ?? 1) * 5)}px`;
-      icons.appendChild(img);
-    }
-    p.append(icons, el('div', 'pan-plate'));
+      // the harder this grind pulls the verdict, the bigger it lands
+      const size = Math.round(Math.min(44, 16 + impact(r) * 26));
+      img.style.width = `${size}px`;
+      img.style.setProperty('--rot', `${Math.round(Math.random() * 24 - 12)}deg`);
+      img.style.setProperty('--dd', `${(delayOffset + i * 0.4).toFixed(2)}s`);
+      pile.appendChild(img);
+    });
+    p.append(pile, el('div', 'pan-dish'));
     return p;
   };
 
-  const beam = el('div', 'scale-beam');
+  const beam = el('div', 's-beam');
   beam.style.setProperty('--tilt', `${tilt.toFixed(1)}deg`);
-  beam.append(pan(dries, 'left'), pan(spoons, 'right'));
+  const chainL = el('div', 's-chain left');
+  const chainR = el('div', 's-chain right');
+  beam.append(chainL, chainR, pan(dries, 'left', 0.25), pan(spoons, 'right', 0.45));
   const scale = el('div', 'scale');
-  scale.append(beam, el('div', 'scale-post'));
+  scale.append(beam, el('div', 's-post'), el('div', 's-base'));
   const labels = el('div', 'scale-labels');
-  labels.append(el('span', null, 'unlucky'), el('span', null, 'lucky'));
+  labels.append(el('span', null, 'dry'), el('span', null, 'spoon'));
 
   return slide(
     'slide-scale',
@@ -928,12 +880,26 @@ function showSlide(i) {
     b.classList.toggle('done', j < i);
     b.classList.toggle('now', j === i);
   });
+  document.getElementById('wrap-prev').disabled = i === 0;
+  document.getElementById('wrap-next').disabled = i === slideEls.length - 1;
   const counter = slideEls[i].querySelector('.countup');
   if (counter && !counter.dataset.ran) {
     counter.dataset.ran = '1';
     countUp(counter);
   }
 }
+
+document.getElementById('wrap-prev').addEventListener('click', () => {
+  if (slideIdx > 0) showSlide(slideIdx - 1);
+});
+document.getElementById('wrap-next').addEventListener('click', () => {
+  if (slideIdx < slideEls.length - 1) showSlide(slideIdx + 1);
+});
+document.addEventListener('keydown', (ev) => {
+  if (screens.wrap.classList.contains('hidden') || !slideEls.length) return;
+  if (ev.key === 'ArrowLeft' && slideIdx > 0) showSlide(slideIdx - 1);
+  if (ev.key === 'ArrowRight' && slideIdx < slideEls.length - 1) showSlide(slideIdx + 1);
+});
 
 function countUp(node) {
   const target = node.textContent;
