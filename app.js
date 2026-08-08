@@ -1,4 +1,4 @@
-import { ITEMS, STAGES, itemsInStage, iconUrl, POOLS } from './items.js';
+import { ITEMS, STAGES, itemsInStage, sectionOf, iconUrl, POOLS, WIKI_IMG } from './items.js';
 import { luckOfGet, luckOfDry, luckOfCount, countTail, ladderDist, toaUniqueChance, stillDryChance, multiplier, overallPercentile, verdictFor } from './math.js';
 import { lookupAccount } from './lookup.js';
 import { HANDLE, TWITCH, sectionTitle } from './config.js';
@@ -216,7 +216,7 @@ function renderSection(stage) {
 function poolInputs(name) {
   const ps = poolState(name);
   const wrap = el('div', 'pool-row');
-  for (const [key, label, min] of POOLS[name].fields) {
+  for (const [key, label, min, fieldIcon] of POOLS[name].fields) {
     const box = el('label', 'pool-field');
     const input = el('input');
     input.type = 'number';
@@ -228,7 +228,16 @@ function poolInputs(name) {
       ps[key] = input.value;
       save();
     });
-    box.append(el('span', 'pool-label', label), input);
+    if (fieldIcon) {
+      const img = el('img', 'pool-icon');
+      img.src = WIKI_IMG + encodeURI(fieldIcon);
+      img.alt = label;
+      img.title = label;
+      box.appendChild(img);
+    } else {
+      box.appendChild(el('span', 'pool-label', label));
+    }
+    box.appendChild(input);
     wrap.appendChild(box);
   }
   return wrap;
@@ -410,7 +419,7 @@ function computeResults() {
       let window = 0;
       let expected = 0;
       if (item.pool === 'toa') {
-        const raids = Math.round(Number(ps.raids) || 0);
+        const raids = Math.min(100_000, Math.round(Number(ps.raids) || 0));
         const p = (toaUniqueChance(ps.raidLevel) * item.pweight) / 24;
         // no raids or no raid level = nothing to score against
         if (!raids || !(p > 0)) continue;
@@ -418,8 +427,8 @@ function computeResults() {
         window = raids;
         expected = raids * p;
       } else if (item.pool === 'yama') {
-        const solo = Math.round(Number(ps.soloKc) || 0);
-        const duo = Math.round(Number(ps.duoKc) || 0);
+        const solo = Math.min(1_000_000, Math.round(Number(ps.soloKc) || 0));
+        const duo = Math.min(1_000_000, Math.round(Number(ps.duoKc) || 0));
         if (!solo && !duo) continue;
         q = Math.pow(1 - 1 / item.rate, solo) * Math.pow(1 - 1 / (2 * item.rate), duo);
         window = solo + duo;
@@ -430,8 +439,8 @@ function computeResults() {
         const fields = POOLS[item.pool].fields;
         let n = 0;
         item.fieldRates.forEach((r2, i) => {
-          const cnt = Math.round(Number(ps[fields[i][0]]) || 0);
-          if (!r2 || !cnt) return;
+          const cnt = Math.min(1_000_000, Math.round(Number(ps[fields[i][0]]) || 0));
+          if (!r2 || cnt < 1) return;
           q *= Math.pow(1 - 1 / r2, cnt);
           n += cnt;
           expected += cnt / r2;
@@ -451,16 +460,22 @@ function computeResults() {
       continue;
     }
 
-    const kc = Math.round(Number(e.kc));
+    // validation: nothing impossible gets scored
+    let kc = Math.round(Number(e.kc));
     if (!Number.isFinite(kc) || kc < 1) continue;
+    kc = Math.min(kc, 1_000_000);
     const variantRate = item.variants ? Number(e.variant) || item.variants[0][1] : item.rate;
-    const groupMult = item.group ? Math.max(1, Number(e.group) || 1) : 1;
-    const nexMult = item.pool === 'nex' ? Math.max(1, Number(poolState('nex').group) || 1) : 1;
+    const groupMult = item.group ? Math.min(100, Math.max(1, Number(e.group) || 1)) : 1;
+    const nexMult = item.pool === 'nex' ? Math.min(100, Math.max(1, Number(poolState('nex').group) || 1)) : 1;
     const rate = variantRate * groupMult * nexMult;
 
     if (item.multi) {
       if (e.mode !== 'count') continue;
-      const count = Math.max(0, Math.round(Number(e.count) || 0));
+      let count = Math.max(0, Math.round(Number(e.count) || 0));
+      // cant have more drops than kills, nor more pieces than a
+      // dupe-protected set holds
+      count = Math.min(count, kc, 99);
+      if (item.protected) count = Math.min(count, item.multi);
       rows.push({
         item,
         got: count > 0,
@@ -477,6 +492,8 @@ function computeResults() {
     if (item.ladder) {
       if (e.mode !== 'got' && e.mode !== 'dry') continue;
       const got = e.mode === 'got';
+      // a finished ladder needs at least one kill per phase
+      if (got) kc = Math.max(kc, item.ladder.length);
       const { tail, exact } = ladderDist(item.ladder.map((r) => r * groupMult), kc);
       rows.push({
         item,
@@ -511,7 +528,7 @@ function renderReview() {
 
   const list = el('div', 'review-list');
   for (const stage of STAGES) {
-    const inStage = rows.filter((r) => r.item.stage === stage);
+    const inStage = rows.filter((r) => sectionOf(r.item.id) === stage);
     if (!inStage.length) continue;
     const box = el('div', 'review-stage');
     const head = el('div', 'review-head');

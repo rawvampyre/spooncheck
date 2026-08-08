@@ -196,6 +196,7 @@ h1 {
 .pool-field { display: flex; flex-direction: column; gap: 3px; }
 .pool-label { font-size: 12.5px; color: var(--muted); }
 .pool-field input { width: 88px; font-size: 16px; padding: 6px 8px; color: var(--gold); }
+.pool-icon { height: 34px; width: 44px; object-fit: contain; image-rendering: pixelated; align-self: center; }
 
 /* review step */
 
@@ -373,6 +374,27 @@ h1 {
 
 .twitch-link { display: inline-flex; align-items: center; gap: 5px; vertical-align: middle; }
 .twitch-link svg { width: 14px; height: 14px; }
+
+/* ---- the editor (/edit.html) ---------------------------------------- */
+
+.edit-actions { display: flex; gap: 8px; flex-wrap: wrap; }
+.edit-actions .nav-btn { flex: none; font-size: 16px; padding: 10px 14px; }
+.edit-h { color: var(--gold); font-size: 22px; margin: 22px 0 4px; text-shadow: 2px 2px 0 #000; }
+.edit-hint { font-size: 13px; color: var(--muted); margin-bottom: 10px; }
+
+.ed-verdict { display: grid; grid-template-columns: 58px 190px 1fr; gap: 6px; margin-bottom: 6px; }
+.ed-verdict input { font-size: 14px; padding: 6px 8px; }
+.ed-min { color: var(--gold); }
+
+.ed-section { background: var(--panel); border: 2px solid var(--border); border-radius: 8px; padding: 10px 12px; margin-bottom: 10px; }
+.ed-sec-head { display: flex; gap: 6px; margin-bottom: 8px; }
+.ed-sec-title { flex: 1; font-size: 17px; padding: 7px 10px; color: var(--gold); }
+.ed-arrow { font-size: 13px; padding: 4px 9px; color: var(--muted); }
+
+.ed-item { display: grid; grid-template-columns: 1fr 62px 130px auto auto; gap: 5px; align-items: center; margin-bottom: 4px; }
+.ed-item-name { font-size: 14px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.ed-weight { font-size: 14px; padding: 5px 6px; color: var(--gold); }
+.ed-move { font-family: inherit; font-size: 13px; padding: 5px 6px; background: #1d1710; border: 2px solid var(--border); border-radius: 6px; color: var(--muted); }
 
 /* ---- animations ----------------------------------------------------- */
 

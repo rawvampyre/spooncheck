@@ -1,0 +1,30 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>spooncheck editor</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <section class="screen" id="editor">
+    <h2 class="step-title">spooncheck editor</h2>
+    <p class="step-sub">changes save to this browser and apply to the main page on refresh. "download config.js" bakes them into the repo file so they deploy for everyone.</p>
+    <div class="edit-actions">
+      <button id="ed-save" class="nav-btn">save</button>
+      <button id="ed-download" class="nav-btn">download config.js</button>
+      <button id="ed-reset" class="nav-btn ghost">reset to file defaults</button>
+    </div>
+    <p id="ed-status" class="import-status"></p>
+
+    <h3 class="edit-h">verdict messages</h3>
+    <p class="edit-hint">top band first. min = the percentile where the band starts</p>
+    <div id="ed-verdicts"></div>
+
+    <h3 class="edit-h">sections, order and weights</h3>
+    <p class="edit-hint">arrows reorder. the dropdown moves a grind to another section. weight = how hard it pulls the verdict (1 = normal, 3 = defining grind)</p>
+    <div id="ed-sections"></div>
+  </section>
+  <script type="module" src="edit.js"></script>
+</body>
+</html>

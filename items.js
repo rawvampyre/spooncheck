@@ -44,9 +44,9 @@ export const ITEMS = [
   // moon for that moon's set, and a set never repeats a piece until it's
   // complete — so a full set is 4 hits at 1/56, about 224 chests. the
   // pieces are separate log slots so the import counts them exactly.
-  { id: 'bloodset', stage: 'varlamore era', name: 'Full blood moon set', rate: 56, from: 'lunar chests', icon: 'Blood_moon_chestplate.png', note: 'a new piece every 1/56, full set about 224 chests', multi: 4, unit: 'chests', wom: 'lunar_chests', clogIds: [29028, 29022, 29025, 28997], weight: 0.75 },
-  { id: 'blueset', stage: 'varlamore era', name: 'Full blue moon set', rate: 56, from: 'lunar chests', icon: 'Blue_moon_chestplate.png', note: 'a new piece every 1/56, full set about 224 chests', multi: 4, unit: 'chests', wom: 'lunar_chests', clogIds: [29019, 29013, 29016, 28988], weight: 0.75 },
-  { id: 'eclipseset', stage: 'varlamore era', name: 'Full eclipse moon set', rate: 56, from: 'lunar chests', icon: 'Eclipse_moon_chestplate.png', note: 'a new piece every 1/56, full set about 224 chests', multi: 4, unit: 'chests', wom: 'lunar_chests', clogIds: [29010, 29004, 29007, 29000], weight: 0.75 },
+  { id: 'bloodset', stage: 'varlamore era', name: 'Full blood moon set', rate: 56, from: 'lunar chests', icon: 'Blood_moon_chestplate.png', note: 'a new piece every 1/56, full set about 224 chests', multi: 4, protected: true, unit: 'chests', wom: 'lunar_chests', clogIds: [29028, 29022, 29025, 28997], weight: 0.75 },
+  { id: 'blueset', stage: 'varlamore era', name: 'Full blue moon set', rate: 56, from: 'lunar chests', icon: 'Blue_moon_chestplate.png', note: 'a new piece every 1/56, full set about 224 chests', multi: 4, protected: true, unit: 'chests', wom: 'lunar_chests', clogIds: [29019, 29013, 29016, 28988], weight: 0.75 },
+  { id: 'eclipseset', stage: 'varlamore era', name: 'Full eclipse moon set', rate: 56, from: 'lunar chests', icon: 'Eclipse_moon_chestplate.png', note: 'a new piece every 1/56, full set about 224 chests', multi: 4, protected: true, unit: 'chests', wom: 'lunar_chests', clogIds: [29010, 29004, 29007, 29000], weight: 0.75 },
   // royal titans and hueycoatl drops scale linearly with your damage
   // share (1/75 solo is 1/150 in an even duo), so these carry the group
   // size picker
@@ -87,8 +87,8 @@ export const ITEMS = [
   // the heart and gem roll per superior kill at a rate set by the
   // monster's slayer requirement, so the section asks for kills of the
   // five standard heart grinds
-  { id: 'heart', stage: 'superiors', name: 'Imbued heart', rate: 350, pool: 'superiors', fieldRates: [256, 352, 440, 520, 680], from: 'superior slayer monsters', icon: 'Imbued_heart.png', unit: 'superiors', clogIds: [], weight: 1.5 },
-  { id: 'egem', stage: 'superiors', name: 'Eternal gem', rate: 350, pool: 'superiors', fieldRates: [256, 352, 440, 520, 680], from: 'superior slayer monsters', icon: 'Eternal_gem.png', unit: 'superiors', clogIds: [], weight: 0.5 },
+  { id: 'heart', stage: 'superiors', name: 'Imbued heart', rate: 350, pool: 'superiors', fieldRates: [224, 256, 352, 440, 520, 680], from: 'superior slayer monsters', icon: 'Imbued_heart.png', unit: 'superiors', clogIds: [], weight: 1.5 },
+  { id: 'egem', stage: 'superiors', name: 'Eternal gem', rate: 350, pool: 'superiors', fieldRates: [224, 256, 352, 440, 520, 680], from: 'superior slayer monsters', icon: 'Eternal_gem.png', unit: 'superiors', clogIds: [], weight: 0.5 },
 
   // ---- god wars ----
   { id: 'bhilt', stage: 'god wars', name: 'Bandos hilt', rate: 508, from: 'general graardor', icon: 'Bandos_hilt.png', wom: 'general_graardor', clogIds: [11818], weight: 0.75 },
@@ -111,7 +111,7 @@ export const ITEMS = [
   { id: 'hleather', stage: 'hydra', name: 'Hydra leather', rate: 514, from: 'alchemical hydra', icon: 'Hydra_leather.png', wom: 'alchemical_hydra', clogIds: [22983], weight: 1 },
 
   // ---- araxxor ----
-  { id: 'nox', stage: 'araxxor', name: 'Noxious pieces', rate: 66.7, from: 'araxxor', icon: 'Noxious_point.png', note: 'each piece 1/200 with no duplicates', multi: 3, wom: 'araxxor', clogIds: [29790, 29792, 29794], weight: 1 },
+  { id: 'nox', stage: 'araxxor', name: 'Noxious pieces', rate: 66.7, from: 'araxxor', icon: 'Noxious_point.png', note: 'each piece 1/200 with no duplicates', multi: 3, protected: true, wom: 'araxxor', clogIds: [29790, 29792, 29794], weight: 1 },
   { id: 'afang', stage: 'araxxor', name: 'Araxyte fang', rate: 600, from: 'araxxor', icon: 'Araxyte_fang.png', wom: 'araxxor', clogIds: [29799], weight: 1 },
 
   // ---- maggot king ----
@@ -199,20 +199,53 @@ export const POOLS = {
     ],
   },
   nex: { kind: 'modifier', fields: [['group', 'average group size', 1]] },
+  // superiors show the monster's picture instead of a name label
   superiors: {
     kind: 'window',
     fields: [
-      ['nightbeast', 'night beasts'], ['gabyssal', 'greater abyssals'], ['nechryarch', 'nechryarchs'],
-      ['gargoyle', 'marble gargoyles'], ['choke', 'choke devils'],
+      ['araxyte', 'dreadborn araxytes', 0, 'Dreadborn_Araxyte.png'],
+      ['nightbeast', 'night beasts', 0, 'Night_beast.png'],
+      ['gabyssal', 'greater abyssal demons', 0, 'Greater_abyssal_demon.png'],
+      ['nechryarch', 'nechryarchs', 0, 'Nechryarch.png'],
+      ['gargoyle', 'marble gargoyles', 0, 'Marble_gargoyle.png'],
+      ['choke', 'choke devils', 0, 'Choke_devil.png'],
     ],
   },
 };
 
-// wizard sections in chart order
-export const STAGES = [...new Set(ITEMS.map((i) => i.stage))];
+// section layout comes from config.js ORDER — the streamer's file to
+// regroup and reorder. anything not listed there falls back into the
+// section its item definition names. WEIGHTS overrides item importance.
+import { ORDER, WEIGHTS } from './config.js';
+
+for (const it of ITEMS) {
+  if (WEIGHTS[it.id] != null) it.weight = Number(WEIGHTS[it.id]) || it.weight;
+}
+
+const byId = new Map(ITEMS.map((i) => [i.id, i]));
+const RESOLVED = new Map();
+for (const [sec, ids] of Object.entries(ORDER)) {
+  RESOLVED.set(sec, ids.map((id) => byId.get(id)).filter(Boolean));
+}
+for (const item of ITEMS) {
+  const listed = [...RESOLVED.values()].some((arr) => arr.includes(item));
+  if (!listed) {
+    if (!RESOLVED.has(item.stage)) RESOLVED.set(item.stage, []);
+    RESOLVED.get(item.stage).push(item);
+  }
+}
+
+export const STAGES = [...RESOLVED.keys()];
 
 export function itemsInStage(stage) {
-  return ITEMS.filter((i) => i.stage === stage);
+  return RESOLVED.get(stage) ?? [];
+}
+
+export function sectionOf(id) {
+  for (const [sec, arr] of RESOLVED) {
+    if (arr.some((i) => i.id === id)) return sec;
+  }
+  return null;
 }
 
 export function iconUrl(item) {

@@ -59,7 +59,7 @@ export function ladderDist(rates, kc) {
 // about 65 points per raid level, which lands on the community-quoted
 // rates (about 1/23 at 300, about 1/14 at 400)
 export function toaUniqueChance(raidLevel) {
-  const rl = Math.max(0, Math.min(1000, Number(raidLevel) || 0));
+  const rl = Math.max(0, Math.min(650, Number(raidLevel) || 0));
   const scaled = rl <= 310 ? rl : rl <= 430 ? 310 + (rl - 310) / 3 : 350 + (rl - 430) / 6;
   const points = 65 * rl;
   return Math.min(0.55, points / (10500 - 20 * scaled) / 100);
@@ -140,16 +140,9 @@ function erf(x) {
   return sign * y;
 }
 
-export const VERDICTS = [
-  { min: 99, name: 'THE CHOSEN ONE', blurb: 'jagex loves you and its not even close' },
-  { min: 90, name: 'CERTIFIED SPOON', blurb: 'born lucky built different' },
-  { min: 70, name: 'LIGHTLY SPOONED', blurb: 'rng carries you and you dont even say thanks' },
-  { min: 45, name: 'PAINFULLY AVERAGE', blurb: 'the math looked at your account and shrugged' },
-  { min: 25, name: 'GOING DRY', blurb: 'the grind respects you a little too much' },
-  { min: 8, name: 'DRY', blurb: 'you have seen drop tables no account should see' },
-  { min: 1, name: 'BONE DRY', blurb: 'the desert sends you postcards' },
-  { min: -1, name: 'STATISTICALLY CURSED', blurb: 'this account is a warning to others' },
-];
+import { VERDICTS } from './config.js';
+
+export { VERDICTS };
 
 export function verdictFor(pct) {
   return VERDICTS.find((v) => pct >= v.min);
