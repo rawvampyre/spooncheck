@@ -218,7 +218,7 @@ function renderSection(stage) {
   if (pool) flowBody.appendChild(poolInputs(pool));
   const list = el('div', 'item-list');
   for (const item of items) list.appendChild(itemCard(item));
-  flowBody.appendChild(navRow());
+  flowBody.append(list, navRow());
 }
 
 // shared numbers for a whole section (raid level, solo and duo kills,
