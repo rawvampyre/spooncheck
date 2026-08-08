@@ -199,7 +199,9 @@ function navRow() {
 // ---- step: import ---------------------------------------------------------
 
 function renderImport() {
-  flowBody.append(el('p', 'step-sub', 'type your rsn to fill your kill counts in from the hiscores'));
+  flowBody.append(
+    el('p', 'step-sub', 'type your rsn to fill your kill counts in fresh off the hiscores, powered by wise old man'),
+  );
 
   const row = el('div', 'import-row');
   const input = el('input', 'import-input');

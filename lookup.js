@@ -34,12 +34,11 @@ export async function lookupAccount(name) {
 async function fetchWom(user) {
   const enc = encodeURIComponent(user);
   try {
-    let res = await fetch(WOM + enc);
-    if (res.status === 404) {
-      // not tracked yet: this asks wom to fetch them off the hiscores and
-      // returns the fresh snapshot directly
-      res = await fetch(WOM + enc, { method: 'POST' });
-    }
+    // ask wom to refresh the player off the hiscores first so the kcs
+    // are current (this also tracks brand new names). if the update is
+    // cooling down or fails, fall back to their last snapshot.
+    let res = await fetch(WOM + enc, { method: 'POST' });
+    if (!res.ok) res = await fetch(WOM + enc);
     if (!res.ok) return null;
     return await res.json();
   } catch {
