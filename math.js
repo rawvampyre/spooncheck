@@ -27,6 +27,24 @@ export function stillDryChance(rate, kc) {
   return Math.pow(1 - 1 / rate, Math.max(0, Math.round(kc)));
 }
 
+// multi-drop grinds (zenytes: you usually want 4): "I have `count` at
+// `kc` kills". under the null the count is Binomial(kc, p), so the luck
+// score is the mid-p tail P(X < count) + P(X = count)/2 — more drops
+// than the rate owes you = spoon, fewer = fry. count 0 reduces exactly
+// to luckOfDry. terms computed iteratively, stable for small counts.
+export function luckOfCount(rate, kc, count) {
+  const p = 1 / rate;
+  const n = Math.max(1, Math.round(kc));
+  const k = Math.max(0, Math.round(count));
+  let term = Math.pow(1 - p, n); // P(X = 0)
+  let below = 0;
+  for (let i = 0; i < k; i++) {
+    below += term;
+    term *= ((n - i) / (i + 1)) * (p / (1 - p)); // P(X = i+1)
+  }
+  return Math.min(1, below + term / 2);
+}
+
 export function multiplier(rate, kc) {
   return kc / rate;
 }

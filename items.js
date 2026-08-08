@@ -18,15 +18,18 @@
 
 export const WIKI_IMG = 'https://oldschool.runescape.wiki/images/';
 
-const BARROWS_IDS = [
-  4708, 4710, 4712, 4714, 4716, 4718, 4720, 4722, 4724, 4726, 4728, 4730,
-  4732, 4734, 4736, 4738, 4745, 4747, 4749, 4751, 4753, 4755, 4757, 4759,
-];
+// the barrows goal for an iron is tank gear, slot by slot: any melee
+// brother's piece fills the slot (dharok/guthan/torag/verac)
+const TANK_HELMS = [4716, 4724, 4745, 4753];
+const TANK_BODIES = [4720, 4728, 4749, 4757];
+const TANK_LEGS = [4722, 4730, 4751, 4759];
 
 export const ITEMS = [
   // ---- the early game ----
   { id: 'bring', stage: 'the early game', name: 'Berserker ring', rate: 128, from: 'dagannoth rex', icon: 'Berserker_ring.png', wom: 'dagannoth_rex', clogIds: [6737], weight: 0.5 },
-  { id: 'barrows', stage: 'the early game', name: 'First Barrows unique', rate: 17, from: 'barrows', icon: "Dharok's_greataxe.png", note: 'any unique, 6 brothers', unit: 'chests', wom: 'barrows_chests', clogIds: BARROWS_IDS, weight: 1 },
+  { id: 'tankhelm', stage: 'the early game', name: 'Barrows tank helm', rate: 102, from: 'barrows', icon: "Verac's_helm.png", note: 'any melee bro helm, 6 bros', unit: 'chests', wom: 'barrows_chests', clogIds: TANK_HELMS, weight: 0.75 },
+  { id: 'tankbody', stage: 'the early game', name: 'Barrows tank body', rate: 102, from: 'barrows', icon: "Dharok's_platebody.png", note: 'any melee bro body, 6 bros', unit: 'chests', wom: 'barrows_chests', clogIds: TANK_BODIES, weight: 0.75 },
+  { id: 'tanklegs', stage: 'the early game', name: 'Barrows tank legs', rate: 102, from: 'barrows', icon: "Verac's_plateskirt.png", note: 'any melee bro legs, 6 bros', unit: 'chests', wom: 'barrows_chests', clogIds: TANK_LEGS, weight: 0.75 },
   { id: 'ddef', stage: 'the early game', name: 'Dragon defender', rate: 100, from: 'cyclopes', icon: 'Dragon_defender.png', clogIds: [12954], weight: 0.5 },
   { id: 'zaxe', stage: 'the early game', name: 'Zombie axe', rate: 600, from: 'armoured zombies', icon: 'Zombie_axe.png', note: 'fort rate', clogIds: [28810, 28813], weight: 0.5 },
 
@@ -42,16 +45,16 @@ export const ITEMS = [
   // ---- the big unlocks ----
   { id: 'dpick', stage: 'the big unlocks', name: 'Dragon pickaxe', rate: 400, from: 'kalphite queen', icon: 'Dragon_pickaxe.png', note: 'kq rate, wildy bosses differ', wom: 'kalphite_queen', clogIds: [11920], weight: 0.5 },
   { id: 'dwh', stage: 'the big unlocks', name: 'Dragon warhammer', rate: 5000, from: 'lizardman shamans', icon: 'Dragon_warhammer.png', clogIds: [13576], weight: 2 },
-  { id: 'zenyte', stage: 'the big unlocks', name: 'Zenyte shard', rate: 300, from: 'demonic gorillas', icon: 'Zenyte_shard.png', clogIds: [19529], weight: 1.5 },
+  { id: 'zenyte', stage: 'the big unlocks', name: 'Zenyte shards', rate: 300, from: 'demonic gorillas', icon: 'Zenyte_shard.png', note: 'you usually want 4', multi: 4, clogIds: [19529], weight: 1.5 },
   { id: 'jaw', stage: 'the big unlocks', name: 'Basilisk jaw', rate: 1000, from: 'basilisk knights', icon: 'Basilisk_jaw.png', clogIds: [24268], weight: 1 },
 
   // ---- demon business ----
-  { id: 'synapse', stage: 'demon business', name: 'Tormented synapse', rate: 500, from: 'tormented demons', icon: 'Tormented_synapse.png', note: 'makes emberlight or scorching bow', clogIds: [29580], weight: 1 },
-  { id: 'bclaw', stage: 'demon business', name: 'Burning claw', rate: 500, from: 'tormented demons', icon: 'Burning_claw.png', note: 'need 2 lol', clogIds: [29574], weight: 1 },
+  { id: 'synapse', stage: 'demon business', name: 'Tormented synapses', rate: 500, from: 'tormented demons', icon: 'Tormented_synapse.png', note: 'want 2, emberlight + scorching bow', multi: 2, clogIds: [29580], weight: 1 },
+  { id: 'bclaw', stage: 'demon business', name: 'Burning claws', rate: 500, from: 'tormented demons', icon: 'Burning_claw.png', note: 'want 2 for the pair', multi: 2, clogIds: [29574], weight: 1 },
 
   // ---- the gauntlet ----
-  { id: 'cseed', stage: 'the gauntlet', name: 'Crystal armour seed', rate: 50, from: 'corrupted gauntlet', icon: 'Crystal_armour_seed.png', note: 'cg rate', wom: 'the_corrupted_gauntlet', clogIds: [23956], weight: 1 },
-  { id: 'bowfa', stage: 'the gauntlet', name: 'Enh. crystal weapon seed', rate: 400, from: 'corrupted gauntlet', icon: 'Enhanced_crystal_weapon_seed.png', note: 'cg rate', wom: 'the_corrupted_gauntlet', clogIds: [25859], weight: 2 },
+  { id: 'cseed', stage: 'the gauntlet', name: 'Crystal armour seeds', rate: 50, from: 'corrupted gauntlet', icon: 'Crystal_armour_seed.png', note: 'cg rate, full set needs 6', multi: 6, wom: 'the_corrupted_gauntlet', clogIds: [23956], weight: 1 },
+  { id: 'bowfa', stage: 'the gauntlet', name: 'Enh. crystal weapon seeds', rate: 400, from: 'corrupted gauntlet', icon: 'Enhanced_crystal_weapon_seed.png', note: 'cg rate, some want 2', multi: 2, wom: 'the_corrupted_gauntlet', clogIds: [25859], weight: 2 },
 
   // ---- slayer era ----
   { id: 'tanz', stage: 'slayer era', name: 'Tanzanite fang', rate: 512, from: 'zulrah', icon: 'Tanzanite_fang.png', wom: 'zulrah', clogIds: [12922], weight: 1.5 },
@@ -83,7 +86,7 @@ export const ITEMS = [
   { id: 'hleather', stage: 'hydra', name: 'Hydra leather', rate: 514, from: 'alchemical hydra', icon: 'Hydra_leather.png', wom: 'alchemical_hydra', clogIds: [22983], weight: 1 },
 
   // ---- araxxor ----
-  { id: 'nox', stage: 'araxxor', name: 'First noxious piece', rate: 67, from: 'araxxor', icon: 'Noxious_point.png', note: 'each piece 1/200, no dupes', wom: 'araxxor', clogIds: [29790, 29792, 29794], weight: 1 },
+  { id: 'nox', stage: 'araxxor', name: 'Noxious pieces', rate: 66.7, from: 'araxxor', icon: 'Noxious_point.png', note: 'each 1/200 no dupes, halberd needs 3', multi: 3, wom: 'araxxor', clogIds: [29790, 29792, 29794], weight: 1 },
   { id: 'afang', stage: 'araxxor', name: 'Araxyte fang', rate: 600, from: 'araxxor', icon: 'Araxyte_fang.png', note: 'makes rancour', wom: 'araxxor', clogIds: [29799], weight: 1 },
 
   // ---- tombs of amascut ----

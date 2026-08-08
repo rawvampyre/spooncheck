@@ -263,6 +263,63 @@ h1 {
 .board-name { flex: 1; font-size: 14px; min-width: 0; }
 .board-mult { font-size: 15px; color: var(--gold); }
 
+/* the receipts graph */
+
+.why-line { font-size: 18px; color: #ddd; line-height: 1.4; max-width: 380px; }
+
+.g-legend { font-size: 14px; color: var(--muted); }
+
+.graph {
+  width: 100%;
+  max-width: 460px;
+  max-height: 52dvh;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 7px;
+  padding: 4px 2px;
+}
+
+.g-row { display: grid; grid-template-columns: 24px 118px 1fr 44px; align-items: center; gap: 7px; }
+
+.g-icon { width: 22px; height: 22px; object-fit: contain; image-rendering: pixelated; }
+
+.g-name { font-size: 12.5px; color: #ddd; text-align: left; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+
+.g-track {
+  position: relative;
+  height: 18px;
+  background: #1d1710;
+  border: 1px solid var(--border);
+  border-radius: 3px;
+}
+.g-track::before {
+  content: '';
+  position: absolute;
+  left: 50%;
+  top: 0;
+  bottom: 0;
+  width: 1px;
+  background: var(--border);
+}
+
+.g-bar {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  height: 8px;
+  width: var(--len, 0%);
+  border-radius: 2px;
+  animation: g-grow 0.7s ease-out;
+}
+.g-bar.heavy { height: 14px; }
+.g-bar.spoon { left: 50%; background: linear-gradient(90deg, #2e7d32, var(--green)); }
+.g-bar.fry { right: 50%; background: linear-gradient(270deg, #8a2b12, var(--red)); }
+
+.g-val { font-size: 12.5px; color: var(--muted); text-align: right; }
+
+.g-note { font-size: 13px; }
+
 .verdict-name {
   font-size: 44px;
   color: var(--gold);
@@ -316,3 +373,5 @@ h1 {
 }
 
 @keyframes pulse-hint { 0%, 100% { opacity: 0.5; } 50% { opacity: 1; } }
+
+@keyframes g-grow { from { width: 0; } }

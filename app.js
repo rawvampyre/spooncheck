@@ -1,5 +1,5 @@
 import { ITEMS, STAGES, itemsInStage, iconUrl } from './items.js';
-import { luckOfGet, luckOfDry, stillDryChance, multiplier, overallPercentile, verdictFor } from './math.js';
+import { luckOfGet, luckOfDry, luckOfCount, stillDryChance, multiplier, overallPercentile, verdictFor } from './math.js';
 import { lookupAccount } from './lookup.js';
 
 const CONFIG = {
@@ -149,11 +149,18 @@ async function runImport(name, goBtn, status) {
       const kc = r.kc[item.id];
       const owned = r.owned?.[item.id];
       if (owned === true) {
-        e.mode = 'got';
+        // multi-drop grinds: the log only proves you have at least one,
+        // you still tell us how many and at what kc
+        e.mode = item.multi ? 'count' : 'got';
         if (kc && !e.kc) e.kc = kc;
         got++;
       } else if (owned === false && kc) {
-        e.mode = 'dry';
+        if (item.multi) {
+          e.mode = 'count';
+          e.count = 0;
+        } else {
+          e.mode = 'dry';
+        }
         e.kc = kc;
         dry++;
       } else if (owned === false) {
@@ -224,16 +231,30 @@ function itemCard(item) {
   kcInput.min = '1';
   kcInput.inputMode = 'numeric';
   kcInput.placeholder = unit;
+  let countInput = null;
+  if (item.multi) {
+    // sharded grinds (zenytes, seeds...): how many you have, at what kc
+    countInput = el('input');
+    countInput.type = 'number';
+    countInput.min = '0';
+    countInput.max = '9';
+    countInput.inputMode = 'numeric';
+    countInput.placeholder = 'how many';
+    kcWrap.appendChild(countInput);
+  }
   const kcLabel = el('span', 'kc-label');
   kcWrap.append(kcInput, kcLabel);
 
+  const modeDefs = item.multi
+    ? [['skip', 'skip'], ['count', 'count em']]
+    : [['skip', 'skip'], ['got', 'got it'], ['dry', 'still dry']];
   const btns = {};
-  for (const [mode, label] of [['skip', 'skip'], ['got', 'got it'], ['dry', 'still dry']]) {
+  for (const [mode, label] of modeDefs) {
     const b = btn('mode-btn', label, () => {
       entryFor(item.id).mode = mode;
       save();
       render();
-      if (mode !== 'skip' && !kcInput.value) kcInput.focus();
+      if (mode !== 'skip') (countInput && !countInput.value ? countInput : kcInput).focus();
     });
     modes.appendChild(b);
     btns[mode] = b;
@@ -244,12 +265,21 @@ function itemCard(item) {
     for (const [m, b] of Object.entries(btns)) b.classList.toggle('on', e.mode === m);
     card.classList.toggle('active', e.mode !== 'skip');
     kcWrap.classList.toggle('hidden', e.mode === 'skip');
-    kcLabel.textContent = e.mode === 'got' ? `${unit} it dropped at` : `${unit} so far, no drop`;
+    kcLabel.textContent = item.multi
+      ? `of ${item.multi} youd want, and ${unit} so far`
+      : e.mode === 'got'
+        ? `${unit} it dropped at`
+        : `${unit} so far, no drop`;
     if (String(e.kc) !== kcInput.value) kcInput.value = e.kc;
+    if (countInput && String(e.count ?? '') !== countInput.value) countInput.value = e.count ?? '';
   }
 
   kcInput.addEventListener('input', () => {
     entryFor(item.id).kc = kcInput.value;
+    save();
+  });
+  countInput?.addEventListener('input', () => {
+    entryFor(item.id).count = countInput.value;
     save();
   });
 
@@ -267,6 +297,21 @@ function computeResults() {
     if (!e || e.mode === 'skip') continue;
     const kc = Math.round(Number(e.kc));
     if (!Number.isFinite(kc) || kc < 1) continue;
+    if (item.multi) {
+      if (e.mode !== 'count') continue;
+      const count = Math.max(0, Math.round(Number(e.count) || 0));
+      rows.push({
+        item,
+        got: count > 0,
+        kc,
+        count,
+        u: luckOfCount(item.rate, kc, count),
+        // average rates spent per drop: 1x = exactly on rate
+        mult: multiplier(item.rate, kc) / Math.max(1, count),
+        dryChance: stillDryChance(item.rate, kc),
+      });
+      continue;
+    }
     const got = e.mode === 'got';
     rows.push({
       item,
@@ -306,7 +351,15 @@ function renderReview() {
       line.append(
         ic,
         el('span', 'review-name', r.item.name),
-        el('span', `review-verdict ${r.got ? 'ok' : 'bad'}`, r.got ? `got at ${r.kc.toLocaleString()}` : `${r.kc.toLocaleString()} dry`),
+        el(
+          'span',
+          `review-verdict ${r.u >= 0.5 ? 'ok' : 'bad'}`,
+          r.count !== undefined
+            ? `${r.count} at ${r.kc.toLocaleString()}`
+            : r.got
+              ? `got at ${r.kc.toLocaleString()}`
+              : `${r.kc.toLocaleString()} dry`,
+        ),
       );
       box.appendChild(line);
     }
@@ -418,15 +471,26 @@ function buildWrap(rows) {
 
   if (spoons.length) {
     const s = spoons[0];
+    const unit = s.item.unit ?? 'kc';
     slides.push(
       slide(
         'slide-spoon',
         el('div', 'small-title', 'your biggest spoon'),
         itemImg(s.item, 'hero-icon pop'),
         el('div', 'hero-name', s.item.name),
-        el('div', 'hero-line', `dropped at ${s.kc.toLocaleString()} ${s.item.unit ?? 'kc'}`),
+        el(
+          'div',
+          'hero-line',
+          s.count !== undefined ? `${s.count} in ${s.kc.toLocaleString()} ${unit}` : `dropped at ${s.kc.toLocaleString()} ${unit}`,
+        ),
         el('div', 'hero-stat gold', `${fmtMult(s.mult)} the rate`),
-        el('div', 'muted', `${fmtPct(100 * s.dryChance)}% of accounts take longer than you did`),
+        el(
+          'div',
+          'muted',
+          s.count !== undefined
+            ? `luckier than ${fmtPct(100 * s.u)}% of accounts at this kc`
+            : `${fmtPct(100 * s.dryChance)}% of accounts take longer than you did`,
+        ),
         sparkles(),
       ),
     );
@@ -434,6 +498,7 @@ function buildWrap(rows) {
 
   if (fries.length) {
     const f = fries[0];
+    const unit = f.item.unit ?? 'kc';
     slides.push(
       slide(
         'slide-fry',
@@ -443,17 +508,23 @@ function buildWrap(rows) {
         el(
           'div',
           'hero-line',
-          f.got
-            ? `finally dropped at ${f.kc.toLocaleString()} ${f.item.unit ?? 'kc'}`
-            : `${f.kc.toLocaleString()} dry and counting`,
+          f.count !== undefined
+            ? f.count
+              ? `only ${f.count} in ${f.kc.toLocaleString()} ${unit}`
+              : `${f.kc.toLocaleString()} ${unit}, not a single one`
+            : f.got
+              ? `finally dropped at ${f.kc.toLocaleString()} ${unit}`
+              : `${f.kc.toLocaleString()} dry and counting`,
         ),
         el('div', 'hero-stat red', `${fmtMult(f.mult)} the rate`),
         el(
           'div',
           'muted',
-          f.got
-            ? `only ${fmtPct(100 * f.dryChance)}% of accounts go this deep`
-            : `only ${fmtPct(100 * f.dryChance)}% of accounts are still dry here`,
+          f.count !== undefined
+            ? `only ${fmtPct(100 * f.u)}% of accounts run it this bad`
+            : f.got
+              ? `only ${fmtPct(100 * f.dryChance)}% of accounts go this deep`
+              : `only ${fmtPct(100 * f.dryChance)}% of accounts are still dry here`,
         ),
       ),
     );
@@ -489,11 +560,60 @@ function buildWrap(rows) {
     ),
   );
 
+  slides.push(receiptsSlide(rows));
+
   slidesEl.replaceChildren(...slides);
   barsEl.replaceChildren(...slides.map(() => el('div', 'story-bar')));
   slideEls = slides;
   slideIdx = 0;
   showSlide(0);
+}
+
+// one human-readable clause per grind, for the why-sentence and shares
+function describe(r) {
+  if (r.count !== undefined) {
+    return `${r.count} ${r.item.name.toLowerCase()} in ${r.kc.toLocaleString()} ${r.item.unit ?? 'kc'}`;
+  }
+  return r.got
+    ? `${r.item.name.toLowerCase()} at ${fmtMult(r.mult)} rate`
+    : `${fmtMult(r.mult)} dry at ${r.item.name.toLowerCase()}`;
+}
+
+// the receipts: every grind as a bar from center — left is fried, right
+// is spooned, length is how far from average, thick bars carry more
+// weight in the verdict
+function receiptsSlide(rows) {
+  const signed = [...rows].sort(
+    (a, b) => (b.u - 0.5) * (b.item.weight ?? 1) - (a.u - 0.5) * (a.item.weight ?? 1),
+  );
+  const drivers = [...rows].sort((a, b) => impact(b) - impact(a)).filter((r) => impact(r) > 0.05).slice(0, 2);
+  const why = drivers.length
+    ? `driven mostly by ${drivers.map(describe).join(' and ')}`
+    : 'no grind stands out, this account is just like this';
+
+  const graph = el('div', 'graph');
+  const shown = signed.slice(0, 12);
+  for (const r of shown) {
+    const row = el('div', 'g-row');
+    const ic = itemImg(r.item, 'g-icon');
+    const track = el('div', 'g-track');
+    const bar = el('div', `g-bar ${r.u >= 0.5 ? 'spoon' : 'fry'}${(r.item.weight ?? 1) >= 1.5 ? ' heavy' : ''}`);
+    bar.style.setProperty('--len', `${Math.min(50, Math.abs(r.u - 0.5) * 100).toFixed(1)}%`);
+    track.appendChild(bar);
+    row.append(ic, el('span', 'g-name', r.item.name), track, el('span', 'g-val', fmtMult(r.mult)));
+    graph.appendChild(row);
+  }
+  const extras = [el('div', 'g-legend', '◀ fried · spooned ▶')];
+  if (rows.length > shown.length) extras.push(el('div', 'muted', `plus ${rows.length - shown.length} quieter grinds`));
+
+  return slide(
+    'slide-receipts',
+    el('div', 'small-title', 'the receipts'),
+    el('div', 'why-line', why),
+    ...extras,
+    graph,
+    el('div', 'muted g-note', 'bar length = how far off the rate. thick bars matter more to the verdict'),
+  );
 }
 
 function sparkles() {
@@ -549,11 +669,8 @@ slidesEl.addEventListener('click', (ev) => {
 
 function shareText(spoons, fries, pct, verdict) {
   const bits = [`my osrs account is luckier than ${fmtPct(pct)}% of accounts (${verdict.name.toLowerCase()})`];
-  if (spoons[0]) bits.push(`biggest spoon: ${spoons[0].item.name} at ${fmtMult(spoons[0].mult)} rate`);
-  if (fries[0]) {
-    const f = fries[0];
-    bits.push(`deepest fry: ${f.got ? '' : 'still '}${f.kc.toLocaleString()} ${f.got ? 'kc for' : 'dry at'} ${f.item.name}`);
-  }
+  if (spoons[0]) bits.push(`biggest spoon: ${describe(spoons[0])}`);
+  if (fries[0]) bits.push(`deepest fry: ${describe(fries[0])}`);
   bits.push(`check yours: ${location.origin}${location.pathname}`);
   return bits.join('\n');
 }
@@ -632,7 +749,13 @@ function downloadCard(spoons, fries, pct, verdict) {
     const f = fries[0];
     center('🍳 deepest fry', y, 40, '#ff9d7a');
     center(
-      `${f.item.name}, ${f.got ? `${f.kc.toLocaleString()} kc` : `${f.kc.toLocaleString()} dry and counting`}`,
+      `${f.item.name}, ${
+        f.count !== undefined
+          ? `${f.count} in ${f.kc.toLocaleString()} ${f.item.unit ?? 'kc'}`
+          : f.got
+            ? `${f.kc.toLocaleString()} kc`
+            : `${f.kc.toLocaleString()} dry and counting`
+      }`,
       y + 56,
       44,
       '#fff',
