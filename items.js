@@ -34,7 +34,7 @@ export const ITEMS = [
   { id: 'tankbody', stage: 'the early game', name: 'Barrows tank body', rate: 102, from: 'barrows', icon: "Dharok's_platebody.png", note: 'any of the 4 melee bodies, rate assumes killing all 6 per run', unit: 'chests', wom: 'barrows_chests', clogIds: TANK_BODIES, weight: 0.75 },
   { id: 'tanklegs', stage: 'the early game', name: 'Barrows tank legs', rate: 102, from: 'barrows', icon: "Verac's_plateskirt.png", note: 'any of the 4 melee legs, rate assumes killing all 6 per run', unit: 'chests', wom: 'barrows_chests', clogIds: TANK_LEGS, weight: 0.75 },
   { id: 'ddef', stage: 'the early game', name: 'Dragon defender', rate: 450, from: 'cyclopes', icon: 'Dragon_defender.png', note: 'bronze through rune are 1/50 each, dragon is 1/100, about 450 kc average. enter your total cyclopes kc', ladder: [50, 50, 50, 50, 50, 50, 50, 100], clogIds: [12954], weight: 0.5 },
-  { id: 'zaxe', stage: 'the early game', name: 'Zombie axe', rate: 600, from: 'armoured zombies', icon: 'Zombie_axe.png', note: 'fort rate', clogIds: [28810, 28813], weight: 0.5 },
+  { id: 'zaxe', stage: 'the early game', name: 'Zombie axe', rate: 800, from: 'armoured zombies', icon: 'Zombie_axe.png', clogIds: [28810, 28813], weight: 0.5 },
 
   // ---- varlamore era ----
   // full moon sets: 4 pieces each at 1/224 from the chest, so completing
