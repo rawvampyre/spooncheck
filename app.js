@@ -470,6 +470,7 @@ function computeResults() {
         item,
         got,
         kc: window,
+        windowed: true,
         // mult keeps its meaning: expected drops over the window
         u: got ? (1 + q) / 2 : q / 2,
         mult: expected,
@@ -726,7 +727,9 @@ function buildWrap(rows) {
             ? `${s.count} in ${s.kc.toLocaleString()} ${unit}`
             : s.item.ladder
               ? `completed at ${s.kc.toLocaleString()} ${unit}`
-              : `dropped at ${s.kc.toLocaleString()} ${unit}`,
+              : s.windowed
+                ? `in ${s.kc.toLocaleString()} ${unit}`
+                : `dropped at ${s.kc.toLocaleString()} ${unit}`,
         ),
         el('div', 'hero-stat gold', `${fmtMult(s.mult)} the rate`),
         el(
@@ -734,7 +737,9 @@ function buildWrap(rows) {
           'muted',
           s.count !== undefined
             ? `better rng than ${fmtPct(100 * s.u)}% of accounts at this kc`
-            : `${fmtPct(100 * s.dryChance)}% of accounts take longer than you did`,
+            : s.windowed
+              ? `only ${fmtPct(100 * (1 - s.dryChance))}% of accounts get one in a window like yours`
+              : `${fmtPct(100 * s.dryChance)}% of accounts take longer than you did`,
         ),
         sparkles(),
       ),
@@ -761,7 +766,9 @@ function buildWrap(rows) {
             : f.got
               ? f.item.ladder
                 ? `finally completed at ${f.kc.toLocaleString()} ${unit}`
-                : `finally dropped at ${f.kc.toLocaleString()} ${unit}`
+                : f.windowed
+                  ? `in ${f.kc.toLocaleString()} ${unit}`
+                  : `finally dropped at ${f.kc.toLocaleString()} ${unit}`
               : `${f.kc.toLocaleString()} dry and counting`,
         ),
         el('div', 'hero-stat red', `${fmtMult(f.mult)} the rate`),

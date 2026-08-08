@@ -124,12 +124,12 @@ function reorderSections(i, dir) {
 const status = document.getElementById('ed-status');
 
 document.getElementById('ed-save').addEventListener('click', () => {
-  localStorage.setItem('spooncheck-config', JSON.stringify(model));
+  localStorage.setItem('spooncheck-config-v2', JSON.stringify(model));
   status.textContent = 'saved. refresh the main page to see it';
 });
 
 document.getElementById('ed-reset').addEventListener('click', () => {
-  localStorage.removeItem('spooncheck-config');
+  localStorage.removeItem('spooncheck-config-v2');
   status.textContent = 'browser overrides cleared, reloading...';
   setTimeout(() => location.reload(), 600);
 });
@@ -168,7 +168,7 @@ document.getElementById('ed-download').addEventListener('click', () => {
   lines.push('// this file.');
   lines.push('try {');
   lines.push("  if (typeof localStorage !== 'undefined') {");
-  lines.push("    const ov = JSON.parse(localStorage.getItem('spooncheck-config') ?? 'null');");
+  lines.push("    const ov = JSON.parse(localStorage.getItem('spooncheck-config-v2') ?? 'null');");
   lines.push('    if (ov) {');
   lines.push('      if (ov.titles) Object.assign(SECTION_TITLES, ov.titles);');
   lines.push('      if (ov.order && Object.keys(ov.order).length) {');

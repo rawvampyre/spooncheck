@@ -145,5 +145,8 @@ import { VERDICTS } from './config.js';
 export { VERDICTS };
 
 export function verdictFor(pct) {
-  return VERDICTS.find((v) => pct >= v.min);
+  // sort defensively: the config editor lets bands be reordered, and a
+  // mis-sorted list would hand out wrong verdicts
+  const bands = [...VERDICTS].sort((a, b) => b.min - a.min);
+  return bands.find((v) => pct >= v.min) ?? bands[bands.length - 1];
 }

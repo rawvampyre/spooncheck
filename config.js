@@ -6,8 +6,8 @@ export const TWITCH = 'twitch.tv/rawvampyre';
 export const VERDICTS = [
   { min: 99, name: 'OCEAN SIZED LADLE', blurb: 'did you steal a jmod account?' },
   { min: 90, name: 'GOLDEN SPOON', blurb: 'nice streamer client' },
-  { min: 70, name: 'SPOON', blurb: 'blessed account' },
-  { min: 45, name: 'AVERAGE', blurb: 'perfectly balanced' },
+  { min: 60, name: 'SPOON', blurb: 'blessed account' },
+  { min: 40, name: 'AVERAGE', blurb: 'perfectly balanced' },
   { min: 30, name: 'GOING DRY', blurb: 'it could be worse...' },
   { min: 10, name: 'DRY', blurb: 'time to cry on reddit' },
   { min: 1, name: 'BONE DRY', blurb: 'aya has a chance to assign 15-30 of you' },
@@ -166,7 +166,7 @@ export const ORDER = {
 // this file.
 try {
   if (typeof localStorage !== 'undefined') {
-    const ov = JSON.parse(localStorage.getItem('spooncheck-config') ?? 'null');
+    const ov = JSON.parse(localStorage.getItem('spooncheck-config-v2') ?? 'null');
     if (ov) {
       if (ov.titles) Object.assign(SECTION_TITLES, ov.titles);
       if (ov.order && Object.keys(ov.order).length) {
