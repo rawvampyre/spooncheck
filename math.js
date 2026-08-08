@@ -87,6 +87,23 @@ export function multiplier(rate, kc) {
   return kc / rate;
 }
 
+// P(X <= count) for counted grinds: the share of accounts who'd have
+// this few or fewer by now — the honest "only X% do this badly" number.
+// (the score u uses mid-p, which halves the tied mass for ranking; that's
+// right for percentiles but understates the tail for display.)
+export function countTail(rate, kc, count) {
+  const p = 1 / rate;
+  const n = Math.max(1, Math.round(kc));
+  const k = Math.max(0, Math.round(count));
+  let term = Math.pow(1 - p, n);
+  let sum = 0;
+  for (let i = 0; i <= k; i++) {
+    sum += term;
+    term *= ((n - i) / (i + 1)) * (p / (1 - p));
+  }
+  return Math.min(1, sum);
+}
+
 // overall account percentile: under pure average rng each score is
 // ~uniform, so the weighted mean of k of them is ~normal with
 // var = sum(w^2) / (12 * sum(w)^2). weights let the grinds that define an

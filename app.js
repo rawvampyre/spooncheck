@@ -1,5 +1,5 @@
 import { ITEMS, STAGES, itemsInStage, iconUrl, POOLS } from './items.js';
-import { luckOfGet, luckOfDry, luckOfCount, ladderDist, toaUniqueChance, stillDryChance, multiplier, overallPercentile, verdictFor } from './math.js';
+import { luckOfGet, luckOfDry, luckOfCount, countTail, ladderDist, toaUniqueChance, stillDryChance, multiplier, overallPercentile, verdictFor } from './math.js';
 import { lookupAccount } from './lookup.js';
 
 const CONFIG = {
@@ -468,7 +468,8 @@ function computeResults() {
         u: luckOfCount(rate, kc, count),
         // average rates spent per drop: 1x = exactly on rate
         mult: multiplier(rate, kc) / Math.max(1, count),
-        dryChance: stillDryChance(rate, kc),
+        // share of accounts with this few or fewer at this kc
+        dryChance: countTail(rate, kc, count),
       });
       continue;
     }
@@ -513,7 +514,7 @@ function renderReview() {
     if (!inStage.length) continue;
     const box = el('div', 'review-stage');
     const head = el('div', 'review-head');
-    head.append(el('span', 'review-stage-name', stage), btn('review-edit', 'edit', () => {
+    head.appendChild(btn('review-edit', 'edit', () => {
       stepIdx = STEPS.indexOf(stage);
       renderStep();
     }));
@@ -710,7 +711,7 @@ function buildWrap(rows) {
           'div',
           'muted',
           f.count !== undefined
-            ? `only ${fmtPct(100 * f.u)}% of accounts run it this bad`
+            ? `only ${fmtPct(100 * f.dryChance)}% of accounts run it this bad`
             : f.got
               ? `only ${fmtPct(100 * f.dryChance)}% of accounts go this deep`
               : `only ${fmtPct(100 * f.dryChance)}% of accounts are still dry here`,
@@ -744,7 +745,7 @@ function buildWrap(rows) {
       el('div', 'small-title', 'of osrs accounts'),
       el('div', 'verdict-name', verdict.name),
       el('div', 'muted verdict-blurb', verdict.blurb),
-      shareRow(spoons, fries, pct, verdict),
+      shareRow(),
       plugLine(),
     ),
   );
@@ -824,48 +825,182 @@ function plugLine() {
   return p;
 }
 
-// the balance: a chunky pixel scale. every grind drops onto its side,
-// sized by how hard it pulls the verdict, piling up before the beam
-// settles into the account's lean
+// hand-pixelled sprites in the osrs inventory style: hard black outline,
+// flat gold banding, drawn on tiny canvases and scaled up chunky
+const PX_PAL = { '#': '#000000', d: '#4a3410', m: '#8a6a1f', l: '#c9a13b', h: '#eed37a' };
+
+function px(rowsArr, scale, className) {
+  const c = document.createElement('canvas');
+  c.width = rowsArr[0].length * scale;
+  c.height = rowsArr.length * scale;
+  const g = c.getContext('2d');
+  rowsArr.forEach((row, y) => {
+    [...row].forEach((ch, x) => {
+      if (!PX_PAL[ch]) return;
+      g.fillStyle = PX_PAL[ch];
+      g.fillRect(x * scale, y * scale, scale, scale);
+    });
+  });
+  c.className = `pxc ${className ?? ''}`;
+  return c;
+}
+
+const BEAM_MAP = [
+  '########################################################',
+  '#hhhhhhhhhhhhhhhhhhhhhhhhhlllllhhhhhhhhhhhhhhhhhhhhhhh#',
+  '#mmmmmmmmmmmmmmmmmmmmmmmmmlllllmmmmmmmmmmmmmmmmmmmmmmm#',
+  '########################################################',
+];
+
+const POST_MAP = Array.from({ length: 30 }, () => '#lml#');
+
+const BASE_MAP = [
+  '.......###########.......',
+  '......#lllllllllll#......',
+  '....##mmmmmmmmmmmmm##....',
+  '...#lllllllllllllllll#...',
+  '.###mmmmmmmmmmmmmmmmm###.',
+  '#lllllllllllllllllllllll#',
+  '#########################',
+];
+
+const PAN_MAP = [
+  '..##..................##..',
+  '..#m..................#m..',
+  '..##..................##..',
+  '..#m..................#m..',
+  '..##..................##..',
+  '..#m..................#m..',
+  '..##..................##..',
+  '..#m..................#m..',
+  '..##..................##..',
+  '..#m..................#m..',
+  '..######################..',
+  '.#dddddddddddddddddddddd#.',
+  '#dddddddddddddddddddddddd#',
+  '#mllllllllllllllllllllllm#',
+  '.#llllllllllllllllllllll#.',
+  '..####################....',
+];
+
+// a small non-deterministic gravity sim: every grind is a circle that
+// falls into the pan, bounces off the dish, the walls and each other,
+// and settles into a pile
+function runPile(field, entries) {
+  const wallL = 12;
+  const wallR = 92;
+  const floorY = 148;
+  const bodies = entries.map((e2, i) => ({
+    el: e2.el,
+    r: e2.r,
+    x: wallL + e2.r + Math.random() * (wallR - wallL - 2 * e2.r),
+    y: -30 - i * 34 - Math.random() * 18,
+    vx: (Math.random() - 0.5) * 40,
+    vy: 0,
+    start: i * 0.16,
+  }));
+  let t = 0;
+  let last = performance.now();
+  const G = 950;
+  function frame(now) {
+    const dt = Math.min(0.03, (now - last) / 1000);
+    last = now;
+    t += dt;
+    for (const b of bodies) {
+      if (t < b.start) continue;
+      b.vy += G * dt;
+      b.x += b.vx * dt;
+      b.y += b.vy * dt;
+      if (b.x - b.r < wallL) { b.x = wallL + b.r; b.vx *= -0.4; }
+      if (b.x + b.r > wallR) { b.x = wallR - b.r; b.vx *= -0.4; }
+      if (b.y + b.r > floorY) {
+        b.y = floorY - b.r;
+        b.vy *= -0.22;
+        b.vx *= 0.82;
+        if (Math.abs(b.vy) < 25) b.vy = 0;
+      }
+    }
+    for (let pass = 0; pass < 2; pass++) {
+      for (let a = 0; a < bodies.length; a++) {
+        for (let c = a + 1; c < bodies.length; c++) {
+          const A = bodies[a];
+          const B = bodies[c];
+          if (t < A.start || t < B.start) continue;
+          const dx = B.x - A.x;
+          const dy = B.y - A.y;
+          const dist = Math.hypot(dx, dy) || 0.01;
+          const min = A.r + B.r - 3;
+          if (dist < min) {
+            const push = (min - dist) / 2;
+            const nx = dx / dist;
+            const ny = dy / dist;
+            A.x -= nx * push;
+            A.y -= ny * push;
+            B.x += nx * push;
+            B.y += ny * push;
+            A.vx -= nx * push * 5;
+            A.vy -= ny * push * 5;
+            B.vx += nx * push * 5;
+            B.vy += ny * push * 5;
+          }
+        }
+      }
+    }
+    for (const b of bodies) {
+      if (t < b.start) continue;
+      b.el.style.transform = `translate(${(b.x - b.r).toFixed(1)}px, ${(b.y - b.r).toFixed(1)}px)`;
+      b.el.style.opacity = '1';
+    }
+    if (t < 4.5) requestAnimationFrame(frame);
+  }
+  requestAnimationFrame(frame);
+}
+
+// the balance: a pixel scale in the osrs style. grinds fall into their
+// pan sized by how hard they pull the verdict, pile up with a bit of
+// gravity, then the beam swings hard into the account's lean
 function scaleSlide(rows, pct) {
   const spoons = rows.filter((r) => r.u > 0.5).sort((a, b) => impact(b) - impact(a));
   const dries = rows.filter((r) => r.u < 0.5).sort((a, b) => impact(b) - impact(a));
-  const tilt = Math.max(-13, Math.min(13, ((pct - 50) / 50) * 13));
+  // polarized: even a modest lean swings hard, capped at 20 degrees
+  const d = pct - 50;
+  const tilt = d === 0 ? 0 : Math.sign(d) * Math.min(1, Math.abs(d) / 35) ** 0.6 * 20;
 
-  const pan = (rs, cls, delayOffset) => {
+  const piles = [];
+  const pan = (rs, cls) => {
     const p = el('div', `s-pan ${cls}`);
-    const pile = el('div', 'pan-pile');
-    rs.slice(0, 10).forEach((r, i) => {
+    const field = el('div', 'pan-phys');
+    const entries = rs.slice(0, 9).map((r) => {
       const img = itemImg(r.item, 'pan-icon');
-      // the harder this grind pulls the verdict, the bigger it lands
-      const size = Math.round(Math.min(44, 16 + impact(r) * 26));
+      const size = Math.round(Math.min(42, 16 + impact(r) * 26));
       img.style.width = `${size}px`;
-      img.style.setProperty('--rot', `${Math.round(Math.random() * 24 - 12)}deg`);
-      img.style.setProperty('--dd', `${(delayOffset + i * 0.4).toFixed(2)}s`);
-      pile.appendChild(img);
+      field.appendChild(img);
+      return { el: img, r: size / 2 };
     });
-    p.append(pile, el('div', 'pan-dish'));
+    p.append(field, px(PAN_MAP, 4));
+    piles.push({ field, entries });
     return p;
   };
 
   const beam = el('div', 's-beam');
   beam.style.setProperty('--tilt', `${tilt.toFixed(1)}deg`);
-  const chainL = el('div', 's-chain left');
-  const chainR = el('div', 's-chain right');
-  beam.append(chainL, chainR, pan(dries, 'left', 0.25), pan(spoons, 'right', 0.45));
+  beam.append(px(BEAM_MAP, 5), pan(dries, 'left'), pan(spoons, 'right'));
   const scale = el('div', 'scale');
-  scale.append(beam, el('div', 's-post'), el('div', 's-base'));
+  scale.append(px(POST_MAP, 5, 's-post'), px(BASE_MAP, 5, 's-base'), beam);
   const labels = el('div', 'scale-labels');
   labels.append(el('span', null, 'dry'), el('span', null, 'spoon'));
 
-  return slide(
+  const s = slide(
     'slide-scale',
     el('div', 'small-title', 'the balance'),
     scale,
     labels,
-    el('div', 'muted', tilt > 2 ? 'the account leans spooned' : tilt < -2 ? 'the account leans dry' : 'dead even'),
+    el('div', 'muted', tilt > 3 ? 'the account leans spooned' : tilt < -3 ? 'the account leans dry' : 'dead even'),
     plugLine(),
   );
+  // physics kicks off the first time the slide is shown
+  s._onActive = () => piles.forEach((pl) => runPile(pl.field, pl.entries));
+  return s;
 }
 
 function sparkles() {
@@ -889,6 +1024,11 @@ function showSlide(i) {
   });
   document.getElementById('wrap-prev').disabled = i === 0;
   document.getElementById('wrap-next').disabled = i === slideEls.length - 1;
+  const active = slideEls[i];
+  if (active._onActive && !active.dataset.ranActive) {
+    active.dataset.ranActive = '1';
+    active._onActive();
+  }
   const counter = slideEls[i].querySelector('.countup');
   if (counter && !counter.dataset.ran) {
     counter.dataset.ran = '1';
@@ -933,108 +1073,14 @@ slidesEl.addEventListener('click', (ev) => {
 
 // ---- sharing --------------------------------------------------------------
 
-function shareText(spoons, fries, pct, verdict) {
-  const bits = [`my osrs account has better rng than ${fmtPct(pct)}% of accounts (${verdict.name.toLowerCase()})`];
-  if (spoons[0]) bits.push(`biggest spoon: ${describe(spoons[0])}`);
-  if (fries[0]) bits.push(`driest grind: ${describe(fries[0])}`);
-  bits.push(`check yours: ${location.origin}${location.pathname}`);
-  return bits.join('\n');
-}
-
-function shareRow(spoons, fries, pct, verdict) {
+function shareRow() {
   const row = el('div', 'share-row');
-  const shareBtn = el('button', 'share-btn');
-  shareBtn.textContent = 'share it';
-  shareBtn.addEventListener('click', async () => {
-    const text = shareText(spoons, fries, pct, verdict);
-    if (navigator.share) {
-      try {
-        await navigator.share({ text });
-        return;
-      } catch {
-        /* user closed the sheet, fall through to clipboard */
-      }
-    }
-    await navigator.clipboard.writeText(text);
-    shareBtn.textContent = 'copied!';
-    setTimeout(() => (shareBtn.textContent = 'share it'), 1500);
-  });
-
-  const cardBtn = el('button', 'share-btn', 'save card');
-  cardBtn.addEventListener('click', () => downloadCard(spoons, fries, pct, verdict, (state._rsn ?? '').trim()));
-
   const againBtn = el('button', 'share-btn ghost', 'edit answers');
   againBtn.addEventListener('click', () => {
     stepIdx = STEPS.length - 1;
     show('flow');
     renderStep();
   });
-
-  row.append(shareBtn, cardBtn, againBtn);
+  row.appendChild(againBtn);
   return row;
-}
-
-// text-only card so the canvas never taints on cross-origin wiki images
-function downloadCard(spoons, fries, pct, verdict, rsn) {
-  const W = 1080;
-  const H = 1350;
-  const c = document.createElement('canvas');
-  c.width = W;
-  c.height = H;
-  const g = c.getContext('2d');
-
-  const grad = g.createLinearGradient(0, 0, 0, H);
-  grad.addColorStop(0, '#1d1710');
-  grad.addColorStop(1, '#0f0c07');
-  g.fillStyle = grad;
-  g.fillRect(0, 0, W, H);
-  g.strokeStyle = '#55492e';
-  g.lineWidth = 10;
-  g.strokeRect(24, 24, W - 48, H - 48);
-
-  const center = (txt, y, px, color) => {
-    g.fillStyle = color;
-    g.font = `${px}px RSBold, sans-serif`;
-    g.textAlign = 'center';
-    g.fillText(txt, W / 2, y);
-  };
-
-  center('SPOONCHECK', 150, 72, '#ffcc33');
-  center('osrs rng check', 210, 40, '#998f76');
-  center(verdict.name, 420, 92, pct >= 45 ? '#ffcc33' : '#ff6b3d');
-  center(`better rng than ${fmtPct(pct)}% of accounts`, 500, 46, '#fff');
-  center(verdict.blurb, 560, 34, '#998f76');
-
-  let y = 720;
-  if (spoons[0]) {
-    center('🥄 biggest spoon', y, 40, '#b5ffb0');
-    center(`${spoons[0].item.name} at ${fmtMult(spoons[0].mult)} the rate`, y + 56, 44, '#fff');
-    y += 160;
-  }
-  if (fries[0]) {
-    const f = fries[0];
-    center('🦴 driest grind', y, 40, '#ff9d7a');
-    center(
-      `${f.item.name}, ${
-        f.count !== undefined
-          ? `${f.count} in ${f.kc.toLocaleString()} ${f.item.unit ?? 'kc'}`
-          : f.got
-            ? `${f.kc.toLocaleString()} kc`
-            : `${f.kc.toLocaleString()} dry and counting`
-      }`,
-      y + 56,
-      44,
-      '#fff',
-    );
-    y += 160;
-  }
-
-  if (rsn) center(rsn, H - 210, 46, '#fff');
-  center(`made by ${CONFIG.handle}`, H - 150, 40, '#998f76');
-  center(CONFIG.twitch, H - 95, 44, '#ffcc33');
-
-  const a = document.createElement('a');
-  a.download = 'spooncheck.png';
-  a.href = c.toDataURL('image/png');
-  a.click();
 }
