@@ -54,13 +54,7 @@ const flowBar = document.getElementById('flow-bar');
 const flowStep = document.getElementById('flow-step');
 const flowBody = document.getElementById('flow-body');
 
-const SECTION_BLURBS = [
-  'a few quick questions about this era of your account',
-  'lets see how this chapter treated you',
-  'reviewing this section for spoon credits',
-  'our records need a little more detail here',
-  'almost there. how did these grinds go',
-];
+const SECTION_BLURB = 'mark what youve done here, skip what you havent';
 
 document.getElementById('start-btn').addEventListener('click', () => {
   stepIdx = 0;
@@ -84,7 +78,7 @@ function btn(cls, label, onClick) {
 function renderStep() {
   const step = STEPS[stepIdx];
   flowBar.style.setProperty('--flow-pct', `${Math.round((stepIdx / (STEPS.length - 1)) * 100)}%`);
-  flowStep.textContent = step === 'import' ? 'getting started' : step === 'review' ? 'final review' : `section ${stepIdx} of ${STAGES.length}`;
+  flowStep.textContent = step === 'import' ? 'auto fill' : step === 'review' ? 'review' : `section ${stepIdx} of ${STAGES.length}`;
   flowBody.replaceChildren();
   window.scrollTo(0, 0);
   if (step === 'import') renderImport();
@@ -103,8 +97,8 @@ function navRow(nextLabel = 'continue') {
 
 function renderImport() {
   flowBody.append(
-    el('h2', 'step-title', 'lets make this easy'),
-    el('p', 'step-sub', 'type your rsn and we will import your grinds straight off the hiscores and your collection log. most accounts qualify for instant import'),
+    el('h2', 'step-title', 'auto fill'),
+    el('p', 'step-sub', 'type your rsn to fill your grinds in from the hiscores and your collection log'),
   );
 
   const row = el('div', 'import-row');
@@ -112,7 +106,7 @@ function renderImport() {
   input.placeholder = 'osrs username';
   input.maxLength = 12;
   input.autocomplete = 'off';
-  const go = btn('nav-btn', 'import my account', () => runImport(input.value, go, status));
+  const go = btn('nav-btn', 'auto fill', () => runImport(input.value, go, status));
   row.append(input, go);
   const status = el('p', 'import-status', '');
   flowBody.append(row, status);
@@ -120,8 +114,8 @@ function renderImport() {
   if (importSummary) flowBody.appendChild(importSummaryBox());
 
   const alt = el('div', 'nav-row');
-  alt.appendChild(btn('nav-btn ghost', 'ill do it by hand like our ancestors', () => { stepIdx++; renderStep(); }));
-  if (importSummary) alt.appendChild(btn('nav-btn', 'looks right, continue', () => { stepIdx++; renderStep(); }));
+  alt.appendChild(btn('nav-btn ghost', 'fill it in manually', () => { stepIdx++; renderStep(); }));
+  if (importSummary) alt.appendChild(btn('nav-btn', 'continue', () => { stepIdx++; renderStep(); }));
   flowBody.appendChild(alt);
 
   input.addEventListener('keydown', (ev) => {
@@ -198,15 +192,15 @@ function renderSection(stage) {
   const items = itemsInStage(stage);
   flowBody.append(
     el('h2', 'step-title', stage),
-    el('p', 'step-sub', SECTION_BLURBS[stepIdx % SECTION_BLURBS.length]),
+    el('p', 'step-sub', SECTION_BLURB),
   );
   const answered = items.filter((i) => state[i.id] && state[i.id].mode !== 'skip').length;
   if (importSummary && !answered) {
-    flowBody.appendChild(el('p', 'section-empty', 'our records show nothing started in this era. tap continue, or correct us below'));
+    flowBody.appendChild(el('p', 'section-empty', 'nothing started here according to your import. continue, or correct it below'));
   }
   const list = el('div', 'item-list');
   for (const item of items) list.appendChild(itemCard(item));
-  flowBody.append(list, navRow(answered ? 'looks right, continue' : 'continue'));
+  flowBody.append(list, navRow('continue'));
 }
 
 function itemCard(item) {
@@ -349,8 +343,8 @@ function computeResults() {
 function renderReview() {
   const rows = computeResults();
   flowBody.append(
-    el('h2', 'step-title', 'final review'),
-    el('p', 'step-sub', `${rows.length} grinds declared. one last look before we run your assessment`),
+    el('h2', 'step-title', 'review'),
+    el('p', 'step-sub', `${rows.length} grinds filled in. check them over, then submit`),
   );
 
   const list = el('div', 'review-list');
@@ -390,18 +384,18 @@ function renderReview() {
 
   const row = el('div', 'nav-row');
   row.appendChild(btn('nav-btn ghost', 'back', () => { stepIdx--; renderStep(); }));
-  const submit = btn('nav-btn big', 'submit for assessment', () => {
+  const submit = btn('nav-btn big', 'submit', () => {
     if (rows.length < 3) {
       submit.classList.remove('shake');
       void submit.offsetWidth;
       submit.classList.add('shake');
-      hint.textContent = 'we need at least 3 grinds with kcs to run an assessment';
+      hint.textContent = 'needs at least 3 grinds with kcs';
       return;
     }
     runProcessing(rows);
   });
   row.appendChild(submit);
-  const hint = el('p', 'review-hint', rows.length < 3 ? 'we need at least 3 grinds with kcs to assess you' : 'assessments are final until you run another one');
+  const hint = el('p', 'review-hint', rows.length < 3 ? 'needs at least 3 grinds with kcs' : '');
   flowBody.append(row, hint);
 }
 
@@ -482,10 +476,9 @@ function buildWrap(rows) {
   slides.push(
     slide(
       'slide-count',
-      el('div', 'small-title', 'assessment complete. this account logged'),
+      el('div', 'small-title', 'this account logged'),
       el('div', 'big-number countup', String(rows.length)),
       el('div', 'small-title', 'grinds'),
-      el('div', 'muted', 'lets see the damage'),
       el('div', 'tap-hint', 'tap to continue'),
     ),
   );
@@ -567,11 +560,11 @@ function buildWrap(rows) {
         row.append(itemImg(r.item, 'board-icon'), el('span', 'board-name', r.item.name), el('span', 'board-mult', fmtMult(r.mult)));
         c.appendChild(row);
       }
-      if (!rs.length) c.appendChild(el('div', 'muted', 'none. incredible'));
+      if (!rs.length) c.appendChild(el('div', 'muted', 'none'));
       return c;
     };
     board.append(col('spoons', spoons, 'spoon-col'), col('fries', fries, 'fry-col'));
-    slides.push(slide('slide-board', el('div', 'small-title', 'the full menu'), board));
+    slides.push(slide('slide-board', el('div', 'small-title', 'spoons and fries'), board));
   }
 
   slides.push(
@@ -616,7 +609,7 @@ function receiptsSlide(rows) {
   const drivers = [...rows].sort((a, b) => impact(b) - impact(a)).filter((r) => impact(r) > 0.05).slice(0, 2);
   const why = drivers.length
     ? `driven mostly by ${drivers.map(describe).join(' and ')}`
-    : 'no grind stands out, this account is just like this';
+    : 'no single grind stands out';
 
   const graph = el('div', 'graph');
   const shown = signed.slice(0, 12);
@@ -635,7 +628,7 @@ function receiptsSlide(rows) {
 
   return slide(
     'slide-receipts',
-    el('div', 'small-title', 'the receipts'),
+    el('div', 'small-title', 'the breakdown'),
     el('div', 'why-line', why),
     ...extras,
     graph,
@@ -742,7 +735,7 @@ function shareRow(spoons, fries, pct, verdict) {
   const cardBtn = el('button', 'share-btn', 'save card');
   cardBtn.addEventListener('click', () => downloadCard(spoons, fries, pct, verdict));
 
-  const againBtn = el('button', 'share-btn ghost', 'run it back');
+  const againBtn = el('button', 'share-btn ghost', 'edit answers');
   againBtn.addEventListener('click', () => {
     stepIdx = STEPS.length - 1;
     show('flow');
