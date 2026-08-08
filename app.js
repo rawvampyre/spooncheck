@@ -1,11 +1,9 @@
 import { ITEMS, STAGES, itemsInStage, iconUrl, POOLS } from './items.js';
 import { luckOfGet, luckOfDry, luckOfCount, countTail, ladderDist, toaUniqueChance, stillDryChance, multiplier, overallPercentile, verdictFor } from './math.js';
 import { lookupAccount } from './lookup.js';
+import { HANDLE, TWITCH, sectionTitle } from './config.js';
 
-const CONFIG = {
-  handle: 'rawvampyre',
-  twitch: 'twitch.tv/rawvampyre',
-};
+const CONFIG = { handle: HANDLE, twitch: TWITCH };
 
 const STORE_KEY = 'spooncheck-v2';
 
@@ -203,7 +201,7 @@ async function runImport(name, goBtn, status) {
 function renderSection(stage) {
   const items = itemsInStage(stage);
   flowBody.append(
-    el('h2', 'step-title', stage),
+    el('h2', 'step-title', sectionTitle(stage)),
     el('p', 'step-sub', SECTION_BLURB),
   );
   const pool = items.find((i) => i.pool)?.pool;
