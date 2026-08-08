@@ -2,7 +2,7 @@
 // and verdict messages. saves overrides to this browser, and generates a
 // complete config.js for the repo so edits deploy for everyone.
 
-import { HANDLE, TWITCH, SECTION_TITLES, ORDER, VERDICTS } from './config.js';
+import { HANDLE, TWITCH, SECTION_TITLES, ORDER, VERDICTS, PROCESSING_LINES } from './config.js';
 import { ITEMS } from './items.js';
 
 const byId = new Map(ITEMS.map((i) => [i.id, i]));
@@ -13,6 +13,7 @@ const model = {
   order: Object.fromEntries(Object.entries(ORDER).map(([k, v]) => [k, v.filter((id) => byId.has(id))])),
   weights: Object.fromEntries(ITEMS.map((i) => [i.id, i.weight ?? 1])),
   verdicts: VERDICTS.map((v) => ({ ...v })),
+  processing: PROCESSING_LINES.map((l) => [...l]),
 };
 // anything not placed by ORDER joins its default section
 for (const item of ITEMS) {
@@ -48,6 +49,37 @@ function renderVerdicts() {
     wrap.appendChild(row);
   }
 }
+
+// ---- processing lines ------------------------------------------------------
+
+function renderProcessing() {
+  const wrap = document.getElementById('ed-processing');
+  wrap.replaceChildren();
+  model.processing.forEach((line, i) => {
+    const row = el('div', 'ed-proc');
+    const ms = el('input', 'ed-min');
+    ms.type = 'number';
+    ms.step = '100';
+    ms.min = '200';
+    ms.value = line[1];
+    ms.addEventListener('input', () => { line[1] = Number(ms.value) || 900; });
+    const text = el('input', 'ed-blurb');
+    text.value = line[0];
+    text.addEventListener('input', () => { line[0] = text.value; });
+    const del = el('button', 'ed-arrow', '✕');
+    del.addEventListener('click', () => {
+      model.processing.splice(i, 1);
+      renderProcessing();
+    });
+    row.append(ms, text, del);
+    wrap.appendChild(row);
+  });
+}
+
+document.getElementById('ed-addline').addEventListener('click', () => {
+  model.processing.push(['new line...', 900]);
+  renderProcessing();
+});
 
 // ---- sections -------------------------------------------------------------
 
@@ -142,6 +174,10 @@ document.getElementById('ed-download').addEventListener('click', () => {
   lines.push(`export const HANDLE = ${q(HANDLE)};`);
   lines.push(`export const TWITCH = ${q(TWITCH)};`);
   lines.push('');
+  lines.push('export const PROCESSING_LINES = [');
+  for (const [t, d] of model.processing) lines.push(`  [${q(t)}, ${Number(d) || 900}],`);
+  lines.push('];');
+  lines.push('');
   lines.push('export const VERDICTS = [');
   for (const v of model.verdicts) lines.push(`  { min: ${v.min}, name: ${q(v.name)}, blurb: ${q(v.blurb)} },`);
   lines.push('];');
@@ -180,6 +216,10 @@ document.getElementById('ed-download').addEventListener('click', () => {
   lines.push('        VERDICTS.length = 0;');
   lines.push('        VERDICTS.push(...ov.verdicts);');
   lines.push('      }');
+  lines.push('      if (ov.processing?.length) {');
+  lines.push('        PROCESSING_LINES.length = 0;');
+  lines.push('        PROCESSING_LINES.push(...ov.processing);');
+  lines.push('      }');
   lines.push('    }');
   lines.push('  }');
   lines.push('} catch {');
@@ -195,4 +235,5 @@ document.getElementById('ed-download').addEventListener('click', () => {
 });
 
 renderVerdicts();
+renderProcessing();
 renderSections();

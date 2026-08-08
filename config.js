@@ -3,6 +3,18 @@
 export const HANDLE = 'rawvampyre';
 export const TWITCH = 'twitch.tv/rawvampyre';
 
+// the processing screen lines: [text, milliseconds it stays before the
+// next one]. a line containing "audit..." shows in red.
+export const PROCESSING_LINES = [
+  ['reviewing your grinds...', 900],
+  ['cross checking the drop rates...', 900],
+  ['consulting the rng gods...', 1000],
+  ['tweeting mod ash...', 900],
+  ['your account has been selected for a random audit...', 1400],
+  ['audit passed. congratulations', 900],
+  ['calculating your final assessment...', 900],
+];
+
 export const VERDICTS = [
   { min: 99, name: 'OCEAN SIZED LADLE', blurb: 'did you steal a jmod account?' },
   { min: 90, name: 'GOLDEN SPOON', blurb: 'nice streamer client' },
@@ -177,6 +189,10 @@ try {
       if (ov.verdicts?.length) {
         VERDICTS.length = 0;
         VERDICTS.push(...ov.verdicts);
+      }
+      if (ov.processing?.length) {
+        PROCESSING_LINES.length = 0;
+        PROCESSING_LINES.push(...ov.processing);
       }
     }
   }

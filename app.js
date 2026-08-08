@@ -1,7 +1,7 @@
 import { ITEMS, STAGES, itemsInStage, sectionOf, iconUrl, wikiIconUrl, POOLS, WIKI_IMG } from './items.js';
 import { luckOfGet, luckOfDry, luckOfCount, countTail, ladderDist, toaUniqueChance, stillDryChance, multiplier, overallPercentile, verdictFor } from './math.js';
 import { lookupAccount } from './lookup.js';
-import { HANDLE, TWITCH, sectionTitle } from './config.js';
+import { HANDLE, TWITCH, sectionTitle, PROCESSING_LINES } from './config.js';
 import { play, getMaster, setMaster, isMuted, setMuted } from './sounds.js';
 
 // every real button gets the interface thock
@@ -633,15 +633,7 @@ function renderReview() {
 
 // ---- the processing gag ---------------------------------------------------
 
-const PROCESSING_LINES = [
-  ['reviewing your grinds...', 900],
-  ['cross checking the drop rates...', 900],
-  ['consulting the rng gods...', 1000],
-  ['tweeting mod ash...', 900],
-  ['your account has been selected for a random audit...', 1400],
-  ['audit passed. congratulations', 900],
-  ['calculating your final assessment...', 900],
-];
+// lines live in config.js so the editor can rewrite them
 
 function runProcessing(rows) {
   const proc = el('div', 'processing');
@@ -849,6 +841,22 @@ function buildWrap(rows) {
     ),
   );
   slides[slides.length - 1].dataset.sound = pct >= 50 ? 'firework' : 'splash';
+
+  // the sacred numbers
+  const shown = fmtPct(pct);
+  const vSlide = slides[slides.length - 1];
+  if (shown === '67') {
+    for (const side of ['left', 'right']) {
+      const hand = el('img', `hand-67 ${side}`);
+      hand.src = 'icons/crawling_hand.png';
+      hand.alt = '';
+      vSlide.appendChild(hand);
+    }
+  }
+  if (shown === '73') {
+    vSlide.appendChild(el('div', 'splat-73', '73'));
+    vSlide.dataset.sound = 'ags';
+  }
 
   slides.push(receiptsSlide(rows));
   slides.push(scaleSlide(rows, pct));

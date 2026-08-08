@@ -10,6 +10,7 @@ const SOUNDS = {
   splash: 'sounds/spell_splash.wav',
   cast: 'sounds/tb_cast.wav',
   firework: 'sounds/firework.ogg', // level up
+  ags: 'sounds/ags_spec.wav', // for the 73s
 };
 
 const cache = {};
