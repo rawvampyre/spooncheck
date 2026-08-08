@@ -61,7 +61,7 @@ export const ITEMS = [
 
   // ---- demon business ----
   { id: 'synapse', stage: 'demon business', name: 'Tormented synapses', rate: 500, from: 'tormented demons', icon: 'Tormented_synapse.png', multi: 2, clogIds: [29580], weight: 1 },
-  { id: 'bclaw', stage: 'demon business', name: 'Burning claws', rate: 500, from: 'tormented demons', icon: 'Burning_claw.png', multi: 2, clogIds: [29574], weight: 1 },
+  { id: 'bclaw', stage: 'demon business', name: 'Burning claws', rate: 501, from: 'tormented demons', icon: 'Burning_claw.png', multi: 2, clogIds: [29574], weight: 1 },
 
   // ---- the gauntlet ----
   { id: 'cseed', stage: 'the gauntlet', name: 'Crystal armour seeds', rate: 50, from: 'corrupted gauntlet', icon: 'Crystal_armour_seed.png', note: 'cg rate', multi: 6, wom: 'the_corrupted_gauntlet', clogIds: [23956], weight: 1 },
@@ -80,7 +80,7 @@ export const ITEMS = [
   { id: 'bhilt', stage: 'god wars', name: 'Bandos hilt', rate: 508, from: 'general graardor', icon: 'Bandos_hilt.png', wom: 'general_graardor', clogIds: [11818], weight: 0.75 },
   { id: 'bcp', stage: 'god wars', name: 'Bandos chestplate', rate: 381, from: 'general graardor', icon: 'Bandos_chestplate.png', wom: 'general_graardor', clogIds: [11832], weight: 1 },
   { id: 'tass', stage: 'god wars', name: 'Bandos tassets', rate: 381, from: 'general graardor', icon: 'Bandos_tassets.png', wom: 'general_graardor', clogIds: [11834], weight: 1 },
-  { id: 'zspear', stage: 'god wars', name: 'Zamorakian spear', rate: 128, from: 'kril tsutsaroth', icon: 'Zamorakian_spear.png', wom: 'kril_tsutsaroth', clogIds: [11824], weight: 0.75 },
+  { id: 'zspear', stage: 'god wars', name: 'Zamorakian spear', rate: 127, from: 'kril tsutsaroth', icon: 'Zamorakian_spear.png', wom: 'kril_tsutsaroth', clogIds: [11824], weight: 0.75 },
 
   // ---- the wilderness section ----
   { id: 'vwgem', stage: 'the wilderness section', name: 'Voidwaker gem', rate: 912, from: 'spindel', icon: 'Voidwaker_gem.png', wom: 'spindel', clogIds: [27687], weight: 1 },
@@ -88,12 +88,12 @@ export const ITEMS = [
   { id: 'vwhilt', stage: 'the wilderness section', name: 'Voidwaker hilt', rate: 912, from: 'artio', icon: 'Voidwaker_hilt.png', wom: 'artio', clogIds: [27681], weight: 1 },
 
   // ---- cerberus ----
-  { id: 'prim', stage: 'cerberus', name: 'Primordial crystal', rate: 512, from: 'cerberus', icon: 'Primordial_crystal.png', wom: 'cerberus', clogIds: [13231], weight: 1 },
-  { id: 'eternal', stage: 'cerberus', name: 'Eternal crystal', rate: 512, from: 'cerberus', icon: 'Eternal_crystal.png', wom: 'cerberus', clogIds: [13227], weight: 1 },
-  { id: 'peg', stage: 'cerberus', name: 'Pegasian crystal', rate: 512, from: 'cerberus', icon: 'Pegasian_crystal.png', wom: 'cerberus', clogIds: [13229], weight: 1 },
+  { id: 'prim', stage: 'cerberus', name: 'Primordial crystal', rate: 520, from: 'cerberus', icon: 'Primordial_crystal.png', wom: 'cerberus', clogIds: [13231], weight: 1 },
+  { id: 'eternal', stage: 'cerberus', name: 'Eternal crystal', rate: 520, from: 'cerberus', icon: 'Eternal_crystal.png', wom: 'cerberus', clogIds: [13227], weight: 1 },
+  { id: 'peg', stage: 'cerberus', name: 'Pegasian crystal', rate: 520, from: 'cerberus', icon: 'Pegasian_crystal.png', wom: 'cerberus', clogIds: [13229], weight: 1 },
 
   // ---- hydra ----
-  { id: 'claw', stage: 'hydra', name: "Hydra's claw", rate: 1000, from: 'alchemical hydra', icon: "Hydra's_claw.png", wom: 'alchemical_hydra', clogIds: [22966], weight: 1.5 },
+  { id: 'claw', stage: 'hydra', name: "Hydra's claw", rate: 1001, from: 'alchemical hydra', icon: "Hydra's_claw.png", wom: 'alchemical_hydra', clogIds: [22966], weight: 1.5 },
   { id: 'hleather', stage: 'hydra', name: 'Hydra leather', rate: 514, from: 'alchemical hydra', icon: 'Hydra_leather.png', wom: 'alchemical_hydra', clogIds: [22983], weight: 1 },
 
   // ---- araxxor ----
@@ -170,7 +170,7 @@ export const POOLS = {
       ['d6', 'delve 6s'], ['d7', 'delve 7s'], ['d8', 'delve 8s'], ['d9', 'delve 9+'],
     ],
   },
-  nex: { kind: 'modifier', fields: [['group', 'average group size']] },
+  nex: { kind: 'modifier', fields: [['group', 'average group size', 1]] },
 };
 
 // wizard sections in chart order

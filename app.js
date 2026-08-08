@@ -266,13 +266,13 @@ function renderSection(stage) {
 function poolInputs(name) {
   const ps = poolState(name);
   const wrap = el('div', 'pool-row');
-  for (const [key, label] of POOLS[name].fields) {
+  for (const [key, label, min] of POOLS[name].fields) {
     const box = el('label', 'pool-field');
     const input = el('input');
     input.type = 'number';
-    input.min = '0';
+    input.min = String(min ?? 0);
     input.inputMode = 'numeric';
-    input.placeholder = '0';
+    input.placeholder = String(min ?? 0);
     input.value = ps[key] ?? '';
     input.addEventListener('input', () => {
       ps[key] = input.value;
