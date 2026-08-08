@@ -199,10 +199,7 @@ function navRow() {
 // ---- step: import ---------------------------------------------------------
 
 function renderImport() {
-  flowBody.append(
-    el('h2', 'step-title', 'auto fill'),
-    el('p', 'step-sub', 'type your rsn to fill your kill counts in from the hiscores'),
-  );
+  flowBody.append(el('p', 'step-sub', 'type your rsn to fill your kill counts in from the hiscores'));
 
   const row = el('div', 'import-row');
   const input = el('input', 'import-input');
@@ -223,7 +220,7 @@ function renderImport() {
 
   const alt = el('div', 'nav-row');
   alt.appendChild(btn('nav-btn ghost', 'fill it in manually', () => { stepIdx++; renderStep(); }));
-  if (importSummary) alt.appendChild(btn('nav-btn', 'continue', () => { stepIdx++; renderStep(); }));
+  if (importSummary) alt.appendChild(btn('nav-btn', 'start', () => { stepIdx++; renderStep(); }));
   flowBody.appendChild(alt);
 
   input.addEventListener('keydown', (ev) => {
