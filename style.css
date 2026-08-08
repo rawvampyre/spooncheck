@@ -383,11 +383,12 @@ h1 {
 
 .skelly {
   position: absolute;
-  width: 44px;
+  width: 42px;
   image-rendering: pixelated;
   opacity: 0;
   animation: skelly-rise 0.9s ease-out both, skelly-sway 2.4s ease-in-out infinite alternate;
 }
+.skelly.small { width: 26px; }
 
 @keyframes skelly-rise {
   from { opacity: 0; translate: 0 16px; }

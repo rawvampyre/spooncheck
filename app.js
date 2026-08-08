@@ -139,6 +139,27 @@ document.getElementById('start-btn').addEventListener('click', () => {
   renderStep();
 });
 
+// preview a verdict: ?pct=73 jumps straight to the reveal at that
+// percentile (with sample grinds if none are filled in)
+{
+  const testPct = new URLSearchParams(location.search).get('pct');
+  if (testPct !== null) {
+    let rows = computeResults();
+    if (rows.length < 3) {
+      rows = ITEMS.slice(0, 6).map((item, i) => ({
+        item,
+        got: i % 2 === 0,
+        kc: 120 * (i + 1),
+        u: i % 2 ? 0.25 + i * 0.05 : 0.7 + i * 0.03,
+        mult: 0.5 + i * 0.4,
+        dryChance: 0.3,
+      }));
+    }
+    buildWrap(rows, Number(testPct));
+    show('wrap');
+  }
+}
+
 function el(tag, cls, text) {
   const e = document.createElement(tag);
   if (cls) e.className = cls;
@@ -737,10 +758,10 @@ function impact(r) {
   return Math.abs(r.u - 0.5) * (r.item.weight ?? 1);
 }
 
-function buildWrap(rows) {
+function buildWrap(rows, forcedPct) {
   const spoons = rows.filter((r) => r.u > 0.5).sort((a, b) => impact(b) - impact(a));
   const fries = rows.filter((r) => r.u < 0.5).sort((a, b) => impact(b) - impact(a));
-  const pct = overallPercentile(rows.map((r) => r.u), rows.map((r) => r.item.weight ?? 1));
+  const pct = forcedPct ?? overallPercentile(rows.map((r) => r.u), rows.map((r) => r.item.weight ?? 1));
   const verdict = verdictFor(pct);
 
   const slides = [];
@@ -1181,13 +1202,17 @@ function scaleSlide(rows, pct) {
   return s;
 }
 
-// what you become going that dry
+// what you become going that dry: skeleton chatheads and pvp skulls
+const DRY_HEADS = ['Mortimer_chathead.png', "Vet'ion_jr._chathead.png", 'Skull.png'];
+
 function skeletons() {
   const wrap = el('div', 'sparkles');
-  for (let i = 0; i < 5; i++) {
+  for (let i = 0; i < 6; i++) {
     const sk = el('img', 'skelly');
-    sk.src = 'icons/Skeleton_(level_21,_1).png';
+    const head = DRY_HEADS[i % DRY_HEADS.length];
+    sk.src = 'icons/' + encodeURI(head);
     sk.alt = '';
+    if (head === 'Skull.png') sk.classList.add('small');
     sk.style.left = `${6 + Math.random() * 82}%`;
     sk.style.top = `${12 + Math.random() * 62}%`;
     sk.style.animationDelay = `${(0.2 + Math.random() * 1.6).toFixed(2)}s, 0s`;
