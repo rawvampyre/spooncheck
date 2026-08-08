@@ -16,7 +16,13 @@ let importSummary = null;
 
 function load() {
   try {
-    return JSON.parse(localStorage.getItem(STORE_KEY)) ?? {};
+    const s = JSON.parse(localStorage.getItem(STORE_KEY)) ?? {};
+    // items that moved from counted to plain got/dry leave stale 'count'
+    // modes behind, which would misread as dry. reset them.
+    for (const item of ITEMS) {
+      if (!item.multi && s[item.id]?.mode === 'count') s[item.id].mode = 'skip';
+    }
+    return s;
   } catch {
     return {};
   }
@@ -413,8 +419,9 @@ function computeResults() {
       let expected = 0;
       if (item.pool === 'toa') {
         const raids = Math.round(Number(ps.raids) || 0);
-        if (!raids) continue;
         const p = (toaUniqueChance(ps.raidLevel) * item.pweight) / 24;
+        // no raids or no raid level = nothing to score against
+        if (!raids || !(p > 0)) continue;
         q = Math.pow(1 - p, raids);
         window = raids;
         expected = raids * p;
@@ -472,6 +479,7 @@ function computeResults() {
       continue;
     }
     if (item.ladder) {
+      if (e.mode !== 'got' && e.mode !== 'dry') continue;
       const got = e.mode === 'got';
       const { tail, exact } = ladderDist(item.ladder.map((r) => r * groupMult), kc);
       rows.push({
@@ -484,6 +492,7 @@ function computeResults() {
       });
       continue;
     }
+    if (e.mode !== 'got' && e.mode !== 'dry') continue;
     const got = e.mode === 'got';
     rows.push({
       item,
@@ -976,7 +985,7 @@ function downloadCard(spoons, fries, pct, verdict, rsn) {
   };
 
   center('SPOONCHECK', 150, 72, '#ffcc33');
-  center('osrs rng, wrapped', 210, 40, '#998f76');
+  center('osrs rng check', 210, 40, '#998f76');
   center(verdict.name, 420, 92, pct >= 45 ? '#ffcc33' : '#ff6b3d');
   center(`better rng than ${fmtPct(pct)}% of accounts`, 500, 46, '#fff');
   center(verdict.blurb, 560, 34, '#998f76');

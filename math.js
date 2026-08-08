@@ -87,12 +87,15 @@ export function multiplier(rate, kc) {
   return kc / rate;
 }
 
-// overall account percentile: under pure average luck each score is
+// overall account percentile: under pure average rng each score is
 // ~uniform, so the weighted mean of k of them is ~normal with
 // var = sum(w^2) / (12 * sum(w)^2). weights let the grinds that define an
 // account (dwh, tbow, oathplate) move the verdict more than a berserker
 // ring ever should. the CLT holds up fine from ~3 entries for a meme
-// verdict.
+// verdict. binary-scored window entries (toa/yama/doom) actually carry
+// less than uniform variance, so using 1/12 for everything slightly
+// understates extremes — deliberately: it also protects the normal
+// approximation when only a few grinds are declared.
 export function overallPercentile(scores, weights) {
   const k = scores.length;
   if (!k) return 50;
