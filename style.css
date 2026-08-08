@@ -157,6 +157,10 @@ h1 {
 .ok-line { font-size: 14px; color: #ddd; line-height: 1.5; }
 .ok-line::before { content: '✓ '; color: var(--ok); }
 
+.ok-box.warn { background: rgba(255, 204, 51, 0.08); border-color: #8a6d1c; }
+.ok-box.warn .ok-title { color: var(--gold); }
+.ok-box.warn .ok-line::before { content: '! '; color: var(--gold); }
+
 .section-empty { font-size: 15px; color: var(--muted); margin-bottom: 12px; }
 
 /* item cards */

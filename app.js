@@ -160,9 +160,9 @@ function renderImport() {
 }
 
 function importSummaryBox() {
-  const box = el('div', 'ok-box');
+  const box = el('div', `ok-box${importSummary.warn ? ' warn' : ''}`);
   box.appendChild(el('div', 'ok-title', 'import complete'));
-  for (const line of importSummary) box.appendChild(el('div', 'ok-line', line));
+  for (const line of importSummary.lines) box.appendChild(el('div', 'ok-line', line));
   return box;
 }
 
@@ -192,10 +192,9 @@ async function runImport(name, goBtn, status) {
       filled++;
     }
     save();
-    importSummary = [
-      `kcs filled in for ${filled} grinds off the hiscores`,
-      'mark got it or still dry on each grind as you go through, kcs for untracked monsters stay manual',
-    ];
+    importSummary = filled
+      ? { warn: false, lines: [`kcs filled in for ${filled} grinds off the hiscores`] }
+      : { warn: true, lines: ['no kcs found on the hiscores for that name'] };
     status.textContent = '';
     renderStep();
   } catch (err) {
