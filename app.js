@@ -1,4 +1,4 @@
-import { ITEMS, STAGES, itemsInStage, sectionOf, iconUrl, POOLS, WIKI_IMG } from './items.js';
+import { ITEMS, STAGES, itemsInStage, sectionOf, iconUrl, wikiIconUrl, POOLS, WIKI_IMG } from './items.js';
 import { luckOfGet, luckOfDry, luckOfCount, countTail, ladderDist, toaUniqueChance, stillDryChance, multiplier, overallPercentile, verdictFor } from './math.js';
 import { lookupAccount } from './lookup.js';
 import { HANDLE, TWITCH, sectionTitle } from './config.js';
@@ -239,7 +239,11 @@ function poolInputs(name) {
     });
     if (fieldIcon) {
       const img = el('img', 'pool-icon');
-      img.src = WIKI_IMG + encodeURI(fieldIcon);
+      img.src = 'icons/' + encodeURI(fieldIcon);
+      img.onerror = () => {
+        img.onerror = null;
+        img.src = WIKI_IMG + encodeURI(fieldIcon);
+      };
       img.alt = label;
       img.title = label;
       box.appendChild(img);
@@ -261,6 +265,10 @@ function itemCard(item) {
 
   const icon = el('img', 'item-icon');
   icon.src = iconUrl(item);
+  icon.onerror = () => {
+    icon.onerror = null;
+    icon.src = wikiIconUrl(item);
+  };
   icon.alt = item.name;
   icon.loading = 'lazy';
 
@@ -664,6 +672,10 @@ function slide(cls, ...children) {
 function itemImg(item, cls) {
   const img = el('img', cls);
   img.src = iconUrl(item);
+  img.onerror = () => {
+    img.onerror = null;
+    img.src = wikiIconUrl(item);
+  };
   img.alt = item.name;
   return img;
 }
@@ -682,10 +694,11 @@ function buildWrap(rows) {
 
   const slides = [];
 
+  const rsn = (state._rsn ?? '').trim();
   slides.push(
     slide(
       'slide-count',
-      el('div', 'small-title', 'this account logged'),
+      el('div', 'small-title', rsn ? `${rsn} logged` : 'this account logged'),
       el('div', 'big-number countup', String(rows.length)),
       el('div', 'small-title', 'grinds'),
       el('div', 'tap-hint', 'tap to continue'),

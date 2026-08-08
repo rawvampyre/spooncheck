@@ -248,6 +248,12 @@ export function sectionOf(id) {
   return null;
 }
 
+// icons ship with the site (tools/list-icons.mjs + the fetch step keeps
+// the folder complete); the wiki is only a fallback for a missing file
 export function iconUrl(item) {
+  return 'icons/' + encodeURI(item.icon);
+}
+
+export function wikiIconUrl(item) {
   return WIKI_IMG + encodeURI(item.icon);
 }
