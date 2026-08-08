@@ -35,7 +35,7 @@ export const ITEMS = [
   { id: 'tanklegs', stage: 'the early game', name: 'Barrows tank legs', rate: 88, from: 'barrows', icon: "Verac's_plateskirt.png", note: 'any of the 4 melee legs, killing all 6 per run', unit: 'chests', wom: 'barrows_chests', clogIds: TANK_LEGS, weight: 0.75 },
   { id: 'ddef', stage: 'the early game', name: 'Dragon defender', rate: 450, from: 'cyclopes', icon: 'Dragon_defender.png', note: 'bronze through rune are 1/50 each, dragon is 1/100, about 450 kc average. enter your total cyclopes kc', ladder: [50, 50, 50, 50, 50, 50, 50, 100], clogIds: [12954], weight: 0.5 },
   { id: 'zaxe', stage: 'the early game', name: 'Zombie axe', rate: 800, from: 'armoured zombies', icon: 'Zombie_axe.png', clogIds: [28810, 28813], weight: 0.5 },
-  { id: 'spine', stage: 'the early game', name: "Scurrius' spine", rate: 33, from: 'scurrius', icon: "Scurrius'_spine.png", wom: 'scurrius', clogIds: [], weight: 0.5 },
+  { id: 'spine', stage: 'the early game', name: "Scurrius' spines", rate: 33, from: 'scurrius', icon: "Scurrius'_spine.png", multi: 3, wom: 'scurrius', clogIds: [], weight: 0.5 },
   { id: 'wsceptre', stage: 'the early game', name: 'Warped sceptre', rate: 320, from: 'warped creatures', icon: 'Warped_sceptre.png', clogIds: [], weight: 0.5 },
   { id: 'hallowfell', stage: 'the early game', name: 'Hallowfell', rate: 128, from: 'mad angel', icon: 'Hallowfell.png', wom: 'mad_angel', clogIds: [], weight: 0.75 },
 
