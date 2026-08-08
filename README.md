@@ -45,3 +45,10 @@ percentile against a perfectly-average account via the CLT.
 - `items.js` — the grind list, drop rates, WOM metrics, collection log ids
 - `math.js` — verdict labels and thresholds
 - `app.js` — `CONFIG` at the top holds the handle/twitch plug
+
+## disclaimer
+
+spooncheck is a fan-made tool. it is not affiliated with jagex. game
+assets and drop rates belong to their respective owners, rates are
+sourced from the osrs wiki.
+
