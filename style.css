@@ -228,7 +228,7 @@ h1 {
 
 /* processing gag */
 
-.processing { padding: 20px 8px 40px; display: flex; flex-direction: column; gap: 14px; min-height: 50dvh; }
+.processing { padding: 2px 8px 40px; display: flex; flex-direction: column; gap: 14px; min-height: 50dvh; }
 
 .vortex { position: relative; height: 190px; }
 .vortex-icon {

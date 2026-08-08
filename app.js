@@ -631,7 +631,8 @@ function runProcessing(rows) {
   const lines = el('div', 'proc-lines');
   proc.append(waitLine, vortex, lines);
   flowBody.replaceChildren(proc);
-  flowStep.textContent = 'processing';
+  // the loading box sits where the step label was
+  flowStep.textContent = '';
   play('cast', 0.6);
   let t = 300;
   for (const [line, dur] of PROCESSING_LINES) {
