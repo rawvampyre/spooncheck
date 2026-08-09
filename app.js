@@ -68,7 +68,6 @@ const STORE_KEY = 'spooncheck-v2';
 // ---- state ----------------------------------------------------------------
 
 let state = load();
-let importSummary = null;
 
 function load() {
   try {
@@ -205,7 +204,6 @@ function navRow() {
 // ---- step: import ---------------------------------------------------------
 
 function renderImport() {
-
   const row = el('div', 'import-row');
   const input = el('input', 'import-input');
   input.placeholder = 'in game name';
@@ -216,30 +214,46 @@ function renderImport() {
     state._rsn = input.value;
     save();
   });
-  const go = btn('nav-btn', 'auto fill', () => runImport(input.value, go, status));
-  row.append(input, go);
+  row.appendChild(input);
+
+  const auto = btn('nav-btn autofill-btn', 'auto fill', () => runImport(input, auto, status));
+  const manual = btn('nav-btn ghost', 'manual', () => {
+    stepIdx++;
+    renderStep();
+  });
+  const choice = el('div', 'import-choice');
+  choice.append(auto, manual);
+
   const status = el('p', 'import-status', '');
-  flowBody.append(row, status);
-
-  if (importSummary) flowBody.appendChild(importSummaryBox());
-
-  flowBody.appendChild(navRow());
+  flowBody.append(row, choice, status, navRow());
 
   input.addEventListener('keydown', (ev) => {
-    if (ev.key === 'Enter') runImport(input.value, go, status);
+    if (ev.key === 'Enter') runImport(input, auto, status);
   });
 }
 
-function importSummaryBox() {
-  const box = el('div', `ok-box${importSummary.warn ? ' warn' : ''}`);
-  box.appendChild(el('div', 'ok-title', 'import complete'));
-  for (const line of importSummary.lines) box.appendChild(el('div', 'ok-line', line));
-  return box;
+function importFailed(autoBtn, input, status, msg) {
+  autoBtn.classList.remove('busy');
+  autoBtn.classList.add('bad');
+  autoBtn.textContent = '✗';
+  status.textContent = msg;
+  setTimeout(() => {
+    autoBtn.classList.remove('bad');
+    autoBtn.textContent = 'auto fill';
+    autoBtn.disabled = false;
+    input.disabled = false;
+    input.focus();
+  }, 1200);
 }
 
-async function runImport(name, goBtn, status) {
-  goBtn.disabled = true;
-  status.textContent = 'pulling your account...';
+async function runImport(input, autoBtn, status) {
+  const name = input.value;
+  autoBtn.disabled = true;
+  input.disabled = true;
+  autoBtn.classList.remove('ok', 'bad');
+  autoBtn.classList.add('busy');
+  autoBtn.replaceChildren(el('span', 'spin-ring'));
+  status.textContent = '';
   try {
     const r = await lookupAccount(name);
     // importing a different account starts a clean sheet, the old
@@ -269,15 +283,23 @@ async function runImport(name, goBtn, status) {
       filled++;
     }
     save();
-    importSummary = filled
-      ? { warn: false, lines: [`kcs filled in for ${filled} grinds off the hiscores`] }
-      : { warn: true, lines: ['no kcs found on the hiscores for that name'] };
-    status.textContent = '';
-    renderStep();
+    if (filled) {
+      // green check, a breath, then straight into the audit
+      autoBtn.classList.remove('busy');
+      autoBtn.classList.add('ok');
+      autoBtn.textContent = '✓';
+      status.textContent = `kcs filled in for ${filled} grinds`;
+      setTimeout(() => {
+        if (STEPS[stepIdx] === 'import') {
+          stepIdx++;
+          renderStep();
+        }
+      }, 900);
+    } else {
+      importFailed(autoBtn, input, status, 'account found but no kcs on the hiscores, go manual or try another name');
+    }
   } catch (err) {
-    status.textContent = err.message ?? 'import failed, fill your grinds in manually';
-  } finally {
-    goBtn.disabled = false;
+    importFailed(autoBtn, input, status, err.message ?? 'nothing found, try another name or go manual');
   }
 }
 
