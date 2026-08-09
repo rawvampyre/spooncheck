@@ -35,13 +35,6 @@ body {
 
 .hidden { display: none !important; }
 
-/* the runelite classic: everything is pointed at with a dragon scimitar,
-   buttons and links included */
-*, button, a, input, select,
-button:hover, a:hover, input:hover, select:hover {
-  cursor: url('icons/Dragon_scimitar.png') 3 3, auto;
-}
-
 /* hover polish on every button: a little lift, a little shine */
 button { transition: filter 0.12s, box-shadow 0.12s, transform 0.08s; }
 button:not(:disabled):hover { filter: brightness(1.14); }
