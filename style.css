@@ -233,10 +233,9 @@ h1 {
   }
   .nav-arrow { width: 52px; height: 46px; font-size: 28px; }
   #flow, #wrap { padding-bottom: 96px; }
-  /* results on a phone: no arrows (tap the slides), the bar just holds
-     the made-by */
-  #wrap-nav button { display: none; }
-  #wrap-nav { min-height: 48px; }
+  /* results on a phone: no bar at all, tap the slides to move, the
+     footer stands alone */
+  #wrap-nav { display: none; }
   /* the made-by sits centered in the bar, between the arrows */
   .site-plug {
     position: fixed;
