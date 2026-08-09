@@ -981,26 +981,7 @@ function receiptsSlide(rows) {
 const TWITCH_SVG =
   '<svg viewBox="0 0 24 24" fill="#9146FF" aria-hidden="true"><path d="M4.265 3 3 6.236v13.223h4.502V21l2.531 2.459L12.567 21h3.797L23 14.346V3H4.265zm16.207 10.578-2.899 2.82h-4.633l-2.531 2.459v-2.459H6.47V4.641h14.002v8.937zM17.61 7.463v4.922h-1.688V7.463h1.688zm-4.502 0v4.922H11.42V7.463h1.688z"/></svg>';
 
-function plugLine() {
-  const p = el('div', 'plug');
-  p.append('made by ');
-  const a = el('a', 'twitch-link');
-  a.href = `https://${CONFIG.twitch}`;
-  a.target = '_blank';
-  a.rel = 'noopener';
-  a.innerHTML = TWITCH_SVG;
-  a.append(CONFIG.handle);
-  p.appendChild(a);
-  return p;
-}
-
-// the plug lives anchored to the bottom of the page itself, one spot on
-// every screen
-{
-  const foot = plugLine();
-  foot.classList.add('site-plug');
-  document.body.appendChild(foot);
-}
+// the made-by footer is static html on every page (index.html, edit.html)
 
 // hand-pixelled sprites in the osrs inventory style: hard black outline,
 // flat gold banding, drawn on tiny canvases and scaled up chunky
