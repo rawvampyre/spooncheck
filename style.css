@@ -134,6 +134,7 @@ h1 {
 }
 
 #flow-step { font-size: 14px; color: var(--muted); margin-top: 6px; }
+.flow-rsn { color: var(--gold); }
 
 .step-title { font-size: 30px; color: var(--gold); text-shadow: 2px 2px 0 #000; margin: 14px 0 6px; }
 .step-sub { font-size: 16px; color: #ddd; line-height: 1.45; margin-bottom: 16px; }

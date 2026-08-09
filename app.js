@@ -181,7 +181,11 @@ function btn(cls, label, onClick) {
 function renderStep() {
   const step = STEPS[stepIdx];
   flowBar.style.setProperty('--flow-pct', `${Math.round((stepIdx / (STEPS.length - 1)) * 100)}%`);
-  flowStep.textContent = step === 'import' ? 'auto fill' : step === 'review' ? 'review' : `section ${stepIdx} of ${STAGES.length}`;
+  const label = step === 'import' ? 'auto fill' : step === 'review' ? 'review' : `section ${stepIdx} of ${STAGES.length}`;
+  const rsn = (state._rsn ?? '').trim();
+  flowStep.replaceChildren();
+  if (rsn && step !== 'import') flowStep.append(el('span', 'flow-rsn', rsn), ' · ');
+  flowStep.append(label);
   flowBody.replaceChildren();
   window.scrollTo(0, 0);
   if (step === 'import') renderImport();
