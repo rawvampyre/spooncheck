@@ -225,7 +225,7 @@ function renderImport() {
   choice.append(auto, manual);
 
   const status = el('p', 'import-status', '');
-  flowBody.append(row, choice, status, navRow());
+  flowBody.append(row, choice, status);
 
   input.addEventListener('keydown', (ev) => {
     if (ev.key === 'Enter') runImport(input, auto, status);
