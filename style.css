@@ -34,6 +34,11 @@ body {
 
 .hidden { display: none !important; }
 
+/* the runelite classic: everything is pointed at with a dragon scimitar */
+*, button, a, input, select {
+  cursor: url('icons/Dragon_scimitar.png') 3 3, auto;
+}
+
 .screen {
   flex: 1 0 auto;
   width: 100%;
