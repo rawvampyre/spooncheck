@@ -28,7 +28,7 @@ body {
   -webkit-font-smoothing: none;
   /* sticky footer: content grows, the footer rides the bottom of the
      page, on screen for short pages and after a scroll for long ones */
-  min-height: 100dvh;
+  min-height: 100svh;
   display: flex;
   flex-direction: column;
 }
@@ -61,7 +61,8 @@ button:not(:disabled):active { translate: 0 1px; }
   width: 100%;
   max-width: 520px;
   margin: 0 auto;
-  padding: 24px 16px 32px;
+  /* bottom clearance for the fixed footer */
+  padding: 24px 16px 58px;
 }
 
 button {
@@ -232,6 +233,10 @@ h1 {
   }
   .nav-arrow { width: 52px; height: 46px; font-size: 28px; }
   #flow, #wrap { padding-bottom: 96px; }
+  /* results on a phone: no arrows (tap the slides), the bar just holds
+     the made-by */
+  #wrap-nav button { display: none; }
+  #wrap-nav { min-height: 48px; }
   /* the made-by sits centered in the bar, between the arrows */
   .site-plug {
     position: fixed;
@@ -362,7 +367,7 @@ h1 {
 
 /* processing gag */
 
-.processing { padding: 2px 8px 40px; display: flex; flex-direction: column; gap: 14px; min-height: 50dvh; }
+.processing { padding: 2px 8px 40px; display: flex; flex-direction: column; gap: 14px; min-height: 50svh; }
 
 .vortex { position: relative; height: 190px; }
 .vortex-icon {
@@ -402,7 +407,7 @@ h1 {
 .story-bar.done { background: var(--muted); }
 .story-bar.now { background: var(--gold); }
 
-#slides { flex: 1; position: relative; min-height: 72dvh; cursor: pointer; user-select: none; }
+#slides { flex: 1; position: relative; min-height: 72svh; cursor: pointer; user-select: none; }
 
 #wrap-nav button {
   position: fixed;
@@ -490,7 +495,7 @@ h1 {
 .graph {
   width: 100%;
   max-width: 460px;
-  max-height: 52dvh;
+  max-height: 52svh;
   overflow-y: auto;
   display: flex;
   flex-direction: column;
@@ -608,10 +613,14 @@ h1 {
 
 .plug { font-size: 15px; color: var(--muted); margin-top: 14px; }
 
+/* one spot on every page, results included: fixed bottom center */
 .site-plug {
-  flex: none;
-  text-align: center;
-  margin: 18px auto 14px;
+  position: fixed;
+  left: 50%;
+  bottom: 12px;
+  transform: translateX(-50%);
+  margin: 0;
+  z-index: 21;
   white-space: nowrap;
   opacity: 0.85;
 }
