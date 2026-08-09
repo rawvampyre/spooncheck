@@ -111,7 +111,7 @@ export const ITEMS = [
   { id: 'hleather', stage: 'hydra', name: 'Hydra leather', rate: 514, from: 'alchemical hydra', icon: 'Hydra_leather.png', wom: 'alchemical_hydra', clogIds: [22983], weight: 1 },
 
   // ---- araxxor ----
-  { id: 'nox', stage: 'araxxor', name: 'Noxious pieces', rate: 66.7, from: 'araxxor', icon: 'Noxious_point.png', note: 'each piece 1/200 with no duplicates', multi: 3, protected: true, wom: 'araxxor', clogIds: [29790, 29792, 29794], weight: 1 },
+  { id: 'nox', stage: 'araxxor', name: 'Noxious pieces', rate: 200, from: 'araxxor', icon: 'Noxious_point.png', note: 'any piece is 1/200 with no duplicates, full halberd about 600 kc', multi: 3, protected: true, wom: 'araxxor', clogIds: [29790, 29792, 29794], weight: 1 },
   { id: 'afang', stage: 'araxxor', name: 'Araxyte fang', rate: 600, from: 'araxxor', icon: 'Araxyte_fang.png', wom: 'araxxor', clogIds: [29799], weight: 1 },
 
   // ---- maggot king ----
