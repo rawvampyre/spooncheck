@@ -223,9 +223,7 @@ function renderImport() {
 
   if (importSummary) flowBody.appendChild(importSummaryBox());
 
-  const alt = el('div', 'nav-row');
-  alt.appendChild(btn('nav-btn ghost', 'fill it in manually', () => { stepIdx++; renderStep(); }));
-  flowBody.append(alt, navRow());
+  flowBody.appendChild(navRow());
 
   input.addEventListener('keydown', (ev) => {
     if (ev.key === 'Enter') runImport(input.value, go, status);
@@ -277,7 +275,7 @@ async function runImport(name, goBtn, status) {
     status.textContent = '';
     renderStep();
   } catch (err) {
-    status.textContent = err.message ?? 'import failed. do it by hand like our ancestors';
+    status.textContent = err.message ?? 'import failed, fill your grinds in manually';
   } finally {
     goBtn.disabled = false;
   }
