@@ -68,6 +68,7 @@ function musicVolume() {
 
 export function startMusic() {
   try {
+    if (onMobile()) return;
     if (!music) {
       music = new Audio('sounds/flute_salad.ogg');
       music.loop = true;
@@ -79,8 +80,18 @@ export function startMusic() {
   }
 }
 
+// phones stay silent: no effects, no music, no volume widget
+function onMobile() {
+  try {
+    return window.matchMedia('(max-width: 700px)').matches;
+  } catch {
+    return false;
+  }
+}
+
 export function play(name, vol = 0.5) {
   try {
+    if (onMobile()) return;
     if (muted || master <= 0) return;
     const src = SOUNDS[name];
     if (!src) return;

@@ -169,8 +169,8 @@ h1 {
 }
 .vol-box:hover { opacity: 1; }
 @media (max-width: 700px) {
-  /* the next arrow owns the phone corner, volume sits above it */
-  .vol-box { bottom: 78px; }
+  /* phones are silent, no volume widget */
+  .vol-box { display: none; }
 }
 .vol-btn { border: none; background: none; padding: 0; line-height: 0; }
 .vol-slider {
