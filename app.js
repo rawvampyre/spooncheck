@@ -129,6 +129,9 @@ function show(name) {
 
 const STEPS = ['import', ...STAGES, 'review'];
 let stepIdx = 0;
+// cards on the open section re-render when their pool inputs change,
+// so toa rates follow the raid level live
+let cardRenderers = [];
 
 const flowBar = document.getElementById('flow-bar');
 const flowStep = document.getElementById('flow-step');
@@ -290,6 +293,7 @@ function renderSection(stage) {
     el('p', 'step-sub', SECTION_BLURB),
   );
   const pool = items.find((i) => i.pool)?.pool;
+  cardRenderers = [];
   if (pool) flowBody.appendChild(poolInputs(pool));
   const list = el('div', 'item-list');
   for (const item of items) list.appendChild(itemCard(item));
@@ -312,6 +316,7 @@ function poolInputs(name) {
     input.addEventListener('input', () => {
       ps[key] = input.value;
       save();
+      cardRenderers.forEach((fn) => fn());
     });
     if (fieldIcon) {
       const img = el('img', 'pool-icon');
@@ -439,7 +444,14 @@ function itemCard(item) {
     // when the toggle IS the source (thermy vs smoke devils), the from
     // text follows it
     const vLabel = item.variantIsSource ? item.variants.find((v) => v[1] === vRate)?.[0] : null;
-    sub.textContent = windowPool || item.ladder ? item.from : `1/${vRate} from ${vLabel ?? item.from}`;
+    if (item.pool === 'toa') {
+      // the effective per-raid rate follows the raid level input live
+      const rl = Math.round(Number(poolState('toa').raidLevel) || 0);
+      const p = (toaUniqueChance(rl) * item.pweight) / 24;
+      sub.textContent = p > 0 ? `~1/${Math.round(1 / p)} per raid at level ${rl}` : 'enter your average raid level above';
+    } else {
+      sub.textContent = windowPool || item.ladder ? item.from : `1/${vRate} from ${vLabel ?? item.from}`;
+    }
     kcLabel.textContent = item.multi
       ? `${unit} so far`
       : item.ladder
@@ -493,6 +505,7 @@ function itemCard(item) {
 
   card.append(icon, info, modes, kcWrap);
   render();
+  cardRenderers.push(render);
   return card;
 }
 
