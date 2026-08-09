@@ -1,13 +1,14 @@
 # turbospoon
 
-check how good your osrs account's rng is.
+an rng audit for your osrs account
 
 **https://rawvampyre.github.io/turbospoon/**
 
-enter your grinds or auto fill your kill counts from the hiscores, then
-get your account's rng percentile along with your biggest spoons and
-your driest streaks. drop rates are sourced from the osrs wiki. some
-rates rely on assumptions, so treat results as a good estimate.
+type your name to auto fill your kill counts from the hiscores, or enter
+your grinds yourself. the audit scores every grind against wiki drop
+rates and hands down a verdict: your rng percentile, your biggest spoon
+and your driest grind. a for fun project, treat results as a good
+estimate.
 
 ## run locally
 
