@@ -207,21 +207,32 @@ h1 {
 .nav-arrow:not(:disabled):hover { border-color: #8a6d1c; }
 .submit-check { font-size: 26px; padding: 0; }
 
-/* on a phone the arrows drop to the bottom corners so they never sit on
-   top of the cards, and the content keeps clearance above them */
+/* on a phone the arrows live in a solid bottom bar: content scrolls
+   behind it instead of underneath floating buttons */
 @media (max-width: 700px) {
+  .nav-sides,
+  #wrap-nav {
+    position: fixed;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px 14px calc(10px + env(safe-area-inset-bottom));
+    background: var(--bg);
+    border-top: 2px solid var(--border);
+    z-index: 20;
+    margin: 0;
+  }
   .nav-side,
   #wrap-nav button {
-    top: auto;
-    bottom: 14px;
+    position: static;
     transform: none;
   }
-  .nav-side.left,
-  #wrap-nav button:first-child { left: 12px; }
-  .nav-side.right,
-  #wrap-nav button:last-child { right: 12px; }
-  .nav-arrow { width: 48px; height: 48px; font-size: 30px; }
-  #flow, #wrap { padding-bottom: 92px; }
+  .nav-arrow { width: 52px; height: 46px; font-size: 28px; }
+  #flow, #wrap { padding-bottom: 96px; }
+  .site-plug { margin-bottom: 84px; }
 }
 .nav-btn.ghost { background: var(--panel); color: var(--muted); border-color: var(--border); }
 .nav-btn.big { font-size: 22px; }
