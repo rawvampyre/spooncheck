@@ -60,7 +60,7 @@ export function setMuted(m) {
 // background music: flute salad on loop, quiet, riding the same master
 // volume and mute
 let music = null;
-const MUSIC_BASE = 0.18;
+const MUSIC_BASE = 0.28;
 
 function musicVolume() {
   return muted ? 0 : Math.max(0, Math.min(1, MUSIC_BASE * master));
