@@ -44,6 +44,7 @@ export function getMaster() {
 export function setMaster(v) {
   master = Math.max(0, Math.min(1, v));
   persist();
+  if (music) music.volume = musicVolume();
 }
 
 export function isMuted() {
@@ -53,6 +54,29 @@ export function isMuted() {
 export function setMuted(m) {
   muted = m;
   persist();
+  if (music) music.volume = musicVolume();
+}
+
+// background music: flute salad on loop, quiet, riding the same master
+// volume and mute
+let music = null;
+const MUSIC_BASE = 0.18;
+
+function musicVolume() {
+  return muted ? 0 : Math.max(0, Math.min(1, MUSIC_BASE * master));
+}
+
+export function startMusic() {
+  try {
+    if (!music) {
+      music = new Audio('sounds/flute_salad.ogg');
+      music.loop = true;
+    }
+    music.volume = musicVolume();
+    if (music.paused) music.play().catch(() => {});
+  } catch {
+    /* music is never load-bearing */
+  }
 }
 
 export function play(name, vol = 0.5) {

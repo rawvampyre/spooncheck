@@ -2,12 +2,15 @@ import { ITEMS, STAGES, itemsInStage, sectionOf, iconUrl, wikiIconUrl, POOLS, WI
 import { luckOfGet, luckOfDry, luckOfCount, luckOfCapped, countTail, ladderDist, toaUniqueChance, stillDryChance, multiplier, overallPercentile, verdictFor } from './math.js';
 import { lookupAccount } from './lookup.js';
 import { HANDLE, TWITCH, sectionTitle, PROCESSING_LINES } from './config.js';
-import { play, getMaster, setMaster, isMuted, setMuted } from './sounds.js';
+import { play, startMusic, getMaster, setMaster, isMuted, setMuted } from './sounds.js';
 
 // every real button gets the interface thock
 document.addEventListener('click', (ev) => {
   if (ev.target.closest('button')) play('click', 0.3);
 });
+
+// flute salad starts on the first tap, browsers wont autoplay before one
+document.addEventListener('click', () => startMusic(), { once: true });
 
 // warm every icon into the cache at boot so nothing pops in late
 {
