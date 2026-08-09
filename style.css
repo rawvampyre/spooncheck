@@ -34,10 +34,24 @@ body {
 
 .hidden { display: none !important; }
 
-/* the runelite classic: everything is pointed at with a dragon scimitar */
-*, button, a, input, select {
+/* the runelite classic: everything is pointed at with a dragon scimitar,
+   buttons and links included */
+*, button, a, input, select,
+button:hover, a:hover, input:hover, select:hover {
   cursor: url('icons/Dragon_scimitar.png') 3 3, auto;
 }
+
+/* hover polish on every button: a little lift, a little shine */
+button { transition: filter 0.12s, box-shadow 0.12s, transform 0.08s; }
+button:not(:disabled):hover { filter: brightness(1.14); }
+button:not(:disabled):active { transform: translateY(1px); }
+.nav-btn:not(.ghost):not(:disabled):hover,
+.nav-arrow.primary:not(:disabled):hover,
+#start-btn:hover {
+  box-shadow: 0 0 12px rgba(255, 204, 51, 0.4);
+}
+.mode-btn:not(.on):not(:disabled):hover { color: #fff; border-color: #7a6a42; }
+.ed-arrow:not(:disabled):hover, .review-edit:hover { color: #fff; }
 
 .screen {
   flex: 1 0 auto;
