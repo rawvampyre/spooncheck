@@ -1,7 +1,8 @@
 @font-face {
   font-family: 'RSBold';
   src: url('fonts/runescape_bold.ttf') format('truetype');
-  font-display: swap;
+  /* block: never flash the fallback font, the file is tiny and preloaded */
+  font-display: block;
 }
 
 * { margin: 0; padding: 0; box-sizing: border-box; }
