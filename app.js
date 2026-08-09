@@ -225,8 +225,7 @@ function renderImport() {
 
   const alt = el('div', 'nav-row');
   alt.appendChild(btn('nav-btn ghost', 'fill it in manually', () => { stepIdx++; renderStep(); }));
-  if (importSummary) alt.appendChild(btn('nav-btn', 'continue', () => { stepIdx++; renderStep(); }));
-  flowBody.appendChild(alt);
+  flowBody.append(alt, navRow());
 
   input.addEventListener('keydown', (ev) => {
     if (ev.key === 'Enter') runImport(input.value, go, status);
@@ -242,7 +241,7 @@ function importSummaryBox() {
 
 async function runImport(name, goBtn, status) {
   goBtn.disabled = true;
-  status.replaceChildren(el('span', 'gear', '⚙'), ' pulling your account...');
+  status.textContent = 'pulling your account...';
   try {
     const r = await lookupAccount(name);
     // importing a different account starts a clean sheet, the old
@@ -277,15 +276,6 @@ async function runImport(name, goBtn, status) {
       : { warn: true, lines: ['no kcs found on the hiscores for that name'] };
     status.textContent = '';
     renderStep();
-    // a clean import rolls straight into the audit after a beat
-    if (filled) {
-      setTimeout(() => {
-        if (STEPS[stepIdx] === 'import') {
-          stepIdx++;
-          renderStep();
-        }
-      }, 1200);
-    }
   } catch (err) {
     status.textContent = err.message ?? 'import failed. do it by hand like our ancestors';
   } finally {
