@@ -121,13 +121,13 @@ export const ITEMS = [
   // ---- tombs of amascut ----
   // purple chance comes from the section's average raid level input via
   // the wiki formula, then each item takes its weight of the unique roll
-  { id: 'fang', stage: 'tombs of amascut', name: "Osmumten's fang", rate: 3.43, pweight: 7, pool: 'toa', from: 'toa', icon: "Osmumten's_fang.png", note: '7 of 24 unique rolls', unit: 'raids', clogIds: [26219], weight: 1.5 },
-  { id: 'lightb', stage: 'tombs of amascut', name: 'Lightbearer', rate: 3.43, pweight: 7, pool: 'toa', from: 'toa', icon: 'Lightbearer.png', note: '7 of 24 unique rolls', unit: 'raids', clogIds: [25975], weight: 1 },
-  { id: 'ward', stage: 'tombs of amascut', name: "Elidinis' ward", rate: 8, pweight: 3, pool: 'toa', from: 'toa', icon: "Elidinis'_ward.png", note: '3 of 24 unique rolls', unit: 'raids', clogIds: [25985], weight: 1 },
-  { id: 'mmask', stage: 'tombs of amascut', name: 'Masori mask', rate: 12, pweight: 2, pool: 'toa', from: 'toa', icon: 'Masori_mask.png', note: '2 of 24 unique rolls', unit: 'raids', clogIds: [27226], weight: 1 },
-  { id: 'mbody', stage: 'tombs of amascut', name: 'Masori body', rate: 12, pweight: 2, pool: 'toa', from: 'toa', icon: 'Masori_body.png', note: '2 of 24 unique rolls', unit: 'raids', clogIds: [27229], weight: 1 },
-  { id: 'mchaps', stage: 'tombs of amascut', name: 'Masori chaps', rate: 12, pweight: 2, pool: 'toa', from: 'toa', icon: 'Masori_chaps.png', note: '2 of 24 unique rolls', unit: 'raids', clogIds: [27232], weight: 1 },
-  { id: 'shadow', stage: 'tombs of amascut', name: "Tumeken's shadow", rate: 24, pweight: 1, pool: 'toa', from: 'toa', icon: "Tumeken's_shadow.png", note: '1 of 24 unique rolls', unit: 'raids', clogIds: [27275, 27277], weight: 2.5 },
+  { id: 'fang', stage: 'tombs of amascut', name: "Osmumten's fang", rate: 3.43, pweight: 7, pool: 'toa', from: 'toa', icon: "Osmumten's_fang.png", unit: 'raids', clogIds: [26219], weight: 1.5 },
+  { id: 'lightb', stage: 'tombs of amascut', name: 'Lightbearer', rate: 3.43, pweight: 7, pool: 'toa', from: 'toa', icon: 'Lightbearer.png', unit: 'raids', clogIds: [25975], weight: 1 },
+  { id: 'ward', stage: 'tombs of amascut', name: "Elidinis' ward", rate: 8, pweight: 3, pool: 'toa', from: 'toa', icon: "Elidinis'_ward.png", unit: 'raids', clogIds: [25985], weight: 1 },
+  { id: 'mmask', stage: 'tombs of amascut', name: 'Masori mask', rate: 12, pweight: 2, pool: 'toa', from: 'toa', icon: 'Masori_mask.png', unit: 'raids', clogIds: [27226], weight: 1 },
+  { id: 'mbody', stage: 'tombs of amascut', name: 'Masori body', rate: 12, pweight: 2, pool: 'toa', from: 'toa', icon: 'Masori_body.png', unit: 'raids', clogIds: [27229], weight: 1 },
+  { id: 'mchaps', stage: 'tombs of amascut', name: 'Masori chaps', rate: 12, pweight: 2, pool: 'toa', from: 'toa', icon: 'Masori_chaps.png', unit: 'raids', clogIds: [27232], weight: 1 },
+  { id: 'shadow', stage: 'tombs of amascut', name: "Tumeken's shadow", rate: 24, pweight: 1, pool: 'toa', from: 'toa', icon: "Tumeken's_shadow.png", unit: 'raids', clogIds: [27275, 27277], weight: 2.5 },
 
   // ---- yama ----
   // duo kills roll at half the solo rate, the section asks for both kcs
@@ -152,18 +152,18 @@ export const ITEMS = [
   { id: 'siren', stage: 'desert treasure 2', name: "Siren's staff", rate: 512, from: 'the whisperer', icon: "Siren's_staff.png", wom: 'the_whisperer', clogIds: [28323], weight: 1 },
 
   // ---- chambers of xeric ----
-  { id: 'dex', stage: 'chambers of xeric', name: 'Dexterous prayer scroll', rate: 3.45, from: 'cox purples', icon: 'Dexterous_prayer_scroll.png', note: '20/69 of purples', unit: 'purples', clogIds: [21034], weight: 1 },
-  { id: 'arcane', stage: 'chambers of xeric', name: 'Arcane prayer scroll', rate: 3.45, from: 'cox purples', icon: 'Arcane_prayer_scroll.png', note: '20/69 of purples', unit: 'purples', clogIds: [21079], weight: 1 },
-  { id: 'dclaws', stage: 'chambers of xeric', name: 'Dragon claws', rate: 23, from: 'cox purples', icon: 'Dragon_claws.png', note: '3/69 of purples', unit: 'purples', clogIds: [13652], weight: 1.5 },
-  { id: 'anchat', stage: 'chambers of xeric', name: 'Ancestral hat', rate: 23, from: 'cox purples', icon: 'Ancestral_hat.png', note: '3/69 of purples', unit: 'purples', clogIds: [21018], weight: 1 },
-  { id: 'anctop', stage: 'chambers of xeric', name: 'Ancestral robe top', rate: 23, from: 'cox purples', icon: 'Ancestral_robe_top.png', note: '3/69 of purples', unit: 'purples', clogIds: [21021], weight: 1 },
-  { id: 'ancbot', stage: 'chambers of xeric', name: 'Ancestral robe bottom', rate: 23, from: 'cox purples', icon: 'Ancestral_robe_bottom.png', note: '3/69 of purples', unit: 'purples', clogIds: [21024], weight: 1 },
-  { id: 'emaul', stage: 'chambers of xeric', name: 'Elder maul', rate: 34.5, from: 'cox purples', icon: 'Elder_maul.png', note: '2/69 of purples', unit: 'purples', clogIds: [21003], weight: 1 },
-  { id: 'tbow', stage: 'chambers of xeric', name: 'Twisted bow', rate: 34.5, from: 'cox purples', icon: 'Twisted_bow.png', note: '2/69 of purples', unit: 'purples', clogIds: [20997], weight: 3 },
+  { id: 'dex', stage: 'chambers of xeric', name: 'Dexterous prayer scroll', rate: 3.45, from: 'cox purples', icon: 'Dexterous_prayer_scroll.png', unit: 'purples', clogIds: [21034], weight: 1 },
+  { id: 'arcane', stage: 'chambers of xeric', name: 'Arcane prayer scroll', rate: 3.45, from: 'cox purples', icon: 'Arcane_prayer_scroll.png', unit: 'purples', clogIds: [21079], weight: 1 },
+  { id: 'dclaws', stage: 'chambers of xeric', name: 'Dragon claws', rate: 23, from: 'cox purples', icon: 'Dragon_claws.png', unit: 'purples', clogIds: [13652], weight: 1.5 },
+  { id: 'anchat', stage: 'chambers of xeric', name: 'Ancestral hat', rate: 23, from: 'cox purples', icon: 'Ancestral_hat.png', unit: 'purples', clogIds: [21018], weight: 1 },
+  { id: 'anctop', stage: 'chambers of xeric', name: 'Ancestral robe top', rate: 23, from: 'cox purples', icon: 'Ancestral_robe_top.png', unit: 'purples', clogIds: [21021], weight: 1 },
+  { id: 'ancbot', stage: 'chambers of xeric', name: 'Ancestral robe bottom', rate: 23, from: 'cox purples', icon: 'Ancestral_robe_bottom.png', unit: 'purples', clogIds: [21024], weight: 1 },
+  { id: 'emaul', stage: 'chambers of xeric', name: 'Elder maul', rate: 34.5, from: 'cox purples', icon: 'Elder_maul.png', unit: 'purples', clogIds: [21003], weight: 1 },
+  { id: 'tbow', stage: 'chambers of xeric', name: 'Twisted bow', rate: 34.5, from: 'cox purples', icon: 'Twisted_bow.png', unit: 'purples', clogIds: [20997], weight: 3 },
 
   // ---- theatre of blood ----
-  { id: 'avernic', stage: 'theatre of blood', name: 'Avernic defender hilt', rate: 2.375, from: 'tob purples', icon: 'Avernic_defender_hilt.png', note: '8/19 of purples', unit: 'purples', clogIds: [22477], weight: 1.5 },
-  { id: 'scythe', stage: 'theatre of blood', name: 'Scythe of vitur', rate: 19, from: 'tob purples', icon: 'Scythe_of_vitur.png', note: '1/19 of purples', unit: 'purples', clogIds: [22325, 22486], weight: 2.5 },
+  { id: 'avernic', stage: 'theatre of blood', name: 'Avernic defender hilt', rate: 2.375, from: 'tob purples', icon: 'Avernic_defender_hilt.png', unit: 'purples', clogIds: [22477], weight: 1.5 },
+  { id: 'scythe', stage: 'theatre of blood', name: 'Scythe of vitur', rate: 19, from: 'tob purples', icon: 'Scythe_of_vitur.png', unit: 'purples', clogIds: [22325, 22486], weight: 2.5 },
 
   // ---- phosanis nightmare ----
   { id: 'inqmace', stage: 'phosanis nightmare', name: "Inquisitor's mace", rate: 1129, from: 'phosanis nightmare', icon: "Inquisitor's_mace.png", wom: 'phosanis_nightmare', clogIds: [], weight: 2 },

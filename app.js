@@ -323,6 +323,23 @@ function renderSection(stage) {
   flowBody.append(list, navRow());
 }
 
+// hard caps per pool field so typos can't mint garbage. raid level 600
+// is the in-game max; everything else is a kill count
+const POOL_FIELD_MAX = { raidLevel: 600, raids: 100_000, group: 100 };
+
+// clamp a numeric input in place as it's typed. only the ceiling and the
+// zero floor — field minimums stay soft so multi-digit typing works
+function clampInput(input, max) {
+  if (input.value === '') return;
+  const n = Number(input.value);
+  if (!Number.isFinite(n)) {
+    input.value = '';
+    return;
+  }
+  const c = Math.min(max, Math.max(0, n));
+  if (c !== n) input.value = String(c);
+}
+
 // shared numbers for a whole section (raid level, solo and duo kills,
 // delves per level, group size)
 function poolInputs(name) {
@@ -333,10 +350,12 @@ function poolInputs(name) {
     const input = el('input');
     input.type = 'number';
     input.min = String(min ?? 0);
+    input.max = String(POOL_FIELD_MAX[key] ?? 1_000_000);
     input.inputMode = 'numeric';
     input.placeholder = String(min ?? 0);
     input.value = ps[key] ?? '';
     input.addEventListener('input', () => {
+      clampInput(input, POOL_FIELD_MAX[key] ?? 1_000_000);
       ps[key] = input.value;
       save();
       cardRenderers.forEach((fn) => fn());
@@ -426,7 +445,7 @@ function itemCard(item) {
     countInput = el('input');
     countInput.type = 'number';
     countInput.min = '0';
-    countInput.max = '9';
+    countInput.max = String(item.protected ? item.multi : 99);
     countInput.inputMode = 'numeric';
     countInput.placeholder = 'how many';
     kcWrap.appendChild(countInput);
@@ -437,6 +456,7 @@ function itemCard(item) {
     kcInput = el('input');
     kcInput.type = 'number';
     kcInput.min = '1';
+    kcInput.max = '1000000';
     kcInput.inputMode = 'numeric';
     kcInput.placeholder = unit;
     kcWrap.append(kcInput, kcLabel);
@@ -501,10 +521,12 @@ function itemCard(item) {
   }
 
   kcInput?.addEventListener('input', () => {
+    clampInput(kcInput, 1_000_000);
     entryFor(item.id).kc = kcInput.value;
     save();
   });
   countInput?.addEventListener('input', () => {
+    clampInput(countInput, item.protected ? item.multi : 99);
     entryFor(item.id).count = countInput.value;
     save();
   });
@@ -521,6 +543,7 @@ function itemCard(item) {
     if (v === 'mass') massInput?.focus();
   });
   massInput?.addEventListener('input', () => {
+    clampInput(massInput, 100);
     const n = Number(massInput.value);
     entryFor(item.id).group = n >= 4 ? n : 10;
     save();

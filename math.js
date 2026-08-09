@@ -59,7 +59,7 @@ export function ladderDist(rates, kc) {
 // about 65 points per raid level, which lands on the community-quoted
 // rates (about 1/23 at 300, about 1/14 at 400)
 export function toaUniqueChance(raidLevel) {
-  const rl = Math.max(0, Math.min(650, Number(raidLevel) || 0));
+  const rl = Math.max(0, Math.min(600, Number(raidLevel) || 0));
   const scaled = rl <= 310 ? rl : rl <= 430 ? 310 + (rl - 310) / 3 : 350 + (rl - 430) / 6;
   const points = 65 * rl;
   return Math.min(0.55, points / (10500 - 20 * scaled) / 100);
