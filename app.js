@@ -744,7 +744,7 @@ function runProcessing(rows) {
     vortex.appendChild(img);
   }
   // the osrs loading box line, dots looping . .. ...
-  const waitLine = el('div', 'proc-wait', 'processing please wait');
+  const waitLine = el('div', 'proc-wait', 'processing - please wait');
   const dots = el('span', 'proc-dots', '.');
   waitLine.appendChild(dots);
   let dotCount = 1;
