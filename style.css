@@ -539,6 +539,17 @@ h1 {
 
 .plug { font-size: 15px; color: var(--muted); margin-top: 14px; }
 
+.site-plug {
+  position: fixed;
+  left: 50%;
+  bottom: 10px;
+  transform: translateX(-50%);
+  margin: 0;
+  z-index: 25;
+  white-space: nowrap;
+  opacity: 0.85;
+}
+
 .twitch-link { display: inline-flex; align-items: center; gap: 5px; vertical-align: middle; }
 .twitch-link svg { width: 14px; height: 14px; }
 

@@ -911,7 +911,6 @@ function buildWrap(rows) {
       el('div', 'verdict-name', verdict.name),
       el('div', 'muted verdict-blurb', verdict.blurb),
       shareRow(),
-      plugLine(),
     ),
   );
   slides[slides.length - 1].dataset.sound = shown === '73' ? 'ags' : pct >= 50 ? 'firework' : 'splash';
@@ -975,7 +974,6 @@ function receiptsSlide(rows) {
     el('div', 'why-line', why),
     ...extras,
     graph,
-    plugLine(),
   );
 }
 
@@ -994,6 +992,14 @@ function plugLine() {
   a.append(CONFIG.handle);
   p.appendChild(a);
   return p;
+}
+
+// the plug lives anchored to the bottom of the page itself, one spot on
+// every screen
+{
+  const foot = plugLine();
+  foot.classList.add('site-plug');
+  document.body.appendChild(foot);
 }
 
 // hand-pixelled sprites in the osrs inventory style: hard black outline,
@@ -1216,7 +1222,6 @@ function scaleSlide(rows, pct) {
     scale,
     labels,
     el('div', 'muted', tilt > 3 ? 'the account leans spooned' : tilt < -3 ? 'the account leans dry' : 'dead even'),
-    plugLine(),
   );
   // physics kicks off the first time the slide is shown
   s._onActive = () => runScale(beam, piles, tilt);
