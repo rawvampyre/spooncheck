@@ -139,7 +139,7 @@ export const ITEMS = [
   // ---- doom of mokhaiotl ----
   // rates deepen with the delve level, the section asks how many delves
   // at each level. delveRates run levels 2,3,4,5,6,7,8,9+
-  { id: 'ayak', stage: 'doom of mokhaiotl', name: 'Eye of ayak', rate: 540, pool: 'doom', fieldRates: [2000, 2000, 1350, 810, 765, 720, 630, 540], from: 'doom of mokhaiotl', icon: 'Eye_of_ayak.png', unit: 'delves', clogIds: [31115], weight: 1.5 },
+  { id: 'ayak', stage: 'doom of mokhaiotl', name: 'Eye of ayak', rate: 540, pool: 'doom', fieldRates: [null, 2000, 1350, 810, 765, 720, 630, 540], from: 'doom of mokhaiotl', icon: 'Eye_of_ayak.png', note: 'delve 3 or deeper only', unit: 'delves', clogIds: [31115], weight: 1.5 },
   { id: 'cloth', stage: 'doom of mokhaiotl', name: 'Mokhaiotl cloth', rate: 540, pool: 'doom', fieldRates: [2500, 2000, 1350, 810, 765, 720, 630, 540], from: 'doom of mokhaiotl', icon: 'Mokhaiotl_cloth.png', unit: 'delves', clogIds: [31109], weight: 1 },
   { id: 'treads', stage: 'doom of mokhaiotl', name: 'Avernic treads', rate: 540, pool: 'doom', fieldRates: [null, null, 1350, 810, 765, 720, 630, 540], from: 'doom of mokhaiotl', icon: 'Avernic_treads.png', note: 'delve 4 or deeper only', unit: 'delves', clogIds: [31088], weight: 1.5 },
 
@@ -219,7 +219,11 @@ export const POOLS = {
 import { ORDER, WEIGHTS } from './config.js';
 
 for (const it of ITEMS) {
-  if (WEIGHTS[it.id] != null) it.weight = Number(WEIGHTS[it.id]) || it.weight;
+  if (WEIGHTS[it.id] != null) {
+    const w = Number(WEIGHTS[it.id]);
+    // 0 is a valid weight: it excludes the grind from the verdict
+    if (Number.isFinite(w) && w >= 0) it.weight = w;
+  }
 }
 
 const byId = new Map(ITEMS.map((i) => [i.id, i]));

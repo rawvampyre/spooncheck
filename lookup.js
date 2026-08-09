@@ -22,10 +22,12 @@ export async function lookupAccount(name) {
   }
 
   // section inputs the hiscores carry. yama kc lands in the solo box as
-  // a best guess, the player corrects the split
-  const raids = (bosses.tombs_of_amascut?.kills ?? 0) + (bosses.tombs_of_amascut_expert?.kills ?? 0);
+  // a best guess, the player corrects the split. wom reports -1 for
+  // unranked metrics, never let that pollute a sum.
+  const kills = (m) => Math.max(0, bosses[m]?.kills ?? 0);
+  const raids = kills('tombs_of_amascut') + kills('tombs_of_amascut_expert');
   if (raids > 0) out.pools.toa = { raids };
-  const yamaKills = bosses.yama?.kills ?? 0;
+  const yamaKills = kills('yama');
   if (yamaKills > 0) out.pools.yama = { soloKc: yamaKills };
 
   return out;
@@ -40,7 +42,11 @@ async function fetchWom(user) {
     let res = await fetch(WOM + enc, { method: 'POST' });
     if (!res.ok) res = await fetch(WOM + enc);
     if (!res.ok) return null;
-    return await res.json();
+    const j = await res.json();
+    // a typo'd name can create an empty player stub — no snapshot means
+    // no account, and the caller must treat it as not found
+    if (!j?.latestSnapshot?.data) return null;
+    return j;
   } catch {
     return null;
   }

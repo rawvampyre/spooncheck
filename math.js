@@ -72,7 +72,7 @@ export function toaUniqueChance(raidLevel) {
 // to luckOfDry. terms computed iteratively, stable for small counts.
 export function luckOfCount(rate, kc, count) {
   const p = 1 / rate;
-  const n = Math.max(1, Math.round(kc));
+  const n = Math.max(0, Math.round(kc));
   const k = Math.max(0, Math.round(count));
   let term = Math.pow(1 - p, n); // P(X = 0)
   let below = 0;
@@ -81,6 +81,15 @@ export function luckOfCount(rate, kc, count) {
     term *= ((n - i) / (i + 1)) * (p / (1 - p)); // P(X = i+1)
   }
   return Math.min(1, below + term / 2);
+}
+
+// a FINISHED dupe-protected set (moon sets, noxious pieces): the count
+// is capped, so the observation is "at least `cap` drops", not "exactly
+// `cap`". mid-p over the whole >= cap mass — extra kc past completion
+// carries no dryness. u = P(X < cap) + P(X >= cap)/2 = (1 + P(X<cap))/2.
+export function luckOfCapped(rate, kc, cap) {
+  const below = countTail(rate, kc, cap - 1); // P(X < cap)
+  return Math.min(1, below + (1 - below) / 2);
 }
 
 export function multiplier(rate, kc) {
@@ -93,7 +102,7 @@ export function multiplier(rate, kc) {
 // right for percentiles but understates the tail for display.)
 export function countTail(rate, kc, count) {
   const p = 1 / rate;
-  const n = Math.max(1, Math.round(kc));
+  const n = Math.max(0, Math.round(kc));
   const k = Math.max(0, Math.round(count));
   let term = Math.pow(1 - p, n);
   let sum = 0;
@@ -118,6 +127,7 @@ export function overallPercentile(scores, weights) {
   if (!k) return 50;
   const w = weights ?? scores.map(() => 1);
   const W = w.reduce((a, b) => a + b, 0);
+  if (!(W > 0)) return 50; // every grind weighted out = no information
   const mean = scores.reduce((a, s, i) => a + s * w[i], 0) / W;
   const sd = Math.sqrt(w.reduce((a, b) => a + b * b, 0) / (12 * W * W));
   return 100 * phi((mean - 0.5) / sd);

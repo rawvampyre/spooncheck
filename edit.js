@@ -114,11 +114,14 @@ function renderSections() {
       const w = el('input', 'ed-weight');
       w.type = 'number';
       w.step = '0.25';
-      w.min = '0.25';
+      w.min = '0';
       w.max = '3';
       w.value = model.weights[id];
-      w.title = 'weight';
-      w.addEventListener('input', () => { model.weights[id] = Number(w.value) || 1; });
+      w.title = 'weight, 0 removes it from the verdict';
+      w.addEventListener('input', () => {
+        const n = Number(w.value);
+        model.weights[id] = Number.isFinite(n) && n >= 0 ? Math.min(3, n) : 1;
+      });
       const sel = el('select', 'ed-move');
       for (const k2 of keys) {
         const o = el('option', null, model.titles[k2] ?? k2);

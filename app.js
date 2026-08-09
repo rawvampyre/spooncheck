@@ -1,5 +1,5 @@
 import { ITEMS, STAGES, itemsInStage, sectionOf, iconUrl, wikiIconUrl, POOLS, WIKI_IMG } from './items.js';
-import { luckOfGet, luckOfDry, luckOfCount, countTail, ladderDist, toaUniqueChance, stillDryChance, multiplier, overallPercentile, verdictFor } from './math.js';
+import { luckOfGet, luckOfDry, luckOfCount, luckOfCapped, countTail, ladderDist, toaUniqueChance, stillDryChance, multiplier, overallPercentile, verdictFor } from './math.js';
 import { lookupAccount } from './lookup.js';
 import { HANDLE, TWITCH, sectionTitle, PROCESSING_LINES } from './config.js';
 import { play, getMaster, setMaster, isMuted, setMuted } from './sounds.js';
@@ -250,16 +250,22 @@ async function runImport(name, goBtn, status) {
       state._pools = {};
     }
     state._lastImport = rsn;
-    // imported numbers overwrite whatever is in the fields
+    // section inputs prefill only when the whole pool is untouched — a
+    // refresh must never clobber a corrected solo/duo split or raid count
     for (const [poolName, vals] of Object.entries(r.pools)) {
       const ps = poolState(poolName);
+      if (Object.values(ps).some((x) => Number(x) > 0)) continue;
       for (const [k, v] of Object.entries(vals)) if (v) ps[k] = v;
     }
     let filled = 0;
     for (const item of ITEMS) {
       const kc = r.kc[item.id];
       if (!kc) continue;
-      entryFor(item.id).kc = kc;
+      const e = entryFor(item.id);
+      // a "got it" kc means the kc it DROPPED at — a refresh with the
+      // account's current total must not overwrite that answer
+      if (e.mode === 'got') continue;
+      e.kc = kc;
       filled++;
     }
     save();
@@ -509,7 +515,7 @@ function computeResults() {
       let window = 0;
       let expected = 0;
       if (item.pool === 'toa') {
-        const raids = Math.min(100_000, Math.round(Number(ps.raids) || 0));
+        const raids = Math.max(0, Math.min(100_000, Math.round(Number(ps.raids) || 0)));
         const p = (toaUniqueChance(ps.raidLevel) * item.pweight) / 24;
         // no raids or no raid level = nothing to score against
         if (!raids || !(p > 0)) continue;
@@ -517,8 +523,8 @@ function computeResults() {
         window = raids;
         expected = raids * p;
       } else if (item.pool === 'yama') {
-        const solo = Math.min(1_000_000, Math.round(Number(ps.soloKc) || 0));
-        const duo = Math.min(1_000_000, Math.round(Number(ps.duoKc) || 0));
+        const solo = Math.max(0, Math.min(1_000_000, Math.round(Number(ps.soloKc) || 0)));
+        const duo = Math.max(0, Math.min(1_000_000, Math.round(Number(ps.duoKc) || 0)));
         if (!solo && !duo) continue;
         q = Math.pow(1 - 1 / item.rate, solo) * Math.pow(1 - 1 / (2 * item.rate), duo);
         window = solo + duo;
@@ -562,21 +568,26 @@ function computeResults() {
 
     if (item.multi) {
       if (e.mode !== 'count') continue;
+      // a blank count is an unanswered card, not zero drops
+      if (e.count === '' || e.count == null) continue;
       let count = Math.max(0, Math.round(Number(e.count) || 0));
       // cant have more drops than kills, nor more pieces than a
       // dupe-protected set holds
       count = Math.min(count, kc, 99);
+      const complete = item.protected && count >= item.multi;
       if (item.protected) count = Math.min(count, item.multi);
       rows.push({
         item,
         got: count > 0,
         kc,
         count,
-        u: luckOfCount(rate, kc, count),
+        // a finished protected set is capped, not "exactly N": extra kc
+        // past completion carries no dryness
+        u: complete ? luckOfCapped(rate, kc, item.multi) : luckOfCount(rate, kc, count),
         // average rates spent per drop: 1x = exactly on rate
         mult: multiplier(rate, kc) / Math.max(1, count),
         // share of accounts with this few or fewer at this kc
-        dryChance: countTail(rate, kc, count),
+        dryChance: complete ? 1 : countTail(rate, kc, count),
       });
       continue;
     }
@@ -605,6 +616,9 @@ function computeResults() {
       u: got ? luckOfGet(rate, kc) : luckOfDry(rate, kc),
       mult: multiplier(rate, kc),
       dryChance: stillDryChance(rate, kc),
+      // accounts that "go this deep" include you: P(T >= kc), used by
+      // the driest-grind line for gets
+      deepTail: got ? stillDryChance(rate, Math.max(0, kc - 1)) : undefined,
     });
   }
   return rows;
@@ -730,6 +744,7 @@ let slideIdx = 0;
 let slideEls = [];
 
 function fmtMult(m) {
+  if (m > 0 && m < 0.005) return '<0.01x'; // never display an impossible zero
   return `${m < 10 ? m.toFixed(m < 1 ? 2 : 1) : Math.round(m)}x`;
 }
 
@@ -769,7 +784,10 @@ function buildWrap(rows) {
   const spoons = rows.filter((r) => r.u > 0.5).sort((a, b) => impact(b) - impact(a));
   const fries = rows.filter((r) => r.u < 0.5).sort((a, b) => impact(b) - impact(a));
   const pct = FORCED_PCT ?? overallPercentile(rows.map((r) => r.u), rows.map((r) => r.item.weight ?? 1));
-  const verdict = verdictFor(pct);
+  // the verdict scores the same number the screen shows, so a displayed
+  // "60%" can never sit under a band that starts at 60
+  const scoredPct = pct < 1 || pct >= 99.5 ? pct : Math.round(pct);
+  const verdict = verdictFor(scoredPct);
 
   const slides = [];
 
@@ -852,7 +870,7 @@ function buildWrap(rows) {
           f.count !== undefined
             ? `only ${fmtPct(100 * f.dryChance)}% of accounts run it this bad`
             : f.got
-              ? `only ${fmtPct(100 * f.dryChance)}% of accounts go this deep`
+              ? `only ${fmtPct(100 * (f.deepTail ?? f.dryChance))}% of accounts go this deep`
               : `only ${fmtPct(100 * f.dryChance)}% of accounts are still dry here`,
         ),
         skeletons(),
