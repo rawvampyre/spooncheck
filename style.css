@@ -232,7 +232,16 @@ h1 {
   }
   .nav-arrow { width: 52px; height: 46px; font-size: 28px; }
   #flow, #wrap { padding-bottom: 96px; }
-  .site-plug { margin-bottom: 84px; }
+  /* the made-by sits centered in the bar, between the arrows */
+  .site-plug {
+    position: fixed;
+    left: 50%;
+    bottom: calc(16px + env(safe-area-inset-bottom));
+    transform: translateX(-50%);
+    margin: 0;
+    z-index: 21;
+    font-size: 13px;
+  }
 }
 .nav-btn.ghost { background: var(--panel); color: var(--muted); border-color: var(--border); }
 .nav-btn.big { font-size: 22px; }
