@@ -225,7 +225,7 @@ function renderImport() {
 
   const alt = el('div', 'nav-row');
   alt.appendChild(btn('nav-btn ghost', 'fill it in manually', () => { stepIdx++; renderStep(); }));
-  if (importSummary) alt.appendChild(btn('nav-btn', 'start', () => { stepIdx++; renderStep(); }));
+  if (importSummary) alt.appendChild(btn('nav-btn', 'continue', () => { stepIdx++; renderStep(); }));
   flowBody.appendChild(alt);
 
   input.addEventListener('keydown', (ev) => {
