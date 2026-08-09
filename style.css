@@ -45,7 +45,9 @@ button:hover, a:hover, input:hover, select:hover {
 /* hover polish on every button: a little lift, a little shine */
 button { transition: filter 0.12s, box-shadow 0.12s, transform 0.08s; }
 button:not(:disabled):hover { filter: brightness(1.14); }
-button:not(:disabled):active { transform: translateY(1px); }
+/* standalone translate composes with positioning transforms instead of
+   replacing them, so centered arrows dont jump on click */
+button:not(:disabled):active { translate: 0 1px; }
 .nav-btn:not(.ghost):not(:disabled):hover,
 .nav-arrow.primary:not(:disabled):hover,
 #start-btn:hover {
