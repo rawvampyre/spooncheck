@@ -65,6 +65,29 @@ export function toaUniqueChance(raidLevel) {
   return Math.min(0.55, points / (10500 - 20 * scaled) / 100);
 }
 
+// each toa unique's share of the purple. the weightings drift between
+// raid level 300 and 500 (fang and lightbearer get relatively rarer,
+// the rest more common), so interpolate between the wiki chest page's
+// published rows and hold flat outside them
+const TOA_SHARE = {
+  rl: [300, 350, 400, 450, 500],
+  fang: [7 / 24, 1 / 3.67, 1 / 4.75, 1 / 4.5, 1 / 5.5],
+  lightb: [7 / 24, 1 / 3.67, 1 / 3.8, 1 / 4.5, 1 / 4.71],
+  ward: [3 / 24, 1 / 7.33, 1 / 6.33, 1 / 6, 1 / 5.5],
+  masori: [2 / 24, 1 / 11, 1 / 9.5, 1 / 9, 1 / 8.25],
+  shadow: [1 / 24, 1 / 22, 1 / 19, 1 / 18, 1 / 16.5],
+};
+export function toaItemShare(key, raidLevel) {
+  const s = TOA_SHARE[key];
+  if (!s) return 0;
+  const rls = TOA_SHARE.rl;
+  const rl = Math.max(rls[0], Math.min(rls[rls.length - 1], Number(raidLevel) || 0));
+  let i = 0;
+  while (i < rls.length - 2 && rl > rls[i + 1]) i++;
+  const t = (rl - rls[i]) / (rls[i + 1] - rls[i]);
+  return s[i] + (s[i + 1] - s[i]) * t;
+}
+
 // multi-drop grinds (zenytes: you usually want 4): "I have `count` at
 // `kc` kills". under the null the count is Binomial(kc, p), so the luck
 // score is the mid-p tail P(X < count) + P(X = count)/2 — more drops

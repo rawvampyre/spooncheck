@@ -1,5 +1,5 @@
 import { ITEMS, STAGES, itemsInStage, sectionOf, iconUrl, wikiIconUrl, POOLS, WIKI_IMG } from './items.js';
-import { luckOfGet, luckOfDry, luckOfCount, luckOfCapped, countTail, ladderDist, toaUniqueChance, stillDryChance, multiplier, overallPercentile, verdictFor } from './math.js';
+import { luckOfGet, luckOfDry, luckOfCount, luckOfCapped, countTail, ladderDist, toaUniqueChance, toaItemShare, stillDryChance, multiplier, overallPercentile, verdictFor } from './math.js';
 import { lookupAccount } from './lookup.js';
 import { HANDLE, TWITCH, sectionTitle, PROCESSING_LINES } from './config.js';
 import { play, startMusic, getMaster, setMaster, isMuted, setMuted } from './sounds.js';
@@ -490,7 +490,7 @@ function itemCard(item) {
     if (item.pool === 'toa') {
       // the effective per-raid rate follows the raid level input live
       const rl = Math.round(Number(poolState('toa').raidLevel) || 0);
-      const p = (toaUniqueChance(rl) * item.pweight) / 24;
+      const p = toaUniqueChance(rl) * toaItemShare(item.share, rl);
       sub.textContent = p > 0 ? `~1/${Math.round(1 / p)} per raid at level ${rl}` : 'enter your average raid level above';
     } else {
       sub.textContent = windowPool || item.ladder ? item.from : `1/${vRate} from ${vLabel ?? item.from}`;
@@ -575,7 +575,7 @@ function computeResults() {
       let expected = 0;
       if (item.pool === 'toa') {
         const raids = Math.max(0, Math.min(100_000, Math.round(Number(ps.raids) || 0)));
-        const p = (toaUniqueChance(ps.raidLevel) * item.pweight) / 24;
+        const p = toaUniqueChance(ps.raidLevel) * toaItemShare(item.share, ps.raidLevel);
         // no raids or no raid level = nothing to score against
         if (!raids || !(p > 0)) continue;
         q = Math.pow(1 - p, raids);

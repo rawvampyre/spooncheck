@@ -121,13 +121,13 @@ export const ITEMS = [
   // ---- tombs of amascut ----
   // purple chance comes from the section's average raid level input via
   // the wiki formula, then each item takes its weight of the unique roll
-  { id: 'fang', stage: 'tombs of amascut', name: "Osmumten's fang", rate: 3.43, pweight: 7, pool: 'toa', from: 'toa', icon: "Osmumten's_fang.png", unit: 'raids', clogIds: [26219], weight: 1.5 },
-  { id: 'lightb', stage: 'tombs of amascut', name: 'Lightbearer', rate: 3.43, pweight: 7, pool: 'toa', from: 'toa', icon: 'Lightbearer.png', unit: 'raids', clogIds: [25975], weight: 1 },
-  { id: 'ward', stage: 'tombs of amascut', name: "Elidinis' ward", rate: 8, pweight: 3, pool: 'toa', from: 'toa', icon: "Elidinis'_ward.png", unit: 'raids', clogIds: [25985], weight: 1 },
-  { id: 'mmask', stage: 'tombs of amascut', name: 'Masori mask', rate: 12, pweight: 2, pool: 'toa', from: 'toa', icon: 'Masori_mask.png', unit: 'raids', clogIds: [27226], weight: 1 },
-  { id: 'mbody', stage: 'tombs of amascut', name: 'Masori body', rate: 12, pweight: 2, pool: 'toa', from: 'toa', icon: 'Masori_body.png', unit: 'raids', clogIds: [27229], weight: 1 },
-  { id: 'mchaps', stage: 'tombs of amascut', name: 'Masori chaps', rate: 12, pweight: 2, pool: 'toa', from: 'toa', icon: 'Masori_chaps.png', unit: 'raids', clogIds: [27232], weight: 1 },
-  { id: 'shadow', stage: 'tombs of amascut', name: "Tumeken's shadow", rate: 24, pweight: 1, pool: 'toa', from: 'toa', icon: "Tumeken's_shadow.png", unit: 'raids', clogIds: [27275, 27277], weight: 2.5 },
+  { id: 'fang', stage: 'tombs of amascut', name: "Osmumten's fang", rate: 3.43, share: 'fang', pool: 'toa', from: 'toa', icon: "Osmumten's_fang.png", unit: 'raids', clogIds: [26219], weight: 1.5 },
+  { id: 'lightb', stage: 'tombs of amascut', name: 'Lightbearer', rate: 3.43, share: 'lightb', pool: 'toa', from: 'toa', icon: 'Lightbearer.png', unit: 'raids', clogIds: [25975], weight: 1 },
+  { id: 'ward', stage: 'tombs of amascut', name: "Elidinis' ward", rate: 8, share: 'ward', pool: 'toa', from: 'toa', icon: "Elidinis'_ward.png", unit: 'raids', clogIds: [25985], weight: 1 },
+  { id: 'mmask', stage: 'tombs of amascut', name: 'Masori mask', rate: 12, share: 'masori', pool: 'toa', from: 'toa', icon: 'Masori_mask.png', unit: 'raids', clogIds: [27226], weight: 1 },
+  { id: 'mbody', stage: 'tombs of amascut', name: 'Masori body', rate: 12, share: 'masori', pool: 'toa', from: 'toa', icon: 'Masori_body.png', unit: 'raids', clogIds: [27229], weight: 1 },
+  { id: 'mchaps', stage: 'tombs of amascut', name: 'Masori chaps', rate: 12, share: 'masori', pool: 'toa', from: 'toa', icon: 'Masori_chaps.png', unit: 'raids', clogIds: [27232], weight: 1 },
+  { id: 'shadow', stage: 'tombs of amascut', name: "Tumeken's shadow", rate: 24, share: 'shadow', pool: 'toa', from: 'toa', icon: "Tumeken's_shadow.png", unit: 'raids', clogIds: [27275, 27277], weight: 2.5 },
 
   // ---- yama ----
   // duo kills roll at half the solo rate, the section asks for both kcs
