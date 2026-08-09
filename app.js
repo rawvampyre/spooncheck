@@ -430,7 +430,10 @@ function itemCard(item) {
     const hasControls = Boolean(variantSel || groupSel || countInput || kcInput);
     kcWrap.classList.toggle('hidden', e.mode === 'skip' || !hasControls);
     const vRate = item.variants ? Number(e.variant) || item.variants[0][1] : item.rate;
-    sub.textContent = windowPool || item.ladder ? item.from : `1/${vRate} from ${item.from}`;
+    // when the toggle IS the source (thermy vs smoke devils), the from
+    // text follows it
+    const vLabel = item.variantIsSource ? item.variants.find((v) => v[1] === vRate)?.[0] : null;
+    sub.textContent = windowPool || item.ladder ? item.from : `1/${vRate} from ${vLabel ?? item.from}`;
     kcLabel.textContent = item.multi
       ? `${unit} so far`
       : item.ladder

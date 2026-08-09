@@ -60,7 +60,7 @@ export const ITEMS = [
   { id: 'dhwand', stage: 'varlamore era', name: 'Dragon hunter wand', rate: 105, from: 'the hueycoatl', icon: 'Dragon_hunter_wand.png', note: 'full contribution rate', group: true, wom: 'the_hueycoatl', clogIds: [30070], weight: 0.5 },
 
   // ---- the big unlocks ----
-  { id: 'dpick', stage: 'the big unlocks', name: 'Dragon pickaxe', rate: 358, from: 'wilderness bosses', icon: 'Dragon_pickaxe.png', variants: [['wildy singles', 358], ['chaos elemental', 256], ['kalphite queen', 400]], clogIds: [11920], weight: 0.5 },
+  { id: 'dpick', stage: 'the big unlocks', name: 'Dragon pickaxe', rate: 358, from: 'wilderness bosses', icon: 'Dragon_pickaxe.png', variants: [['wildy singles', 358], ['chaos elemental', 256], ['kalphite queen', 400]], variantIsSource: true, clogIds: [11920], weight: 0.5 },
   { id: 'dwh', stage: 'the big unlocks', name: 'Dragon warhammer', rate: 3000, from: 'lizardman shamans', icon: 'Dragon_warhammer.png', variants: [['1/3000', 3000], ['old rate 1/5000', 5000]], clogIds: [13576], weight: 2 },
   { id: 'zenyte', stage: 'the big unlocks', name: 'Zenyte shards', rate: 300, from: 'demonic gorillas', icon: 'Zenyte_shard.png', multi: 4, clogIds: [19529], weight: 1.5 },
   { id: 'jaw', stage: 'the big unlocks', name: 'Basilisk jaw', rate: 1000, from: 'basilisk knights', icon: 'Basilisk_jaw.png', variants: [['on task', 1000], ['off task', 5000]], clogIds: [24268], weight: 1 },
@@ -75,11 +75,11 @@ export const ITEMS = [
 
   // ---- slayer era ----
   { id: 'tanz', stage: 'slayer era', name: 'Tanzanite fang', rate: 512, from: 'zulrah', icon: 'Tanzanite_fang.png', note: 'two rolls of 1/1024 per kill', wom: 'zulrah', clogIds: [12922], weight: 1.5 },
-  { id: 'trident', stage: 'slayer era', name: 'Trident of the seas', rate: 200, from: 'krakens', icon: 'Trident_of_the_seas.png', variants: [['cave krakens', 200], ['kraken boss', 512]], clogIds: [11905, 11907], weight: 1 },
+  { id: 'trident', stage: 'slayer era', name: 'Trident of the seas', rate: 200, from: 'krakens', icon: 'Trident_of_the_seas.png', variants: [['cave krakens', 200], ['kraken boss', 512]], variantIsSource: true, clogIds: [11905, 11907], weight: 1 },
   { id: 'tent', stage: 'slayer era', name: 'Kraken tentacle', rate: 400, from: 'kraken', icon: 'Kraken_tentacle.png', wom: 'kraken', clogIds: [12004], weight: 0.5 },
-  { id: 'whip', stage: 'slayer era', name: 'Abyssal whip', rate: 512, from: 'abyssal demons', icon: 'Abyssal_whip.png', variants: [['abyssal demons', 512], ['abyssal sire', 1067]], clogIds: [4151], weight: 1 },
+  { id: 'whip', stage: 'slayer era', name: 'Abyssal whip', rate: 512, from: 'abyssal demons', icon: 'Abyssal_whip.png', variants: [['abyssal demons', 512], ['abyssal sire', 1067]], variantIsSource: true, clogIds: [4151], weight: 1 },
   { id: 'unsired', stage: 'slayer era', name: 'Unsired', rate: 100, from: 'abyssal sire', icon: 'Unsired.png', wom: 'abyssal_sire', clogIds: [13273], weight: 0.5 },
-  { id: 'occult', stage: 'slayer era', name: 'Occult necklace', rate: 350, from: 'smoke devils', icon: 'Occult_necklace.png', variants: [['thermy', 350], ['smoke devils', 512]], wom: 'thermonuclear_smoke_devil', clogIds: [12002], weight: 1 },
+  { id: 'occult', stage: 'slayer era', name: 'Occult necklace', rate: 350, from: 'thermy', icon: 'Occult_necklace.png', variants: [['thermy', 350], ['smoke devils', 512]], variantIsSource: true, wom: 'thermonuclear_smoke_devil', clogIds: [12002], weight: 1 },
   { id: 'icon', stage: 'slayer era', name: 'Ancient icon', rate: 50, from: 'phantom muspah', icon: 'Ancient_icon.png', wom: 'phantom_muspah', clogIds: [27627], weight: 0.5 },
   { id: 'venator', stage: 'slayer era', name: 'Venator shards', rate: 100, from: 'phantom muspah', icon: 'Venator_shard.png', note: 'the bow needs 5', multi: 5, wom: 'phantom_muspah', clogIds: [], weight: 1 },
 
